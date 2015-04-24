@@ -21,6 +21,7 @@ public class Main {
 		janelaPrincipal.setSize(800, 600);
 		janelaPrincipal.setLocationRelativeTo(null);
 		janelaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		janelaPrincipal.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		janelaPrincipal.setVisible(true);
 	}
 
