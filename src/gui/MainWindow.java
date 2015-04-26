@@ -6,29 +6,30 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -72,6 +73,10 @@ public class MainWindow extends JFrame {
 	private JCheckBoxMenuItem verNumeroLinhas;
 	// Menu Configurações
 	private JMenu menuConfiguracoes;
+	private JMenu menuTemas;
+	private JRadioButtonMenuItem[] temas;
+	private ButtonGroup temasButtonGroup;
+	private UIManager.LookAndFeelInfo[] looksIntalados;
 	// Menu Ajuda
 	private JMenu menuAjuda;
 	private JMenuItem sumario;
@@ -109,20 +114,16 @@ public class MainWindow extends JFrame {
 	/**********************************************
 	 * Painel principal
 	 *********************************************/
-	private JSplitPane splitPane1; // divide o painel principal horizontalmente
-	// sidebar
-	private JTabbedPane painelSidebar;
-	private JPanel containerSidebar;
-	// painel edição
-	private JPanel painelEdicao; // engloba área de edição e console
-	private JSplitPane splitPane2; // divide a area de edição verticalmente
-	private JTabbedPane painelCodigo;
-	private JPanel containerCodigo;
-	private JTabbedPane painelConsole;
-	private JPanel containerConsole;
-	private JPanel containerErros;
-	private JTextArea textAreaConsole;
+	private JSplitPane splitPaneVertical; // separa o painel principal nos painéis central e lateral
+	private JPanel painelLateral; // painel que contem a sidebar
+	private JPanel painelCentral; // painel que contem o painel de edição e código e o console/debbuger
+	private JPanel painelCodigo; // painel que contem toda a area de código
+	private JPanel painelInfo; // contem a area de informações de build e console
+	private JSplitPane splitPaneHorizontal; // separa o painel central nos painéis código e info
 	
+	/**********************************************
+	 * Painel lateral
+	 *********************************************/
 	
 	
 	/**
@@ -131,7 +132,7 @@ public class MainWindow extends JFrame {
 	public MainWindow() {
 		super("pEdit");
 
-		configuraAparencia();
+		//configuraAparencia(); // pode ser util para definir opçoes do usuário
 
 		configuraMenuBar();
 		setJMenuBar(menuBar);
@@ -251,7 +252,22 @@ public class MainWindow extends JFrame {
 	}
 	
 	private void configuraMenuConfiguracoes() {
+		menuTemas = new JMenu("Temas");
 		
+		looksIntalados = UIManager.getInstalledLookAndFeels();
+		temas = new JRadioButtonMenuItem[looksIntalados.length];
+		temasButtonGroup = new ButtonGroup();
+		TemaHandler temaHandler = new TemaHandler();
+		
+		
+		for (int i = 0; i < looksIntalados.length; i++) {
+			temas[i] = new JRadioButtonMenuItem(looksIntalados[i].getName());
+			temasButtonGroup.add(temas[i]);
+			menuTemas.add(temas[i]);
+			temas[i].addActionListener(temaHandler);
+		}
+		
+		menuConfiguracoes.add(menuTemas);
 	}
 	
 	private void configuraMenuAjuda() {
@@ -364,7 +380,7 @@ public class MainWindow extends JFrame {
 	 **********************************************************************************************/
 	// as bordas laterais devem ser inseridas no container
 	private void configuraContainer() {
-		BorderLayout layout = new BorderLayout(5, 5);
+		BorderLayout layout = new BorderLayout(0, 5);
 		container = new JPanel(layout);
 		
 		configuraPainelPrincipal();
@@ -374,73 +390,67 @@ public class MainWindow extends JFrame {
 		container.add(painelBarraStatus, BorderLayout.SOUTH);
 	}
 	
-	
-	/***********************************************************************************************
-	 * Configurações do painel principal - engloba sidebar, área de edição, console
-	 **********************************************************************************************/
-	
+	// Engloba sidebar, area de edição e console
 	private void configuraPainelPrincipal() {
 		painelPrincipal = new JPanel(new BorderLayout());
-		painelPrincipal.setBackground(Color.BLACK);
 		
+		configuraPainelLateral();
+		configuraPainelCentral();
 		
-		configuraPainelSidebar();
-		configuraPainelEdicao();
+		splitPaneVertical = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, painelLateral, painelCentral);
+		splitPaneVertical.setResizeWeight(0.15);
+		splitPaneVertical.setOneTouchExpandable(true);
 		
-		
-		splitPane1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, painelSidebar, painelEdicao);
-		splitPane1.setOneTouchExpandable(true);
-		splitPane1.setDividerLocation(200);
-		painelPrincipal.add(splitPane1);
+		painelPrincipal.add(splitPaneVertical);
 	}
 	
-	
-	/***********************************************************************************************
-	 * Configurações da sidebar
-	 **********************************************************************************************/
-	
-	private void configuraPainelSidebar() {
-		painelSidebar = new JTabbedPane();
-		containerSidebar = new JPanel(new BorderLayout());
-		
-		// inserir o conteudo da sidebar aki
-		
-		painelSidebar.addTab("Explorer", containerSidebar);
+	private void configuraPainelLateral() {
+		painelLateral = new JPanel(new BorderLayout());
 	}
 	
-	
-	/***********************************************************************************************
-	 * Configurações do painel edição - engloba área de edição e console
-	 **********************************************************************************************/
-	private void configuraPainelEdicao() {
-		painelEdicao = new JPanel(new BorderLayout());
+	private void configuraPainelCentral() {
+		painelCentral = new JPanel(new BorderLayout());
 		
 		configuraPainelCodigo();
-		configuraPainelConsole();
+		configuraPainelInfo();
 		
-		splitPane2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, painelCodigo, painelConsole);
-		splitPane2.setOneTouchExpandable(true);
-		splitPane2.setDividerLocation(0.8);
-		painelEdicao.add(splitPane2);
+		splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, painelCodigo, painelInfo);
+		splitPaneHorizontal.setResizeWeight(0.8);
+		splitPaneHorizontal.setOneTouchExpandable(true);
+		
+		painelCentral.add(splitPaneHorizontal);
 	}
 	
 	private void configuraPainelCodigo() {
-		painelCodigo = new JTabbedPane();
-		//containerCodigo = new JPanel(new BorderLayout());
+		painelCodigo = new JPanel(new BorderLayout());
 	}
 	
-	private void configuraPainelConsole() {
-		painelConsole = new JTabbedPane();
-		containerConsole = new JPanel(new BorderLayout());
-		textAreaConsole = new JTextArea();
-		textAreaConsole.setEditable(false);
-		containerConsole.add(new JScrollPane(textAreaConsole));
-		
-		containerErros = new JPanel(new BorderLayout());
-		
-		painelConsole.addTab("Erros", containerErros);
-		painelConsole.addTab("Console", containerConsole);
+	private void configuraPainelInfo() {
+		painelInfo = new JPanel(new BorderLayout());
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -457,45 +467,28 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Configurações da aparência plugável
+	 * Manipula alteração do tema
 	 **********************************************************************************************/
 	
-	private void configuraAparencia() {
-		String sistema = System.getProperty("os.name");
-		UIManager.LookAndFeelInfo[] looks = UIManager
-				.getInstalledLookAndFeels();
-		List<String> lookNames = new ArrayList<String>();
-		for (UIManager.LookAndFeelInfo look : looks) {
-			lookNames.add(look.getName());
-		}
-		for (String name : lookNames) {
-			System.out.println(name);
-		}
+	private class TemaHandler implements ActionListener {
 
-		/*try {
-			UIManager.setLookAndFeel(looks[lookNames.indexOf("Nimbus")].getClassName());
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for (int i = 0; i < temas.length; i++) {
+				if (temas[i].isSelected()) {
+					try {
+						UIManager.setLookAndFeel(looksIntalados[i].getClassName());
+						SwingUtilities.updateComponentTreeUI(MainWindow.this);
+					} catch (ClassNotFoundException | InstantiationException
+							| IllegalAccessException
+							| UnsupportedLookAndFeelException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
 		
-		/*
-		 * int lkPos = 0; if (sistema.equals("Linux")) { lkPos =
-		 * lookNames.indexOf("GTK+"); } else if (sistema.contains("Windows")) {
-		 * lkPos = } else if (sistema.equals("MacOS")) {
-		 * 
-		 * } else { lkPos = lookNames.indexOf("Nimbus"); }
-		 * 
-		 * // temporariamente seta nimbus como padrao try {
-		 * //UIManager.setLookAndFeel(looks[lkPos].getClassName());
-		 * UIManager.setLookAndFeel
-		 * (looks[lookNames.indexOf("Nimbus")].getClassName()); } catch
-		 * (ClassNotFoundException | InstantiationException |
-		 * IllegalAccessException | UnsupportedLookAndFeelException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 */
-
 	}
 
 }
