@@ -45,6 +45,7 @@ public class MenuBarBuilder {
 	private JMenu menuConfiguracoes;
 	// Menu Ajuda
 	private JMenu menuAjuda;
+	private JMenuItem sumario;
 	private JMenuItem sobre;
 	
 	public JMenuBar getMenuBar() {
@@ -76,29 +77,21 @@ public class MenuBarBuilder {
 	private void configuraMenuArquivo() {
 		novo = new JMenuItem("Novo");
 		novo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		
 		abrir = new JMenuItem("Abrir");
 		abrir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		
 		salvar = new JMenuItem("Salvar");
 		salvar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		
 		salvarComo = new JMenuItem("Salvar como...");
 		salvarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		
 		imprimir = new JMenuItem("Imprimir");
 		imprimir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
 		
 		sair = new JMenuItem("Sair");
 		sair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
-		sair.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String mensagem = "Sair do pEdit?";
-				int op = JOptionPane.showConfirmDialog(null, mensagem, "Confirmar Saída", JOptionPane.YES_NO_CANCEL_OPTION);
-				if (op == JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
-			}
-		});
 		
 		menuArquivo.add(novo);
 		menuArquivo.add(abrir);
@@ -114,18 +107,25 @@ public class MenuBarBuilder {
 	private void configuraMenuEditar() {
 		desfazer = new JMenuItem("Desfazer");
 		desfazer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
+		
 		refazer = new JMenuItem("Refazer");
 		refazer.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		
 		recortar = new JMenuItem("Recortar");
 		recortar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+		
 		copiar = new JMenuItem("Copiar");
 		copiar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
+		
 		colar = new JMenuItem("Colar");
 		colar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_MASK));
+		
 		selecionarTudo = new JMenuItem("Selecionar tudo");
 		selecionarTudo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
+		
 		comentarioLinha = new JMenuItem("Inserir comentário de linha");
 		comentarioLinha.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		
 		comentarioBloco = new JMenuItem("Inserir comentário de bloco");
 		comentarioBloco.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		
@@ -144,7 +144,9 @@ public class MenuBarBuilder {
 	
 	private void configuraMenuVer() {
 		verPainelLateral = new JCheckBoxMenuItem("Painel lateral");
+		
 		verConsole = new JCheckBoxMenuItem("Console");
+		
 		verNumeroLinhas = new JCheckBoxMenuItem("Número das linhas");
 		
 		menuVer.add(verPainelLateral);
@@ -157,8 +159,12 @@ public class MenuBarBuilder {
 	}
 	
 	private void configuraMenuAjuda() {
+		sumario = new JMenuItem("Sumário");
+		sumario.setAccelerator(KeyStroke.getKeyStroke("F1"));
+		
 		sobre = new JMenuItem("Sobre");
 		
+		menuAjuda.add(sumario);
 		menuAjuda.add(sobre);
 	}
 }
