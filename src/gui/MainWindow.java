@@ -9,6 +9,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,10 +26,13 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -118,7 +123,7 @@ public class MainWindow extends JFrame {
 	private JSplitPane splitPaneVertical; // separa o painel principal nos painéis central e lateral
 	private JPanel painelLateral; // painel que contem a sidebar
 	private JPanel painelCentral; // painel que contem o painel de edição e código e o console/debbuger
-	private JPanel painelCodigo; // painel que contem toda a area de código
+	private JTabbedPane tabbebPaneCodigo; // painel que contem toda a area de código
 	private JPanel painelInfo; // contem a area de informações de build e console
 	private JSplitPane splitPaneHorizontal; // separa o painel central nos painéis código e info
 	
@@ -127,6 +132,11 @@ public class MainWindow extends JFrame {
 	 *********************************************/
 	private JTabbedPane painelSidebar; // o container de abas da sidebar
 	private JPanel painelNavegar;
+	
+	/**********************************************
+	 * Painel 
+	 *********************************************/
+	
 	
 	
 	/**********************************************
@@ -251,10 +261,37 @@ public class MainWindow extends JFrame {
 	
 	private void configuraMenuVer() {
 		verPainelLateral = new JCheckBoxMenuItem("Painel lateral");
+		verPainelLateral.setSelected(true);
+		verPainelLateral.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (verPainelLateral.isSelected()) {
+					painelLateral.setVisible(true);
+				} else {
+					painelLateral.setVisible(false);
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
+				}
+			}
+		});
 		
 		verConsole = new JCheckBoxMenuItem("Console");
+		verConsole.setSelected(true);
+		verConsole.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (verConsole.isSelected()) {
+					painelInfo.setVisible(true);
+				} else {
+					painelInfo.setVisible(false);
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
+				}
+			}
+		});
 		
 		verNumeroLinhas = new JCheckBoxMenuItem("Número das linhas");
+		verNumeroLinhas.setSelected(true);
 		
 		menuVer.add(verPainelLateral);
 		menuVer.add(verConsole);
@@ -268,7 +305,6 @@ public class MainWindow extends JFrame {
 		temas = new JRadioButtonMenuItem[looksIntalados.length];
 		temasButtonGroup = new ButtonGroup();
 		TemaHandler temaHandler = new TemaHandler();
-		
 		
 		for (int i = 0; i < looksIntalados.length; i++) {
 			temas[i] = new JRadioButtonMenuItem(looksIntalados[i].getName());
@@ -408,12 +444,13 @@ public class MainWindow extends JFrame {
 		configuraPainelCentral();
 		
 		splitPaneVertical = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, painelLateral, painelCentral);
-		splitPaneVertical.setResizeWeight(0.15);
+		splitPaneVertical.setResizeWeight(0.13);
 		splitPaneVertical.setOneTouchExpandable(true);
 		
 		painelPrincipal.add(splitPaneVertical);
 	}
 	
+	// contem todo o painel lateral
 	private void configuraPainelLateral() {
 		painelLateral = new JPanel(new BorderLayout());
 		painelSidebar = new JTabbedPane();
@@ -431,18 +468,19 @@ public class MainWindow extends JFrame {
 	private void configuraPainelCentral() {
 		painelCentral = new JPanel(new BorderLayout());
 		
-		configuraPainelCodigo();
+		configuraTabbedPaneCodigo();
 		configuraPainelInfo();
 		
-		splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, painelCodigo, painelInfo);
+		splitPaneHorizontal = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabbebPaneCodigo, painelInfo);
 		splitPaneHorizontal.setResizeWeight(0.8);
 		splitPaneHorizontal.setOneTouchExpandable(true);
 		
 		painelCentral.add(splitPaneHorizontal);
 	}
 	
-	private void configuraPainelCodigo() {
-		painelCodigo = new JPanel(new BorderLayout());
+	private void configuraTabbedPaneCodigo() {
+		tabbebPaneCodigo = new JTabbedPane();
+		tabbebPaneCodigo.addTab("NomeArquivo.por", new JScrollPane(new JTextArea()));
 	}
 	
 	
