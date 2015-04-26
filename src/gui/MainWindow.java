@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -124,7 +125,16 @@ public class MainWindow extends JFrame {
 	/**********************************************
 	 * Painel lateral
 	 *********************************************/
+	private JTabbedPane painelSidebar; // o container de abas da sidebar
+	private JPanel painelNavegar;
 	
+	
+	/**********************************************
+	 * Painel info
+	 *********************************************/
+	private JTabbedPane painelBuild; // container de abas da painel info
+	private JPanel painelConsole;
+	private JPanel painelBuildInfo;
 	
 	/**
 	 * CONSTRUTOR
@@ -406,6 +416,16 @@ public class MainWindow extends JFrame {
 	
 	private void configuraPainelLateral() {
 		painelLateral = new JPanel(new BorderLayout());
+		painelSidebar = new JTabbedPane();
+		configuraPainelNavegar();
+		
+		painelSidebar.addTab("Navegar", painelNavegar);
+		
+		painelLateral.add(painelSidebar);
+	}
+	
+	private void configuraPainelNavegar() {
+		painelNavegar = new JPanel(new BorderLayout());
 	}
 	
 	private void configuraPainelCentral() {
@@ -425,11 +445,35 @@ public class MainWindow extends JFrame {
 		painelCodigo = new JPanel(new BorderLayout());
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private void configuraPainelInfo() {
 		painelInfo = new JPanel(new BorderLayout());
+		painelBuild = new JTabbedPane();
+		
+		configuraPainelBuildInfo();
+		configuraPainelConsole();
+		
+		painelBuild.addTab("Build", painelBuildInfo);
+		painelBuild.addTab("Console", painelConsole);
+		
+		painelInfo.add(painelBuild);
 	}
 	
+	private void configuraPainelBuildInfo() {
+		painelBuildInfo = new JPanel(new BorderLayout());
+	}
 	
+	private void configuraPainelConsole() {
+		painelConsole = new JPanel(new BorderLayout());
+	}
 	
 	
 	
