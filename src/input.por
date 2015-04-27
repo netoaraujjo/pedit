@@ -1,6 +1,7 @@
 programa exemplo;
 
 	inteiro: numero;
+	constante inteiro luis = 10;
 
 	inteiro fatorial (inteiro fat){
 		se (fat > 1){
@@ -8,7 +9,7 @@ programa exemplo;
 		} senao {
 			retorno (1);
 		}
-		retorno (1);
+		retorno (2);
 	}
 
 	/* lsjkdfhgsdjklfg */
@@ -29,5 +30,5 @@ programa exemplo;
 			i = i +1;
 		}
 		x = resultado(fatorial(numero));
-		retorno (1);
+		retorno (3);
 	}
