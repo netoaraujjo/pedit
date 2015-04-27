@@ -3,7 +3,6 @@ programa exemplo;
 	inteiro: numero;
 
 	inteiro fatorial (inteiro fat){
-		inteiro: num;
 		se (fat > 1){
 			retorno (fat * fatorial(fat - 1));
 		} senao {
@@ -22,7 +21,6 @@ programa exemplo;
 	}
 
 	inteiro principal(){
-		real: i;
 		x = -1;
 		//escrever ("Fatorial de N. Digite o número:");
 		ler (numero);
@@ -30,6 +28,6 @@ programa exemplo;
 			escrever(i);
 			i = i +1;
 		}
-		resultado (fatorial(numero));
+		x = resultado(fatorial(numero));
 		retorno (1);
 	}
