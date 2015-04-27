@@ -134,7 +134,7 @@ public class MainWindow extends JFrame {
 	private JPanel painelNavegar;
 	
 	/**********************************************
-	 * Painel 
+	 * Painel edicao
 	 *********************************************/
 	
 	
