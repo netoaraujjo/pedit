@@ -10,13 +10,15 @@ import java.util.Formatter;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import exceptions.ArquivoJaExistenteException;
+
 /**
  * @author Francisco Neto, Luis Guilherme
  *
  */
 public class FileController {
 	
-	public File criaNovoArquivo() {
+	public File criaNovoArquivo() throws ArquivoJaExistenteException {
 		JFileChooser fileChooser = new JFileChooser();
 		int result = fileChooser.showSaveDialog(null);
 		if (result != JFileChooser.CANCEL_OPTION) {
@@ -28,6 +30,7 @@ public class FileController {
 				file = new File(arquivo);
 			}
 			if (file.exists()) {
+				throw new ArquivoJaExistenteException();
 				String msg = "O arquivo já existe. Deseja substitui-lo?";
 				String titulo = "Arquivo ja existente";
 				int op = JOptionPane.showConfirmDialog(null, msg, titulo, JOptionPane.YES_NO_OPTION);

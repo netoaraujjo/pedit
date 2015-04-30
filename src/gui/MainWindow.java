@@ -12,7 +12,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,13 +20,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
@@ -39,7 +36,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import controller.FileController;
-import exceptions.ArquivoJaExistenteException;
 
 /**
  * @author Francisco Neto, Luís Guilherme
@@ -216,18 +212,13 @@ public class MainWindow extends JFrame {
 		
 		salvarComo = new JMenuItem("Salvar como...");
 		salvarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		salvarComo.addActionListener(new NovoArquivoHandler());
 		
 		imprimir = new JMenuItem("Imprimir");
 		imprimir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
 		
 		sair = new JMenuItem("Sair");
 		sair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
-		
-		if (!isOpenedFile) {
-			salvar.setEnabled(false);
-			salvarComo.setEnabled(false);
-			imprimir.setEnabled(false);
-		}
 		
 		menuArquivo.add(novo);
 		menuArquivo.add(abrir);
@@ -264,17 +255,6 @@ public class MainWindow extends JFrame {
 		
 		comentarioBloco = new JMenuItem("Inserir comentário de bloco");
 		comentarioBloco.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
-		
-		if (!isOpenedFile) {
-			desfazer.setEnabled(false);
-			refazer.setEnabled(false);
-			recortar.setEnabled(false);
-			copiar.setEnabled(false);
-			colar.setEnabled(false);
-			selecionarTudo.setEnabled(false);
-			comentarioLinha.setEnabled(false);
-			comentarioBloco.setEnabled(false);
-		}
 		
 		menuEditar.add(desfazer);
 		menuEditar.add(refazer);
@@ -461,6 +441,35 @@ public class MainWindow extends JFrame {
 
 	
 	/***********************************************************************************************
+	 * Habilita ferramentas de edicao
+	 **********************************************************************************************/
+	private void habilitaFerramentasEdicao(boolean status) {
+		salvar.setEnabled(status);
+		salvarComo.setEnabled(status);
+		imprimir.setEnabled(status);
+		
+		desfazer.setEnabled(status);
+		refazer.setEnabled(status);
+		recortar.setEnabled(status);
+		copiar.setEnabled(status);
+		colar.setEnabled(status);
+		selecionarTudo.setEnabled(status);
+		comentarioLinha.setEnabled(status);
+		comentarioBloco.setEnabled(status);
+		
+		botaoSalvar.setEnabled(status);
+		botaoImprimir.setEnabled(status);
+		botaoDesfazer.setEnabled(status);
+		botaoRefazer.setEnabled(status);
+		botaoRecortar.setEnabled(status);
+		botaoCopiar.setEnabled(status);
+		botaoColar.setEnabled(status);
+		botaoExecutar.setEnabled(status);
+		botaoParar.setEnabled(status);
+	}
+	
+	
+	/***********************************************************************************************
 	 * Configurações do container - engloba sidebar, área de edição, console e barra de status
 	 **********************************************************************************************/
 	// as bordas laterais devem ser inseridas no container
@@ -523,6 +532,8 @@ public class MainWindow extends JFrame {
 		// onde são adicionadas as abas
 		
 		//tabbebPaneCodigo.addTab("NomeArquivo.por", new PainelCodigo());
+		
+		habilitaFerramentasEdicao(tabbebPaneCodigo.getTabCount() > 0);
 		
 	}
 	
@@ -631,6 +642,8 @@ public class MainWindow extends JFrame {
 				abas.add(painelCodigo);
 				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
+				
+				habilitaFerramentasEdicao(true);
 			}
 		}
 		
