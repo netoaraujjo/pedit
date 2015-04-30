@@ -12,6 +12,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -25,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
@@ -34,6 +37,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import controller.FileController;
+import exceptions.ArquivoJaExistenteException;
 
 /**
  * @author Francisco Neto, Luís Guilherme
@@ -147,6 +153,7 @@ public class MainWindow extends JFrame {
 	
 	private boolean isOpenedFile;
 	private List<PainelCodigo> abas;
+	private FileController fileControler;
 	
 	
 	/**
@@ -154,6 +161,8 @@ public class MainWindow extends JFrame {
 	 */
 	public MainWindow() {
 		super("pEdit");
+		fileControler = new FileController();
+		abas = new ArrayList<PainelCodigo>();
 
 		//configuraAparencia(); // pode ser util para definir opçoes do usuário
 
@@ -513,7 +522,7 @@ public class MainWindow extends JFrame {
 		
 		// onde são adicionadas as abas
 		
-		tabbebPaneCodigo.addTab("NomeArquivo.por", new PainelCodigo());
+		//tabbebPaneCodigo.addTab("NomeArquivo.por", new PainelCodigo());
 		
 	}
 	
@@ -608,20 +617,20 @@ public class MainWindow extends JFrame {
 	}
 	
 	
+	/***********************************************************************************************
+	 * Manipula criacao de arquivos
+	 **********************************************************************************************/
+	
 	private class NovoArquivoHandler implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JFileChooser fileChooser = new JFileChooser();
-			int result = fileChooser.showSaveDialog(null);
-			if (result != JFileChooser.CANCEL_OPTION) {
-				File file = fileChooser.getSelectedFile();
-				// se o usuario nao inserir a extensao a ide insere
-				String arquivo = file.getName();
-				if (!arquivo.endsWith(".por")) {
-					arquivo += ".por";
-				}
-				//salvaArquivo();
+			File arq = fileControler.criaNovoArquivo();
+			if (arq != null) {
+				PainelCodigo painelCodigo = new PainelCodigo(arq);
+				abas.add(painelCodigo);
+				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
+				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
 			}
 		}
 		

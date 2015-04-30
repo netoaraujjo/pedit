@@ -1,15 +1,15 @@
 programa exemplo;
 
 	inteiro: numero;
+	constante inteiro luis = 10;
 
 	inteiro fatorial (inteiro fat){
-		inteiro: num;
 		se (fat > 1){
 			retorno (fat * fatorial(fat - 1));
 		} senao {
 			retorno (1);
 		}
-		retorno (1);
+		retorno (2);
 	}
 
 	/* lsjkdfhgsdjklfg */
@@ -22,7 +22,6 @@ programa exemplo;
 	}
 
 	inteiro principal(){
-		real: i;
 		x = -1;
 		//escrever ("Fatorial de N. Digite o número:");
 		ler (numero);
@@ -30,6 +29,6 @@ programa exemplo;
 			escrever(i);
 			i = i +1;
 		}
-		resultado (fatorial(numero));
-		retorno (1);
+		x = resultado(fatorial(numero));
+		retorno (3);
 	}

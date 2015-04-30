@@ -21,10 +21,15 @@ public class PainelCodigo extends JPanel {
 	private File arquivo;
 	private JTextArea txtCodigo;
 	
-	public PainelCodigo() {
+	public PainelCodigo(File arq) {
+		arquivo = arq;
 		setLayout(new BorderLayout());
 		txtCodigo = new JTextArea();
 		add(new JScrollPane(txtCodigo));
+	}
+	
+	public File getArquivo() {
+		return arquivo;
 	}
 
 }
