@@ -4,7 +4,6 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +12,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -21,18 +19,16 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -146,6 +142,13 @@ public class MainWindow extends JFrame {
 	private JPanel painelConsole;
 	private JPanel painelBuildInfo;
 	
+	/* Fim dos elementos de interface
+	 ************************************************************************************************/
+	
+	private boolean isOpenedFile;
+	private List<PainelCodigo> abas;
+	
+	
 	/**
 	 * CONSTRUTOR
 	 */
@@ -175,7 +178,7 @@ public class MainWindow extends JFrame {
 		menuArquivo = new JMenu("Arquivo");
 		menuEditar = new JMenu("Editar");
 		menuVer = new JMenu("Ver");
-		menuConfiguracoes = new JMenu("Configurações");
+		menuConfiguracoes = new JMenu("Configuracoes");
 		menuAjuda = new JMenu("Ajuda");
 		
 		configuraMenuArquivo();
@@ -194,6 +197,7 @@ public class MainWindow extends JFrame {
 	private void configuraMenuArquivo() {
 		novo = new JMenuItem("Novo");
 		novo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
+		novo.addActionListener(new NovoArquivoHandler());
 		
 		abrir = new JMenuItem("Abrir");
 		abrir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
@@ -209,6 +213,12 @@ public class MainWindow extends JFrame {
 		
 		sair = new JMenuItem("Sair");
 		sair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
+		
+		if (!isOpenedFile) {
+			salvar.setEnabled(false);
+			salvarComo.setEnabled(false);
+			imprimir.setEnabled(false);
+		}
 		
 		menuArquivo.add(novo);
 		menuArquivo.add(abrir);
@@ -245,6 +255,17 @@ public class MainWindow extends JFrame {
 		
 		comentarioBloco = new JMenuItem("Inserir comentário de bloco");
 		comentarioBloco.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		
+		if (!isOpenedFile) {
+			desfazer.setEnabled(false);
+			refazer.setEnabled(false);
+			recortar.setEnabled(false);
+			copiar.setEnabled(false);
+			colar.setEnabled(false);
+			selecionarTudo.setEnabled(false);
+			comentarioLinha.setEnabled(false);
+			comentarioBloco.setEnabled(false);
+		}
 		
 		menuEditar.add(desfazer);
 		menuEditar.add(refazer);
@@ -317,10 +338,18 @@ public class MainWindow extends JFrame {
 	}
 	
 	private void configuraMenuAjuda() {
-		sumario = new JMenuItem("Sumário");
+		sumario = new JMenuItem("Sumario");
 		sumario.setAccelerator(KeyStroke.getKeyStroke("F1"));
 		
 		sobre = new JMenuItem("Sobre");
+		sobre.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				new DialogSobre();
+			}
+		});
 		
 		menuAjuda.add(sumario);
 		menuAjuda.add(sobre);
@@ -352,6 +381,7 @@ public class MainWindow extends JFrame {
 		Icon iconeNovo = new ImageIcon(getClass().getResource(iconDir + "new_page.png"));
 		botaoNovo = new JButton(iconeNovo);
 		botaoNovo.setToolTipText("Criar novo arquivo (Ctrl+N)");
+		botaoNovo.addActionListener(new NovoArquivoHandler());
 		//botaoNovo.setBorderPainted(false);
 		
 		Icon iconeAbrir = new ImageIcon(getClass().getResource(iconDir + "folder.png"));
@@ -480,7 +510,11 @@ public class MainWindow extends JFrame {
 	
 	private void configuraTabbedPaneCodigo() {
 		tabbebPaneCodigo = new JTabbedPane();
-		tabbebPaneCodigo.addTab("NomeArquivo.por", new JScrollPane(new JTextArea()));
+		
+		// onde são adicionadas as abas
+		
+		tabbebPaneCodigo.addTab("NomeArquivo.por", new PainelCodigo());
+		
 	}
 	
 	
@@ -568,6 +602,26 @@ public class MainWindow extends JFrame {
 						e1.printStackTrace();
 					}
 				}
+			}
+		}
+		
+	}
+	
+	
+	private class NovoArquivoHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fileChooser = new JFileChooser();
+			int result = fileChooser.showSaveDialog(null);
+			if (result != JFileChooser.CANCEL_OPTION) {
+				File file = fileChooser.getSelectedFile();
+				// se o usuario nao inserir a extensao a ide insere
+				String arquivo = file.getName();
+				if (!arquivo.endsWith(".por")) {
+					arquivo += ".por";
+				}
+				//salvaArquivo();
 			}
 		}
 		
