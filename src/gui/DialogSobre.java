@@ -83,11 +83,11 @@ public class DialogSobre extends JDialog {
 		painelSup = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		
 		sobre = new ArrayList<JLabel>();
-		sobre.add(new JLabel("pEdit é uma IDE integrada a um compilador para"));
+		sobre.add(new JLabel("pEdit e uma IDE integrada a um compilador para"));
 		sobre.add(new JLabel("Portugol Simplificado, solicitados pelo professor"));
 		sobre.add(new JLabel("Raimundo Santos Moura Junior, como trabalho final"));
 		sobre.add(new JLabel("da disciplina Construcao de Compiladores, ministrada"));
-		sobre.add(new JLabel("no período 2015.1"));
+		sobre.add(new JLabel("no periodo 2015.1"));
 		
 		for (JLabel jLabel : sobre) {
 			painelSup.add(jLabel);

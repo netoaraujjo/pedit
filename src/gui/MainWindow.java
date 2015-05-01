@@ -16,7 +16,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import controller.FileController;
 
 /**
- * @author Francisco Neto, Luís Guilherme
+ * @author Francisco Neto, Luis Guilherme
  *
  */
 public class MainWindow extends JFrame {
@@ -146,18 +145,19 @@ public class MainWindow extends JFrame {
 	 *********************************************/
 	private JPopupMenu popupMenuAba;
 	private JMenuItem fecharAba;
+	private JMenuItem fecharTodasAbas;
+	private JMenuItem fecharOutrasAbas;
 	
 	
 	/**********************************************
 	 * Painel info
 	 *********************************************/
-	private JTabbedPane painelBuild; // container de abas da painel info
+	private JTabbedPane painelLog; // container de abas da painel info
 	private JPanel painelConsole;
-	private JPanel painelBuildInfo;
+	private JPanel painelLogInfo;
 	
 	/* Fim dos elementos de interface
 	 ************************************************************************************************/
-	
 	private boolean isOpenedFile;
 	private List<PainelCodigo> abas;
 	private FileController fileControler;
@@ -205,6 +205,14 @@ public class MainWindow extends JFrame {
 			if (lookNames.contains(config.get("tema"))) {
 				try {
 					UIManager.setLookAndFeel(looks[lookNames.indexOf(config.get("tema"))].getClassName());
+					
+					for (int i = 0; i < temas.length; i++) {
+						if (temas[i].getText().matches(config.get("tema"))) {
+							temas[i].setSelected(true);
+							break;
+						}
+					}
+					
 				} catch (ClassNotFoundException | InstantiationException
 						| IllegalAccessException
 						| UnsupportedLookAndFeelException e) {
@@ -213,6 +221,12 @@ public class MainWindow extends JFrame {
 			} else {
 				try {
 					UIManager.setLookAndFeel(looks[lookNames.indexOf("Metal")].getClassName());
+					for (int i = 0; i < temas.length; i++) {
+						if (temas[i].getText().matches("Metal")) {
+							temas[i].setSelected(true);
+							break;
+						}
+					}
 				} catch (ClassNotFoundException | InstantiationException
 						| IllegalAccessException
 						| UnsupportedLookAndFeelException e) {
@@ -313,23 +327,33 @@ public class MainWindow extends JFrame {
 			}
 		});
 		
-		comentarioLinha = new JMenuItem("Inserir comentário de linha");
+		comentarioLinha = new JMenuItem("Inserir comentario de linha");
 		comentarioLinha.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		comentarioLinha.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
-				txt.replaceSelection("// " +  txt.getSelectedText());
+				String txtSelecionado = txt.getSelectedText();
+				if (txtSelecionado != null) {
+					txt.replaceSelection("// " + txtSelecionado);
+				} else {
+					txt.replaceSelection("// ");
+				}
 			}
 		});
 		
-		comentarioBloco = new JMenuItem("Inserir comentário de bloco");
+		comentarioBloco = new JMenuItem("Inserir comentario de bloco");
 		comentarioBloco.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		comentarioBloco.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
-				txt.replaceSelection("/* " +  txt.getSelectedText() + "*/");
+				String txtSelecionado = txt.getSelectedText();
+				if (txtSelecionado != null) {
+					txt.replaceSelection("/* " + txtSelecionado + " */");
+				} else {
+					txt.replaceSelection("/* */");
+				}
 			}
 		});
 		
@@ -377,7 +401,7 @@ public class MainWindow extends JFrame {
 			}
 		});
 		
-		verNumeroLinhas = new JCheckBoxMenuItem("Número das linhas");
+		verNumeroLinhas = new JCheckBoxMenuItem("Numero das linhas");
 		verNumeroLinhas.setSelected(true);
 		
 		menuVer.add(verPainelLateral);
@@ -613,6 +637,7 @@ public class MainWindow extends JFrame {
 		fecharAba.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// verifica se o arquivo correspondente foi salvo
 				abas.remove(tabbebPaneCodigo.getSelectedIndex());
 				tabbebPaneCodigo.removeTabAt(tabbebPaneCodigo.getSelectedIndex());
 				if (tabbebPaneCodigo.getTabCount() == 0) {
@@ -621,7 +646,33 @@ public class MainWindow extends JFrame {
 			}
 		});
 		
+		
+		fecharTodasAbas = new JMenuItem("Fechar todas");
+		fecharTodasAbas.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// provavelmente vai ser necessario um for para ver quem nao foi salvo
+				abas.clear();
+				tabbebPaneCodigo.removeAll();
+				habilitaFerramentasEdicao(false);
+			}
+		});
+		
+		fecharOutrasAbas = new JMenuItem("Fechar outras");
+		fecharOutrasAbas.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PainelCodigo pc = abas.get(tabbebPaneCodigo.getSelectedIndex());
+				abas.clear();
+				tabbebPaneCodigo.removeAll();
+				abas.add(pc);
+				tabbebPaneCodigo.addTab(pc.getArquivo().getName(), pc);
+			}
+		});
+		
 		popupMenuAba.add(fecharAba);
+		popupMenuAba.add(fecharOutrasAbas);
+		popupMenuAba.add(fecharTodasAbas);
 		
 		tabbebPaneCodigo.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
@@ -655,19 +706,19 @@ public class MainWindow extends JFrame {
 	
 	private void configuraPainelInfo() {
 		painelInfo = new JPanel(new BorderLayout());
-		painelBuild = new JTabbedPane();
+		painelLog = new JTabbedPane();
 		
-		configuraPainelBuildInfo();
+		configuraPainelLogInfo();
 		configuraPainelConsole();
 		
-		painelBuild.addTab("Build", painelBuildInfo);
-		painelBuild.addTab("Console", painelConsole);
+		painelLog.addTab("Log", painelLogInfo);
+		painelLog.addTab("Console", painelConsole);
 		
-		painelInfo.add(painelBuild);
+		painelInfo.add(painelLog);
 	}
 	
-	private void configuraPainelBuildInfo() {
-		painelBuildInfo = new JPanel(new BorderLayout());
+	private void configuraPainelLogInfo() {
+		painelLogInfo = new JPanel(new BorderLayout());
 	}
 	
 	private void configuraPainelConsole() {
@@ -817,6 +868,10 @@ public class MainWindow extends JFrame {
 			txt.replaceSelection("");
 			// add na area de transferencia
 		}
-		
 	}
+	
+	/***********************************************************************************************
+	 * Manipula imprimir
+	 **********************************************************************************************/
+	
 }
