@@ -158,7 +158,6 @@ public class MainWindow extends JFrame {
 	
 	/* Fim dos elementos de interface
 	 ************************************************************************************************/
-	private boolean isOpenedFile;
 	private List<PainelCodigo> abas;
 	private FileController fileControler;
 	private Map<String, String> config;
@@ -817,13 +816,28 @@ public class MainWindow extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			File arq = fileControler.abrirArquivo();
 			if (arq != null) {
-				PainelCodigo painelCodigo = new PainelCodigo(arq, false);
-				abas.add(painelCodigo);
-				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
-				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
+				int openedFileIndex = getOpenedFileIndex(arq);
 				
-				habilitaFerramentasEdicao(true);
+				if (openedFileIndex == -1) {
+					PainelCodigo painelCodigo = new PainelCodigo(arq, false);
+					abas.add(painelCodigo);
+					tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
+					tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
+					
+					habilitaFerramentasEdicao(true);
+				} else {
+					tabbebPaneCodigo.setSelectedIndex(openedFileIndex);
+				}
 			}
+		}
+		
+		private int getOpenedFileIndex(File arq) {
+			for (int i = 0; i < abas.size(); i++) {
+				if (abas.get(i).getArquivo().getName().matches(arq.getName())) {
+					return i;
+				}
+			}
+			return -1;
 		}
 	}
 	
