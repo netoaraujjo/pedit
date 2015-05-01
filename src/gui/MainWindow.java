@@ -14,8 +14,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
@@ -157,6 +161,7 @@ public class MainWindow extends JFrame {
 	private boolean isOpenedFile;
 	private List<PainelCodigo> abas;
 	private FileController fileControler;
+	private Map<String, String> config;
 	
 	
 	/**
@@ -166,21 +171,58 @@ public class MainWindow extends JFrame {
 		super("pEdit");
 		fileControler = new FileController();
 		abas = new ArrayList<PainelCodigo>();
-
-		configuraAparencia(); // pode ser util para definir opçoes do usuário
+		config = new HashMap<String, String>();
 
 		configuraMenuBar();
 		setJMenuBar(menuBar);
 		configuraToolbar();
 		
 		configuraContainer();
+
+		configuraAparencia(); // pode ser util para definir opçoes do usuário
 		
 		add(painelToolbar, BorderLayout.NORTH);
 		add(container, BorderLayout.CENTER);
 	}
 	
 	private void configuraAparencia(){
-		Scanner scanner = new Scanner("../config.ini");
+		try {
+			Scanner scanner = new Scanner(new File("config.ini"));
+			while (scanner.hasNext()) {
+				String[] str = scanner.nextLine().split("=");
+				config.put(str[0], str[1]);
+			}
+			
+			verPainelLateral.setSelected(config.get("sidebar").matches("on"));
+			verConsole.setSelected(config.get("log").matches("on"));
+			verNumeroLinhas.setSelected(config.get("line").matches("on"));
+			
+			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
+			List<String> lookNames = new ArrayList<String>();
+			for (int i = 0; i < looks.length; i++) {
+				lookNames.add(looks[i].getName());
+			}
+			if (lookNames.contains(config.get("tema"))) {
+				try {
+					UIManager.setLookAndFeel(looks[lookNames.indexOf(config.get("tema"))].getClassName());
+				} catch (ClassNotFoundException | InstantiationException
+						| IllegalAccessException
+						| UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					UIManager.setLookAndFeel(looks[lookNames.indexOf("Metal")].getClassName());
+				} catch (ClassNotFoundException | InstantiationException
+						| IllegalAccessException
+						| UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+			}
+			scanner.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/***********************************************************************************************
