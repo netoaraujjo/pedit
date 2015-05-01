@@ -37,12 +37,18 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import controller.FileController;
 
@@ -320,7 +326,8 @@ public class MainWindow extends JFrame {
 		selecionarTudo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				txt.setSelectionStart(0);
 				txt.setSelectionEnd(txt.getText().length()-1);
 			}
@@ -331,7 +338,9 @@ public class MainWindow extends JFrame {
 		comentarioLinha.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				String txtSelecionado = txt.getSelectedText();
 				if (txtSelecionado != null) {
 					txt.replaceSelection("// " + txtSelecionado);
@@ -346,7 +355,9 @@ public class MainWindow extends JFrame {
 		comentarioBloco.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				String txtSelecionado = txt.getSelectedText();
 				if (txtSelecionado != null) {
 					txt.replaceSelection("/* " + txtSelecionado + " */");
@@ -817,13 +828,12 @@ public class MainWindow extends JFrame {
 			File arq = fileControler.abrirArquivo();
 			if (arq != null) {
 				int openedFileIndex = getOpenedFileIndex(arq);
-				
 				if (openedFileIndex == -1) {
 					PainelCodigo painelCodigo = new PainelCodigo(arq, false);
 					abas.add(painelCodigo);
+					autoCompleta(abas.get(abas.size() - 1));
 					tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 					tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
-					
 					habilitaFerramentasEdicao(true);
 				} else {
 					tabbebPaneCodigo.setSelectedIndex(openedFileIndex);
@@ -878,14 +888,49 @@ public class MainWindow extends JFrame {
 	private class RecortarHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+			//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+			RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 			txt.replaceSelection("");
 			// add na area de transferencia
 		}
 	}
 	
-	/***********************************************************************************************
-	 * Manipula imprimir
-	 **********************************************************************************************/
-	
+	private void autoCompleta(PainelCodigo aba) {
+		DefaultCompletionProvider provider = new DefaultCompletionProvider();
+
+		provider.addCompletion(new BasicCompletion(provider, "programa"));
+		provider.addCompletion(new BasicCompletion(provider, "final"));
+		provider.addCompletion(new BasicCompletion(provider, "inteiro"));
+		provider.addCompletion(new BasicCompletion(provider, "real"));
+		provider.addCompletion(new BasicCompletion(provider, "logico"));
+		provider.addCompletion(new BasicCompletion(provider, "palavra"));
+		provider.addCompletion(new BasicCompletion(provider, "constante"));
+		provider.addCompletion(new BasicCompletion(provider, "se"));
+		provider.addCompletion(new BasicCompletion(provider, "entao"));
+		provider.addCompletion(new BasicCompletion(provider, "senao"));
+		provider.addCompletion(new BasicCompletion(provider, "faca"));
+		provider.addCompletion(new BasicCompletion(provider, "ate"));
+		provider.addCompletion(new BasicCompletion(provider, "enquanto"));
+		provider.addCompletion(new BasicCompletion(provider, "para"));
+		provider.addCompletion(new BasicCompletion(provider, "de"));
+		provider.addCompletion(new BasicCompletion(provider, "ate"));
+		provider.addCompletion(new BasicCompletion(provider, "passo"));
+		provider.addCompletion(new BasicCompletion(provider, "retorno"));
+		provider.addCompletion(new BasicCompletion(provider, "verdadeiro"));
+		provider.addCompletion(new BasicCompletion(provider, "falso"));
+		provider.addCompletion(new BasicCompletion(provider, "sair"));
+		provider.addCompletion(new BasicCompletion(provider, "principal"));
+		
+		
+		provider.addCompletion(new ShorthandCompletion(provider, "ler",
+	            "ler(", "ler("));
+	      provider.addCompletion(new ShorthandCompletion(provider, "escrever",
+	            "escrever(", "escrever("));
+		
+		CompletionProvider prov = provider;
+		AutoCompletion ac = new AutoCompletion(prov);
+		
+		ac.install(aba.getTextArea());
+	}
+
 }
