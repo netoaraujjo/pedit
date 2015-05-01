@@ -10,9 +10,9 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
  * @author Francisco Neto, Luis Guilherme
@@ -22,9 +22,12 @@ public class PainelCodigo extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
+	public static boolean exibirLinhas;
+	
 	private File arquivo;
 //	private JTextPane txtCodigo;
 	private RSyntaxTextArea txtCodigo;
+	RTextScrollPane sp;
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
@@ -33,10 +36,20 @@ public class PainelCodigo extends JPanel {
 		txtCodigo = new RSyntaxTextArea();
 		txtCodigo.setSelectionColor(Color.LIGHT_GRAY);
 		
+		sp = new RTextScrollPane(txtCodigo);
+		sp.setLineNumbersEnabled(exibirLinhas);
+		
+		
 		if (!novo) {
 			leArquivo();
 		}
-		add(new JScrollPane(txtCodigo));
+		
+		//add(new JScrollPane(txtCodigo));
+		add(sp);
+	}
+	
+	public void habilitaNumeroLinhas() {
+		sp.setLineNumbersEnabled(exibirLinhas);
 	}
 	
 	private void leArquivo() {

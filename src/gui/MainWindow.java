@@ -200,7 +200,16 @@ public class MainWindow extends JFrame {
 			
 			verPainelLateral.setSelected(config.get("sidebar").matches("on"));
 			verConsole.setSelected(config.get("log").matches("on"));
-			verNumeroLinhas.setSelected(config.get("line").matches("on"));
+			
+			if (config.get("line").matches("on")) {
+				PainelCodigo.exibirLinhas = true;
+				verNumeroLinhas.setSelected(true);
+			} else {
+				PainelCodigo.exibirLinhas = false;
+				verNumeroLinhas.setSelected(false);
+			}
+			
+			//verNumeroLinhas.setSelected(config.get("line").matches("on"));
 			
 			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
 			List<String> lookNames = new ArrayList<String>();
@@ -384,7 +393,6 @@ public class MainWindow extends JFrame {
 		verPainelLateral = new JCheckBoxMenuItem("Painel lateral");
 		verPainelLateral.setSelected(true);
 		verPainelLateral.addItemListener(new ItemListener() {
-			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (verPainelLateral.isSelected()) {
@@ -399,7 +407,6 @@ public class MainWindow extends JFrame {
 		verConsole = new JCheckBoxMenuItem("Console");
 		verConsole.setSelected(true);
 		verConsole.addItemListener(new ItemListener() {
-			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (verConsole.isSelected()) {
@@ -413,6 +420,15 @@ public class MainWindow extends JFrame {
 		
 		verNumeroLinhas = new JCheckBoxMenuItem("Numero das linhas");
 		verNumeroLinhas.setSelected(true);
+		verNumeroLinhas.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				PainelCodigo.exibirLinhas = verNumeroLinhas.isSelected();
+				for (PainelCodigo painelCodigo : abas) {
+					painelCodigo.habilitaNumeroLinhas();
+				}
+			}
+		});
 		
 		menuVer.add(verPainelLateral);
 		menuVer.add(verConsole);
@@ -924,7 +940,7 @@ public class MainWindow extends JFrame {
 		
 		provider.addCompletion(new ShorthandCompletion(provider, "ler",
 	            "ler(", "ler("));
-	      provider.addCompletion(new ShorthandCompletion(provider, "escrever",
+	    provider.addCompletion(new ShorthandCompletion(provider, "escrever",
 	            "escrever(", "escrever("));
 		
 		CompletionProvider prov = provider;
