@@ -13,9 +13,12 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,10 +187,44 @@ public class MainWindow extends JFrame {
 		
 		configuraContainer();
 
-		configuraAparencia(); // pode ser util para definir opçoes do usuário
-		
 		add(painelToolbar, BorderLayout.NORTH);
 		add(container, BorderLayout.CENTER);
+		
+		configuraAparencia(); // pode ser util para definir opçoes do usuário
+		
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent event) {
+				executaFechamento();
+			}
+		});
+		
+	}
+	
+	private void executaFechamento() {
+		// procedimentos para executar ao fechar
+		// verificar se as alteracoes foram salvas
+		salvaConfiguracoes();
+		System.exit(0);
+	}
+	
+	private void salvaConfiguracoes() {
+		try {
+			Formatter formatter = new Formatter(new File("config.ini"));
+			String tema = "";
+			for (int i = 0; i < temas.length; i++) {
+				if (temas[i].isSelected()) {
+					tema = temas[i].getText();
+				}
+			}
+			formatter.format("tema=%s\n", tema);
+			formatter.format("sidebar=%s\n", verPainelLateral.isSelected() ? "on" : "off");
+			formatter.format("log=%s\n", verConsole.isSelected() ? "on" : "off");
+			formatter.format("line=%s", verNumeroLinhas.isSelected() ? "on" : "off");
+			formatter.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void configuraAparencia(){
@@ -209,8 +246,6 @@ public class MainWindow extends JFrame {
 				verNumeroLinhas.setSelected(false);
 			}
 			
-			//verNumeroLinhas.setSelected(config.get("line").matches("on"));
-			
 			UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
 			List<String> lookNames = new ArrayList<String>();
 			for (int i = 0; i < looks.length; i++) {
@@ -219,7 +254,7 @@ public class MainWindow extends JFrame {
 			if (lookNames.contains(config.get("tema"))) {
 				try {
 					UIManager.setLookAndFeel(looks[lookNames.indexOf(config.get("tema"))].getClassName());
-					
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
 					for (int i = 0; i < temas.length; i++) {
 						if (temas[i].getText().matches(config.get("tema"))) {
 							temas[i].setSelected(true);
@@ -235,6 +270,7 @@ public class MainWindow extends JFrame {
 			} else {
 				try {
 					UIManager.setLookAndFeel(looks[lookNames.indexOf("Metal")].getClassName());
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
 					for (int i = 0; i < temas.length; i++) {
 						if (temas[i].getText().matches("Metal")) {
 							temas[i].setSelected(true);
@@ -301,6 +337,12 @@ public class MainWindow extends JFrame {
 		
 		sair = new JMenuItem("Sair");
 		sair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
+		sair.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				executaFechamento();
+			}
+		});
 		
 		menuArquivo.add(novo);
 		menuArquivo.add(abrir);
