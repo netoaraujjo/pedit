@@ -16,7 +16,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.fife.ui.autocomplete.AutoCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ShorthandCompletion;
 
 import controller.FileController;
 
@@ -768,6 +773,7 @@ public class MainWindow extends JFrame {
 			if (arq != null) {
 				PainelCodigo painelCodigo = new PainelCodigo(arq, false);
 				abas.add(painelCodigo);
+				autoCompleta(abas.get(abas.size() - 1));
 				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
 				
@@ -818,5 +824,43 @@ public class MainWindow extends JFrame {
 			// add na area de transferencia
 		}
 		
+	}
+	
+	private void autoCompleta(PainelCodigo aba) {
+		DefaultCompletionProvider provider = new DefaultCompletionProvider();
+
+		provider.addCompletion(new BasicCompletion(provider, "programa"));
+		provider.addCompletion(new BasicCompletion(provider, "final"));
+		provider.addCompletion(new BasicCompletion(provider, "inteiro"));
+		provider.addCompletion(new BasicCompletion(provider, "real"));
+		provider.addCompletion(new BasicCompletion(provider, "logico"));
+		provider.addCompletion(new BasicCompletion(provider, "palavra"));
+		provider.addCompletion(new BasicCompletion(provider, "constante"));
+		provider.addCompletion(new BasicCompletion(provider, "se"));
+		provider.addCompletion(new BasicCompletion(provider, "entao"));
+		provider.addCompletion(new BasicCompletion(provider, "senao"));
+		provider.addCompletion(new BasicCompletion(provider, "faca"));
+		provider.addCompletion(new BasicCompletion(provider, "ate"));
+		provider.addCompletion(new BasicCompletion(provider, "enquanto"));
+		provider.addCompletion(new BasicCompletion(provider, "para"));
+		provider.addCompletion(new BasicCompletion(provider, "de"));
+		provider.addCompletion(new BasicCompletion(provider, "ate"));
+		provider.addCompletion(new BasicCompletion(provider, "passo"));
+		provider.addCompletion(new BasicCompletion(provider, "retorno"));
+		provider.addCompletion(new BasicCompletion(provider, "verdadeiro"));
+		provider.addCompletion(new BasicCompletion(provider, "falso"));
+		provider.addCompletion(new BasicCompletion(provider, "sair"));
+		provider.addCompletion(new BasicCompletion(provider, "principal"));
+		
+		
+		provider.addCompletion(new ShorthandCompletion(provider, "ler",
+	            "ler(", "ler("));
+	      provider.addCompletion(new ShorthandCompletion(provider, "escrever",
+	            "escrever(", "escrever("));
+		
+		CompletionProvider prov = provider;
+		AutoCompletion ac = new AutoCompletion(prov);
+		
+		ac.install(aba.getTextArea());
 	}
 }
