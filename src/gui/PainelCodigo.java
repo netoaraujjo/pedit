@@ -14,6 +14,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+
 /**
  * @author Francisco Neto, LuisGuilherme
  *
@@ -23,13 +26,16 @@ public class PainelCodigo extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private File arquivo;
-	private JTextPane txtCodigo;
+//	private JTextPane txtCodigo;
+	private RSyntaxTextArea txtCodigo;
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
 		setLayout(new BorderLayout());
-		txtCodigo = new JTextPane();
+		//txtCodigo = new JTextPane();
+		txtCodigo = new RSyntaxTextArea();
 		txtCodigo.setSelectionColor(Color.LIGHT_GRAY);
+		
 		if (!novo) {
 			leArquivo();
 		}
@@ -59,8 +65,11 @@ public class PainelCodigo extends JPanel {
 		return txtCodigo.getText();
 	}
 	
-	public JTextPane getTextArea() {
+//	public JTextPane getTextArea() {
+//		return txtCodigo;
+//	}
+	
+	public RSyntaxTextArea getTextArea() {
 		return txtCodigo;
 	}
-
 }

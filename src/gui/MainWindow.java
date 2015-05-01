@@ -49,6 +49,7 @@ import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import controller.FileController;
 
@@ -312,7 +313,8 @@ public class MainWindow extends JFrame {
 		selecionarTudo.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				txt.setSelectionStart(0);
 				txt.setSelectionEnd(txt.getText().length()-1);
 			}
@@ -323,7 +325,8 @@ public class MainWindow extends JFrame {
 		comentarioLinha.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				txt.replaceSelection("// " +  txt.getSelectedText());
 			}
 		});
@@ -333,7 +336,8 @@ public class MainWindow extends JFrame {
 		comentarioBloco.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 				txt.replaceSelection("/* " +  txt.getSelectedText() + "*/");
 			}
 		});
@@ -819,7 +823,8 @@ public class MainWindow extends JFrame {
 	private class RecortarHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+			//JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+			RSyntaxTextArea txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
 			txt.replaceSelection("");
 			// add na area de transferencia
 		}
