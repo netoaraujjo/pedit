@@ -11,9 +11,12 @@ import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -25,10 +28,13 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -134,7 +140,8 @@ public class MainWindow extends JFrame {
 	/**********************************************
 	 * Painel edicao
 	 *********************************************/
-	
+	private JPopupMenu popupMenuAba;
+	private JMenuItem fecharAba;
 	
 	
 	/**********************************************
@@ -160,7 +167,7 @@ public class MainWindow extends JFrame {
 		fileControler = new FileController();
 		abas = new ArrayList<PainelCodigo>();
 
-		//configuraAparencia(); // pode ser util para definir opçoes do usuário
+		configuraAparencia(); // pode ser util para definir opçoes do usuário
 
 		configuraMenuBar();
 		setJMenuBar(menuBar);
@@ -171,7 +178,10 @@ public class MainWindow extends JFrame {
 		add(painelToolbar, BorderLayout.NORTH);
 		add(container, BorderLayout.CENTER);
 	}
-
+	
+	private void configuraAparencia(){
+		Scanner scanner = new Scanner("../config.ini");
+	}
 	
 	/***********************************************************************************************
 	 * Configurações da barra de menu
@@ -206,13 +216,15 @@ public class MainWindow extends JFrame {
 		
 		abrir = new JMenuItem("Abrir");
 		abrir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+		abrir.addActionListener(new AbrirArquivoHandler());
 		
 		salvar = new JMenuItem("Salvar");
 		salvar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+		salvar.addActionListener(new SalvarArquivoHandler());
 		
 		salvarComo = new JMenuItem("Salvar como...");
 		salvarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
-		salvarComo.addActionListener(new NovoArquivoHandler());
+		salvarComo.addActionListener(new SalvarComoHandler());
 		
 		imprimir = new JMenuItem("Imprimir");
 		imprimir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
@@ -240,6 +252,7 @@ public class MainWindow extends JFrame {
 		
 		recortar = new JMenuItem("Recortar");
 		recortar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+		recortar.addActionListener(new RecortarHandler());
 		
 		copiar = new JMenuItem("Copiar");
 		copiar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
@@ -249,12 +262,34 @@ public class MainWindow extends JFrame {
 		
 		selecionarTudo = new JMenuItem("Selecionar tudo");
 		selecionarTudo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
+		selecionarTudo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				txt.setSelectionStart(0);
+				txt.setSelectionEnd(txt.getText().length()-1);
+			}
+		});
 		
 		comentarioLinha = new JMenuItem("Inserir comentário de linha");
 		comentarioLinha.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		comentarioLinha.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				txt.replaceSelection("// " +  txt.getSelectedText());
+			}
+		});
 		
 		comentarioBloco = new JMenuItem("Inserir comentário de bloco");
 		comentarioBloco.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		comentarioBloco.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+				txt.replaceSelection("/* " +  txt.getSelectedText() + "*/");
+			}
+		});
 		
 		menuEditar.add(desfazer);
 		menuEditar.add(refazer);
@@ -376,10 +411,12 @@ public class MainWindow extends JFrame {
 		Icon iconeAbrir = new ImageIcon(getClass().getResource(iconDir + "folder.png"));
 		botaoAbrir = new JButton(iconeAbrir);
 		botaoAbrir.setToolTipText("Abrir arquivo (Ctrl+O)");
+		botaoAbrir.addActionListener(new AbrirArquivoHandler());
 		
 		Icon iconeSalvar = new ImageIcon(getClass().getResource(iconDir + "save.png"));
 		botaoSalvar = new JButton(iconeSalvar);
 		botaoSalvar.setToolTipText("Salvar (Ctrl+S)");
+		botaoSalvar.addActionListener(new SalvarArquivoHandler());
 		
 		Icon iconeImprimir = new ImageIcon(getClass().getResource(iconDir + "print.png"));
 		botaoImprimir = new JButton(iconeImprimir);
@@ -406,6 +443,7 @@ public class MainWindow extends JFrame {
 		Icon iconeRecortar = new ImageIcon(getClass().getResource(iconDir + "cut.png"));
 		botaoRecortar = new JButton(iconeRecortar);
 		botaoRecortar.setToolTipText("Recortar (Ctrl+X)");
+		botaoRecortar.addActionListener(new RecortarHandler());
 		
 		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
 		botaoCopiar = new JButton(iconeCopiar);
@@ -528,14 +566,41 @@ public class MainWindow extends JFrame {
 	
 	private void configuraTabbedPaneCodigo() {
 		tabbebPaneCodigo = new JTabbedPane();
+		popupMenuAba = new JPopupMenu();
+		fecharAba = new JMenuItem("Fechar");
+		fecharAba.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				abas.remove(tabbebPaneCodigo.getSelectedIndex());
+				tabbebPaneCodigo.removeTabAt(tabbebPaneCodigo.getSelectedIndex());
+				if (tabbebPaneCodigo.getTabCount() == 0) {
+					habilitaFerramentasEdicao(false);
+				}
+			}
+		});
 		
-		// onde são adicionadas as abas
+		popupMenuAba.add(fecharAba);
 		
-		//tabbebPaneCodigo.addTab("NomeArquivo.por", new PainelCodigo());
+		tabbebPaneCodigo.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent event) {
+				checkForTriggerEvent(event);
+			}
+			
+			public void mouseReleased(MouseEvent event) {
+				checkForTriggerEvent(event);
+			}
+			
+			private void checkForTriggerEvent(MouseEvent event) {
+				if (event.isPopupTrigger() && tabbebPaneCodigo.getTabCount() > 0) {
+					popupMenuAba.show(event.getComponent(), event.getX(), event.getY());
+				}
+			}
+		});
 		
 		habilitaFerramentasEdicao(tabbebPaneCodigo.getTabCount() > 0);
 		
 	}
+	
 	
 	
 	
@@ -607,7 +672,6 @@ public class MainWindow extends JFrame {
 	 **********************************************************************************************/
 	
 	private class TemaHandler implements ActionListener {
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			for (int i = 0; i < temas.length; i++) {
@@ -619,12 +683,15 @@ public class MainWindow extends JFrame {
 							| IllegalAccessException
 							| UnsupportedLookAndFeelException e1) {
 						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null,
+													  "Nao foi possivel alterar o tema.",
+													  "Erro",
+													  JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
 				}
 			}
 		}
-		
 	}
 	
 	
@@ -633,12 +700,11 @@ public class MainWindow extends JFrame {
 	 **********************************************************************************************/
 	
 	private class NovoArquivoHandler implements ActionListener {
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			File arq = fileControler.criaNovoArquivo();
 			if (arq != null) {
-				PainelCodigo painelCodigo = new PainelCodigo(arq);
+				PainelCodigo painelCodigo = new PainelCodigo(arq, true);
 				abas.add(painelCodigo);
 				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
@@ -646,7 +712,69 @@ public class MainWindow extends JFrame {
 				habilitaFerramentasEdicao(true);
 			}
 		}
+	}
+	
+	
+	/***********************************************************************************************
+	 * Manipula abertura de arquivos
+	 **********************************************************************************************/
+	
+	private class AbrirArquivoHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			File arq = fileControler.abrirArquivo();
+			if (arq != null) {
+				PainelCodigo painelCodigo = new PainelCodigo(arq, false);
+				abas.add(painelCodigo);
+				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
+				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
+				
+				habilitaFerramentasEdicao(true);
+			}
+		}
+	}
+	
+	
+	/***********************************************************************************************
+	 * Manipula salvar arquivos
+	 **********************************************************************************************/
+	
+	private class SalvarArquivoHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTexto();
+			File arq = abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo();
+			fileControler.salvarArquivo(txt, arq);
+		}
+	}
+	
+	/***********************************************************************************************
+	 * Manipula salvar como... arquivos
+	 **********************************************************************************************/
+	
+	private class SalvarComoHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			File arqNovo = fileControler.criaNovoArquivo();
+			if (arqNovo != null) {
+				String txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTexto();
+				fileControler.salvarArquivo(txt, arqNovo);
+			}
+		}
+	}
+	
+	/***********************************************************************************************
+	 * Manipula recortar
+	 **********************************************************************************************/
+	
+	private class RecortarHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JTextPane txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTextArea();
+			txt.replaceSelection("");
+			// add na area de transferencia
+		}
 		
 	}
-
 }
