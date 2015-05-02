@@ -28,6 +28,7 @@ public class PainelCodigo extends JPanel {
 //	private JTextPane txtCodigo;
 	private RSyntaxTextArea txtCodigo;
 	RTextScrollPane sp;
+	private boolean arquivoAlterado;
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
@@ -39,6 +40,7 @@ public class PainelCodigo extends JPanel {
 		sp = new RTextScrollPane(txtCodigo);
 		sp.setLineNumbersEnabled(exibirLinhas);
 		
+		arquivoAlterado = false;
 		
 		if (!novo) {
 			leArquivo();
@@ -46,6 +48,14 @@ public class PainelCodigo extends JPanel {
 		
 		//add(new JScrollPane(txtCodigo));
 		add(sp);
+	}
+	
+	public boolean isArquivoAlterado() {
+		return arquivoAlterado;
+	}
+	
+	public void setArquivoAlterado(boolean arqAlt) {
+		arquivoAlterado = arqAlt;
 	}
 	
 	public void habilitaNumeroLinhas() {
@@ -57,7 +67,7 @@ public class PainelCodigo extends JPanel {
 		try {
 			Scanner scanner = new Scanner(arquivo);
 			while (scanner.hasNextLine()) {
-				conteudo += scanner.nextLine() + "\n";
+				conteudo += scanner.nextLine() + "\n";// if(scanner.hasNextLine()) {}
 			}
 			scanner.close();
 			txtCodigo.setText(conteudo);

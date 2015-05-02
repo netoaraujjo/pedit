@@ -93,7 +93,7 @@ public class MainWindow extends JFrame {
 	private JCheckBoxMenuItem verPainelLateral;
 	private JCheckBoxMenuItem verConsole;
 	private JCheckBoxMenuItem verNumeroLinhas;
-	// Menu Configurações
+	// Menu Configuracoes
 	private JMenu menuConfiguracoes;
 	private JMenu menuTemas;
 	private JRadioButtonMenuItem[] temas;
@@ -129,19 +129,19 @@ public class MainWindow extends JFrame {
 	/**********************************************
 	 * Container
 	 *********************************************/
-	private JPanel container; // engloba sidebar, área de edição, console e barra de status
-	private JPanel painelPrincipal; // engloba sidebar, área de edição e console
+	private JPanel container; // engloba sidebar, area de edicao, console e barra de status
+	private JPanel painelPrincipal; // engloba sidebar, área de edicao e console
 	private JPanel painelBarraStatus;
 	
 	/**********************************************
 	 * Painel principal
 	 *********************************************/
-	private JSplitPane splitPaneVertical; // separa o painel principal nos painéis central e lateral
+	private JSplitPane splitPaneVertical; // separa o painel principal nos paineis central e lateral
 	private JPanel painelLateral; // painel que contem a sidebar
-	private JPanel painelCentral; // painel que contem o painel de edição e código e o console/debbuger
-	private JTabbedPane tabbebPaneCodigo; // painel que contem toda a area de código
-	private JPanel painelInfo; // contem a area de informações de build e console
-	private JSplitPane splitPaneHorizontal; // separa o painel central nos painéis código e info
+	private JPanel painelCentral; // painel que contem o painel de edicao e codigo e o console/debbuger
+	private JTabbedPane tabbebPaneCodigo; // painel que contem toda a area de codigo
+	private JPanel painelInfo; // contem a area de informacoes de build e console
+	private JSplitPane splitPaneHorizontal; // separa o painel central nos paineis codigo e info
 	
 	/**********************************************
 	 * Painel lateral
@@ -156,7 +156,6 @@ public class MainWindow extends JFrame {
 	private JMenuItem fecharAba;
 	private JMenuItem fecharTodasAbas;
 	private JMenuItem fecharOutrasAbas;
-	
 	
 	/**********************************************
 	 * Painel info
@@ -190,19 +189,17 @@ public class MainWindow extends JFrame {
 		add(painelToolbar, BorderLayout.NORTH);
 		add(container, BorderLayout.CENTER);
 		
-		configuraAparencia(); // pode ser util para definir opçoes do usuário
+		configuraAparencia();
 		
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {
 				executaFechamento();
 			}
 		});
-		
 	}
 	
 	private void executaFechamento() {
-		// procedimentos para executar ao fechar
-		// verificar se as alteracoes foram salvas
+ 		// verificar se as alteracoes foram salvas
 		salvaConfiguracoes();
 		System.exit(0);
 	}
@@ -256,12 +253,11 @@ public class MainWindow extends JFrame {
 					UIManager.setLookAndFeel(looks[lookNames.indexOf(config.get("tema"))].getClassName());
 					SwingUtilities.updateComponentTreeUI(MainWindow.this);
 					for (int i = 0; i < temas.length; i++) {
-						if (temas[i].getText().matches(config.get("tema"))) {
+						if (temas[i].getText().compareTo(config.get("tema")) == 0) {
 							temas[i].setSelected(true);
 							break;
 						}
 					}
-					
 				} catch (ClassNotFoundException | InstantiationException
 						| IllegalAccessException
 						| UnsupportedLookAndFeelException e) {
@@ -656,7 +652,7 @@ public class MainWindow extends JFrame {
 		container.add(painelBarraStatus, BorderLayout.SOUTH);
 	}
 	
-	// Engloba sidebar, area de edição e console
+	// Engloba sidebar, area de edicao e console
 	private void configuraPainelPrincipal() {
 		painelPrincipal = new JPanel(new BorderLayout());
 		
