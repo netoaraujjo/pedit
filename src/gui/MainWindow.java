@@ -38,8 +38,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -163,6 +165,7 @@ public class MainWindow extends JFrame {
 	private JTabbedPane painelLog; // container de abas da painel info
 	private JPanel painelConsole;
 	private JPanel painelLogInfo;
+	private JTextArea textConsole;
 	
 	/* Fim dos elementos de interface
 	 ************************************************************************************************/
@@ -597,6 +600,14 @@ public class MainWindow extends JFrame {
 		Icon iconeExecutar = new ImageIcon(getClass().getResource(iconDir + "play.png"));
 		botaoExecutar = new JButton(iconeExecutar);
 		botaoExecutar.setToolTipText("Executar");
+		botaoExecutar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		
 		Icon iconeParar = new ImageIcon(getClass().getResource(iconDir + "stop.png"));
 		botaoParar = new JButton(iconeParar);
@@ -787,6 +798,8 @@ public class MainWindow extends JFrame {
 	
 	private void configuraPainelConsole() {
 		painelConsole = new JPanel(new BorderLayout());
+		textConsole = new JTextArea();
+		painelConsole.add(new JScrollPane(textConsole));
 	}
 	
 	
