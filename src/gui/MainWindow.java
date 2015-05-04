@@ -52,6 +52,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -783,6 +785,20 @@ public class MainWindow extends JFrame {
 		popupMenuAba.add(fecharOutrasAbas);
 		popupMenuAba.add(fecharTodasAbas);
 		
+		tabbebPaneCodigo.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				if (abas.size() > 0) {
+					setTitle("pEdit - " + abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo().getAbsolutePath());
+				} else {
+					setTitle("pEdit");
+				}
+				
+			}
+		});
+		
 		tabbebPaneCodigo.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
 				checkForTriggerEvent(event);
@@ -945,7 +961,7 @@ public class MainWindow extends JFrame {
 		
 		private int getOpenedFileIndex(File arq) {
 			for (int i = 0; i < abas.size(); i++) {
-				if (abas.get(i).getArquivo().getName().matches(arq.getName())) {
+				if (abas.get(i).getArquivo().getAbsolutePath().matches(arq.getAbsolutePath())) {
 					return i;
 				}
 			}
