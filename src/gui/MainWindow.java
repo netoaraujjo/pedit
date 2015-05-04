@@ -4,6 +4,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,13 +42,16 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -58,6 +62,7 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
+import application.Semantica;
 import controller.FileController;
 
 /**
@@ -292,7 +297,7 @@ public class MainWindow extends JFrame {
 	}
 	
 	/***********************************************************************************************
-	 * ConfiguraÃ§Ãµes da barra de menu
+	 * Configurações da barra de menu
 	 **********************************************************************************************/
 	
 	private void configuraMenuBar() {
@@ -517,7 +522,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * ConfiguraÃ§Ãµes da barra de ferramentas
+	 * Configurações da barra de ferramentas
 	 **********************************************************************************************/
 	
 	private void configuraToolbar() {
@@ -583,11 +588,11 @@ public class MainWindow extends JFrame {
 		
 		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
 		botaoCopiar = new JButton(iconeCopiar);
-		botaoCopiar.setToolTipText("Copiar conteÃºdo selecionado (Ctrl+C)");
+		botaoCopiar.setToolTipText("Copiar conteúdo selecionado (Ctrl+C)");
 		
 		Icon iconeColar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
 		botaoColar = new JButton(iconeColar);
-		botaoColar.setToolTipText("Colar da Ã¡rea de transferÃªncia (Ctrl+V)");
+		botaoColar.setToolTipText("Colar da Área de transferência (Ctrl+V)");
 		
 		toolbarEditar.add(botaoDesfazer);
 		toolbarEditar.add(botaoRefazer);
@@ -607,8 +612,36 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				Semantica sem = new Semantica();
+				Map<String, String> hash = null;
 				
+				String txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTexto();
+				File arq = abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo();
+				fileControler.salvarArquivo(txt, arq);
+				
+				try {
+					hash = sem.executa(abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+				textConsole.setText("");
+				
+				StyledDocument doc = textConsole.getStyledDocument();
+
+		        Style style = textConsole.addStyle("I'm a Style", null);
+		        
+		        StyleConstants.setForeground(style, Color.blue);
+
+		        try { doc.insertString(doc.getLength(), hash.get("output") + "\n",style); }
+		        catch (BadLocationException e1){}
+		        
+		        StyleConstants.setForeground(style, Color.red);
+
+		        try { doc.insertString(doc.getLength(), hash.get("error") + "\n",style); }
+		        catch (BadLocationException e1){}
+
+				painelLog.setSelectedIndex(1);
 			}
 		});
 		
@@ -652,7 +685,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * ConfiguraÃ§Ãµes do container - engloba sidebar, Ã¡rea de ediÃ§Ã£o, console e barra de status
+	 * Configurações do container - engloba sidebar, Área de edição, console e barra de status
 	 **********************************************************************************************/
 	// as bordas laterais devem ser inseridas no container
 	private void configuraContainer() {
@@ -847,7 +880,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * ConfiguraÃ§Ãµes da barra de status
+	 * Configurações da barra de status
 	 **********************************************************************************************/
 	
 	private void configuraBarraStatus() {
@@ -858,7 +891,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Manipula alteraÃ§Ã£o do tema
+	 * Manipula alteração do tema
 	 **********************************************************************************************/
 	
 	private class TemaHandler implements ActionListener {
@@ -896,6 +929,7 @@ public class MainWindow extends JFrame {
 			if (arq != null) {
 				PainelCodigo painelCodigo = new PainelCodigo(arq, true);
 				abas.add(painelCodigo);
+				autoCompleta(abas.get(abas.size() - 1));
 				tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 				tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
 				

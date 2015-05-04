@@ -5,6 +5,9 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import antlr.PortugolParser.ArgumentosContext;
 
 public class PortugolSemantica extends PortugolBaseListener {
+	
+	String output = "";
+	
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
@@ -14,19 +17,20 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
-		System.out.println("ID: " + ctx.ID().getText());
+		output += "ID: " + ctx.ID().getText() + "\n";
+
 		if (ctx.expressao().isEmpty()) {
-			System.out.println("ATRIBUICAO: " + ctx.exprLogica().getText()
-					+ "\n");
+			output += "ATRIBUICAO: " + ctx.exprLogica().getText() + "\n";
 		} else {
-			System.out.println("ATRIBUICAO: " + ctx.expressao().getText()
-					+ "\n");
+			output += "ATRIBUICAO: " + ctx.expressao().getText()
+					+ "\n";
 		}
 	}
 
 	@Override
 	public void enterEscrever(PortugolParser.EscreverContext ctx) {
 		String str = "";
+		
 		for (ArgumentosContext arg : ctx.argumentos()) {
 			if (arg.getText().contains("\""))
 				str += arg.getText().substring(1, arg.getText().length() - 1)
@@ -34,14 +38,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 			else
 				str += arg.getText().toString() + "\n";
 		}
-		System.out.println("ESCREVER: " + str);
+		
+		output += "ESCREVER: " + str + "\n";
 	}
 
 	@Override
 	public void enterChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
 		String str = "";
-
-		System.out.println("ID: " + ctx.ID().toString());
+		
+		output += "ID: " + ctx.ID().toString() + "\n";
 
 		for (ArgumentosContext arg : ctx.argumentos()) {
 			if (arg.chamadaDeFunc() != null)
@@ -51,8 +56,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 			else if (arg.exprLogica() != null)
 				str += arg.exprLogica().getText() + "\n";
 		}
-
-		System.out.println("ARGUMENTOS: " + str);
+		
+		output += "ARGUMENTOS: " + str + "\n";
 	}
 
 	@Override
@@ -62,21 +67,18 @@ public class PortugolSemantica extends PortugolBaseListener {
 		for (TerminalNode t : ctx.ID()) {
 			str += t.getText() + "\n";
 		}
-
-		System.out.println("LER: " + str);
+		
+		output += "LER: " + str + "\n";
 	}
 
 	@Override
 	public void enterRetorna(PortugolParser.RetornaContext ctx) {
-		System.out.println("RETORNA: " + ctx.expressao().getText() + "\n");
+		output += "RETORNA: " + ctx.expressao().getText() + "\n";
 	}
 
 	@Override
 	public void enterDeclarConst(PortugolParser.DeclarConstContext ctx) {
-		System.out.println(ctx.getStart().getText() + " "
-				+ ctx.tipo().getText() + " " + ctx.atribuicao().getText()
-				+ "\n");
-
+		output += ctx.getStart().getText() + " " + ctx.tipo().getText() + " " + ctx.atribuicao().getText() + "\n";
 	}
 
 	@Override
@@ -98,7 +100,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 		else if (ctx.retorna() != null)
 			str += ctx.retorna().getText() + "\n";
 		
-		System.out.println("COMANDOS: " + str);
+		output += "COMANDOS: " + str + "\n";
 	}
 
+	public String getOutput() {
+		return output;
+	}
+	
 }
