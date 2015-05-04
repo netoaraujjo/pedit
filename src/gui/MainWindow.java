@@ -42,11 +42,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -165,7 +168,7 @@ public class MainWindow extends JFrame {
 	private JTabbedPane painelLog; // container de abas da painel info
 	private JPanel painelConsole;
 	private JPanel painelLogInfo;
-	private JTextArea textConsole;
+	private JTextPane textConsole;
 	
 	/* Fim dos elementos de interface
 	 ************************************************************************************************/
@@ -749,6 +752,20 @@ public class MainWindow extends JFrame {
 		popupMenuAba.add(fecharOutrasAbas);
 		popupMenuAba.add(fecharTodasAbas);
 		
+		tabbebPaneCodigo.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				if (abas.size() > 0) {
+					setTitle("pEdit - " + abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo().getAbsolutePath());
+				} else {
+					setTitle("pEdit");
+				}
+				
+			}
+		});
+		
 		tabbebPaneCodigo.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent event) {
 				checkForTriggerEvent(event);
@@ -798,7 +815,7 @@ public class MainWindow extends JFrame {
 	
 	private void configuraPainelConsole() {
 		painelConsole = new JPanel(new BorderLayout());
-		textConsole = new JTextArea();
+		textConsole = new JTextPane();
 		painelConsole.add(new JScrollPane(textConsole));
 	}
 	
@@ -910,7 +927,7 @@ public class MainWindow extends JFrame {
 		
 		private int getOpenedFileIndex(File arq) {
 			for (int i = 0; i < abas.size(); i++) {
-				if (abas.get(i).getArquivo().getName().matches(arq.getName())) {
+				if (abas.get(i).getArquivo().getAbsolutePath().matches(arq.getAbsolutePath())) {
 					return i;
 				}
 			}

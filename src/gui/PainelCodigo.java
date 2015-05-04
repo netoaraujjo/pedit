@@ -67,7 +67,11 @@ public class PainelCodigo extends JPanel {
 		try {
 			Scanner scanner = new Scanner(arquivo);
 			while (scanner.hasNextLine()) {
-				conteudo += scanner.nextLine() + "\n";// if(scanner.hasNextLine()) {}
+				//conteudo += scanner.nextLine() + "\n";// if(scanner.hasNextLine()) {}
+				conteudo += scanner.nextLine();
+				if (scanner.hasNextLine()) {
+					conteudo += "\n";
+				}
 			}
 			scanner.close();
 			txtCodigo.setText(conteudo);
