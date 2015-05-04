@@ -144,7 +144,7 @@ public class MainWindow extends JFrame {
 	private JSplitPane splitPaneVertical; // separa o painel principal nos paineis central e lateral
 	private JPanel painelLateral; // painel que contem a sidebar
 	private JPanel painelCentral; // painel que contem o painel de edicao e codigo e o console/debbuger
-	private JTabbedPane tabbebPaneCodigo; // painel que contem toda a area de codigo
+	private static JTabbedPane tabbebPaneCodigo; // painel que contem toda a area de codigo
 	private JPanel painelInfo; // contem a area de informacoes de build e console
 	private JSplitPane splitPaneHorizontal; // separa o painel central nos paineis codigo e info
 	
@@ -786,7 +786,10 @@ public class MainWindow extends JFrame {
 		
 	}
 	
-	
+	public static void alteraTituloAba() {
+		int index = tabbebPaneCodigo.getSelectedIndex();
+		tabbebPaneCodigo.setTitleAt(index, "* " + tabbebPaneCodigo.getTitleAt(index));
+	}
 	
 	
 	
@@ -915,6 +918,7 @@ public class MainWindow extends JFrame {
 				if (openedFileIndex == -1) {
 					PainelCodigo painelCodigo = new PainelCodigo(arq, false);
 					abas.add(painelCodigo);
+					painelCodigo.atualizaIndice(abas.size() - 1);
 					autoCompleta(abas.get(abas.size() - 1));
 					tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 					tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
@@ -927,7 +931,7 @@ public class MainWindow extends JFrame {
 		
 		private int getOpenedFileIndex(File arq) {
 			for (int i = 0; i < abas.size(); i++) {
-				if (abas.get(i).getArquivo().getAbsolutePath().matches(arq.getAbsolutePath())) {
+				if (abas.get(i).getArquivo().getAbsolutePath().compareTo(arq.getAbsolutePath()) == 0) {
 					return i;
 				}
 			}
@@ -943,9 +947,13 @@ public class MainWindow extends JFrame {
 	private class SalvarArquivoHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTexto();
-			File arq = abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo();
+			int indice = tabbebPaneCodigo.getSelectedIndex();
+			String txt = abas.get(indice).getTexto();
+			File arq = abas.get(indice).getArquivo();
 			fileControler.salvarArquivo(txt, arq);
+			abas.get(indice).setArquivoAlterado(false);
+			tabbebPaneCodigo.setTitleAt(indice, abas.get(indice).getArquivo().getName());
+			System.out.println("ctrl+s " + tabbebPaneCodigo.getSelectedIndex() + " " + abas.get(indice).getArquivo().getName());
 		}
 	}
 	

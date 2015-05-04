@@ -5,6 +5,8 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -29,6 +31,7 @@ public class PainelCodigo extends JPanel {
 	private RSyntaxTextArea txtCodigo;
 	RTextScrollPane sp;
 	private boolean arquivoAlterado;
+	private int indice;
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
@@ -36,6 +39,26 @@ public class PainelCodigo extends JPanel {
 		//txtCodigo = new JTextPane();
 		txtCodigo = new RSyntaxTextArea();
 		txtCodigo.setSelectionColor(Color.LIGHT_GRAY);
+		
+		arquivoAlterado = false;
+		
+		txtCodigo.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (!arquivoAlterado) {
+					arquivoAlterado = true;
+					MainWindow.alteraTituloAba();
+				}
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {}
+		});
 		
 		sp = new RTextScrollPane(txtCodigo);
 		sp.setLineNumbersEnabled(exibirLinhas);
@@ -48,6 +71,10 @@ public class PainelCodigo extends JPanel {
 		
 		//add(new JScrollPane(txtCodigo));
 		add(sp);
+	}
+	
+	public void atualizaIndice(int i) {
+		indice = i;
 	}
 	
 	public boolean isArquivoAlterado() {
