@@ -547,25 +547,32 @@ public class MainWindow extends JFrame {
 		toolbarArquivo = new JToolBar();
 		toolbarArquivo.setName("Arquivo");
 
-		Icon iconeNovo = new ImageIcon(getClass().getResource(iconDir + "new_page.png"));
+		Icon iconeNovo = new ImageIcon(getClass().getResource(iconDir + "new.png"));
 		botaoNovo = new JButton(iconeNovo);
 		botaoNovo.setToolTipText("Criar novo arquivo (Ctrl+N)");
 		botaoNovo.addActionListener(new NovoArquivoHandler());
-		//botaoNovo.setBorderPainted(false);
+		botaoNovo.setBorderPainted(false);
+		botaoNovo.setFocusPainted(false);
 		
-		Icon iconeAbrir = new ImageIcon(getClass().getResource(iconDir + "folder.png"));
+		Icon iconeAbrir = new ImageIcon(getClass().getResource(iconDir + "open.png"));
 		botaoAbrir = new JButton(iconeAbrir);
 		botaoAbrir.setToolTipText("Abrir arquivo (Ctrl+O)");
 		botaoAbrir.addActionListener(new AbrirArquivoHandler());
+		botaoAbrir.setBorderPainted(false);
+		botaoAbrir.setFocusPainted(false);
 		
 		Icon iconeSalvar = new ImageIcon(getClass().getResource(iconDir + "save.png"));
 		botaoSalvar = new JButton(iconeSalvar);
 		botaoSalvar.setToolTipText("Salvar (Ctrl+S)");
 		botaoSalvar.addActionListener(new SalvarArquivoHandler());
+		botaoSalvar.setBorderPainted(false);
+		botaoSalvar.setFocusPainted(false);
 		
 		Icon iconeImprimir = new ImageIcon(getClass().getResource(iconDir + "print.png"));
 		botaoImprimir = new JButton(iconeImprimir);
 		botaoImprimir.setToolTipText("Imprimir (Ctrl+P)");
+		botaoImprimir.setBorderPainted(false);
+		botaoImprimir.setFocusPainted(false);
 		
 		toolbarArquivo.add(botaoNovo);
 		toolbarArquivo.add(botaoAbrir);
@@ -577,26 +584,36 @@ public class MainWindow extends JFrame {
 		toolbarEditar = new JToolBar();
 		toolbarEditar.setName("Editar");
 		
-		Icon iconeDesfazer = new ImageIcon(getClass().getResource(iconDir + "arrow_left.png"));
+		Icon iconeDesfazer = new ImageIcon(getClass().getResource(iconDir + "undo.png"));
 		botaoDesfazer = new JButton(iconeDesfazer);
 		botaoDesfazer.setToolTipText("Desfazer (Ctrl+Z)");
+		botaoDesfazer.setBorderPainted(false);
+		botaoDesfazer.setFocusPainted(false);
 		
-		Icon iconeRefazer = new ImageIcon(getClass().getResource(iconDir + "arrow_right.png"));
+		Icon iconeRefazer = new ImageIcon(getClass().getResource(iconDir + "redo.png"));
 		botaoRefazer = new JButton(iconeRefazer);
 		botaoRefazer.setToolTipText("Refazer (Ctrl+Shift+Z)");
+		botaoRefazer.setBorderPainted(false);
+		botaoRefazer.setFocusPainted(false);
 		
 		Icon iconeRecortar = new ImageIcon(getClass().getResource(iconDir + "cut.png"));
 		botaoRecortar = new JButton(iconeRecortar);
 		botaoRecortar.setToolTipText("Recortar (Ctrl+X)");
 		botaoRecortar.addActionListener(new RecortarHandler());
+		botaoRecortar.setBorderPainted(false);
+		botaoRecortar.setFocusPainted(false);
 		
-		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
+		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy.png"));
 		botaoCopiar = new JButton(iconeCopiar);
-		botaoCopiar.setToolTipText("Copiar conte�do selecionado (Ctrl+C)");
+		botaoCopiar.setToolTipText("Copiar conteudo selecionado (Ctrl+C)");
+		botaoCopiar.setBorderPainted(false);
+		botaoCopiar.setFocusPainted(false);
 		
-		Icon iconeColar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
+		Icon iconeColar = new ImageIcon(getClass().getResource(iconDir + "paste.png"));
 		botaoColar = new JButton(iconeColar);
-		botaoColar.setToolTipText("Colar da �rea de transfer�ncia (Ctrl+V)");
+		botaoColar.setToolTipText("Colar da area de transferencia (Ctrl+V)");
+		botaoColar.setBorderPainted(false);
+		botaoColar.setFocusPainted(false);
 		
 		toolbarEditar.add(botaoDesfazer);
 		toolbarEditar.add(botaoRefazer);
@@ -612,6 +629,8 @@ public class MainWindow extends JFrame {
 		Icon iconeExecutar = new ImageIcon(getClass().getResource(iconDir + "play.png"));
 		botaoExecutar = new JButton(iconeExecutar);
 		botaoExecutar.setToolTipText("Executar");
+		botaoExecutar.setBorderPainted(false);
+		botaoExecutar.setFocusPainted(false);
 		botaoExecutar.addActionListener(new ActionListener() {
 			
 			@Override
@@ -652,6 +671,8 @@ public class MainWindow extends JFrame {
 		Icon iconeParar = new ImageIcon(getClass().getResource(iconDir + "stop.png"));
 		botaoParar = new JButton(iconeParar);
 		botaoParar.setToolTipText("Parar");
+		botaoParar.setBorderPainted(false);
+		botaoParar.setFocusPainted(false);
 		
 		toolbarExecutar.add(botaoExecutar);
 		toolbarExecutar.add(botaoParar);
