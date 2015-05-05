@@ -48,12 +48,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
@@ -174,6 +174,10 @@ public class MainWindow extends JFrame {
 	private JPanel painelConsole;
 	private JPanel painelLogInfo;
 	private JTextPane textConsole;
+	private JTextPane textLog;
+	private JPopupMenu popupMenuInfo;
+	private JMenuItem limparInfo;
+	
 	
 	/* Fim dos elementos de interface
 	 ************************************************************************************************/
@@ -297,7 +301,7 @@ public class MainWindow extends JFrame {
 	}
 	
 	/***********************************************************************************************
-	 * Configurações da barra de menu
+	 * Configuracoes da barra de menu
 	 **********************************************************************************************/
 	
 	private void configuraMenuBar() {
@@ -522,7 +526,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Configurações da barra de ferramentas
+	 * Configuracoes da barra de ferramentas
 	 **********************************************************************************************/
 	
 	private void configuraToolbar() {
@@ -588,11 +592,11 @@ public class MainWindow extends JFrame {
 		
 		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
 		botaoCopiar = new JButton(iconeCopiar);
-		botaoCopiar.setToolTipText("Copiar conteúdo selecionado (Ctrl+C)");
+		botaoCopiar.setToolTipText("Copiar conteï¿½do selecionado (Ctrl+C)");
 		
 		Icon iconeColar = new ImageIcon(getClass().getResource(iconDir + "copy_page.png"));
 		botaoColar = new JButton(iconeColar);
-		botaoColar.setToolTipText("Colar da Área de transferência (Ctrl+V)");
+		botaoColar.setToolTipText("Colar da ï¿½rea de transferï¿½ncia (Ctrl+V)");
 		
 		toolbarEditar.add(botaoDesfazer);
 		toolbarEditar.add(botaoRefazer);
@@ -685,7 +689,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Configurações do container - engloba sidebar, Área de edição, console e barra de status
+	 * Configuracoes do container - engloba sidebar, area de edicao, console e barra de status
 	 **********************************************************************************************/
 	// as bordas laterais devem ser inseridas no container
 	private void configuraContainer() {
@@ -836,6 +840,33 @@ public class MainWindow extends JFrame {
 		painelInfo = new JPanel(new BorderLayout());
 		painelLog = new JTabbedPane();
 		
+		popupMenuInfo = new JPopupMenu();
+		limparInfo = new JMenuItem("Limpar");
+		limparInfo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				textConsole.setText("");
+			}
+		});
+		
+		popupMenuInfo.add(limparInfo);
+		
+		painelLog.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent event) {
+				checkForTriggerEvent(event);
+			}
+			
+			public void mouseReleased(MouseEvent event) {
+				checkForTriggerEvent(event);
+			}
+			
+			private void checkForTriggerEvent(MouseEvent event) {
+				if (event.isPopupTrigger()) {
+					popupMenuInfo.show(event.getComponent(), event.getX(), event.getY());
+				}
+			}
+		});
+		
 		configuraPainelLogInfo();
 		configuraPainelConsole();
 		
@@ -847,6 +878,8 @@ public class MainWindow extends JFrame {
 	
 	private void configuraPainelLogInfo() {
 		painelLogInfo = new JPanel(new BorderLayout());
+		textLog = new JTextPane();
+		painelLogInfo.add(new JScrollPane(textLog));
 	}
 	
 	private void configuraPainelConsole() {
@@ -880,7 +913,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Configurações da barra de status
+	 * Configuracoes da barra de status
 	 **********************************************************************************************/
 	
 	private void configuraBarraStatus() {
@@ -891,7 +924,7 @@ public class MainWindow extends JFrame {
 	
 	
 	/***********************************************************************************************
-	 * Manipula alteração do tema
+	 * Manipula alteracao do tema
 	 **********************************************************************************************/
 	
 	private class TemaHandler implements ActionListener {
@@ -952,7 +985,6 @@ public class MainWindow extends JFrame {
 				if (openedFileIndex == -1) {
 					PainelCodigo painelCodigo = new PainelCodigo(arq, false);
 					abas.add(painelCodigo);
-					painelCodigo.atualizaIndice(abas.size() - 1);
 					autoCompleta(abas.get(abas.size() - 1));
 					tabbebPaneCodigo.addTab(arq.getName(), painelCodigo);
 					tabbebPaneCodigo.setSelectedIndex(abas.size() - 1);
@@ -987,7 +1019,6 @@ public class MainWindow extends JFrame {
 			fileControler.salvarArquivo(txt, arq);
 			abas.get(indice).setArquivoAlterado(false);
 			tabbebPaneCodigo.setTitleAt(indice, abas.get(indice).getArquivo().getName());
-			System.out.println("ctrl+s " + tabbebPaneCodigo.getSelectedIndex() + " " + abas.get(indice).getArquivo().getName());
 		}
 	}
 	

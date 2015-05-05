@@ -31,7 +31,7 @@ public class PainelCodigo extends JPanel {
 	private RSyntaxTextArea txtCodigo;
 	RTextScrollPane sp;
 	private boolean arquivoAlterado;
-	private int indice;
+	String txtAntigo;
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
@@ -42,19 +42,22 @@ public class PainelCodigo extends JPanel {
 		
 		arquivoAlterado = false;
 		
+		
+		
 		txtCodigo.addKeyListener(new KeyListener() {
 			
 			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				if (!arquivoAlterado) {
-					arquivoAlterado = true;
-					MainWindow.alteraTituloAba();
-				}
-			}
+			public void keyTyped(KeyEvent e) {}
 			
 			@Override
-			public void keyReleased(KeyEvent e) {}
+			public void keyReleased(KeyEvent e) {
+				if (txtAntigo.compareTo(txtCodigo.getText()) != 0) {
+					if (!arquivoAlterado) {
+						arquivoAlterado = true;
+						MainWindow.alteraTituloAba();
+					}
+				}
+			}
 			
 			@Override
 			public void keyPressed(KeyEvent e) {}
@@ -69,12 +72,11 @@ public class PainelCodigo extends JPanel {
 			leArquivo();
 		}
 		
-		//add(new JScrollPane(txtCodigo));
 		add(sp);
 	}
 	
-	public void atualizaIndice(int i) {
-		indice = i;
+	public void isTextoModificado() {
+		
 	}
 	
 	public boolean isArquivoAlterado() {
@@ -83,6 +85,7 @@ public class PainelCodigo extends JPanel {
 	
 	public void setArquivoAlterado(boolean arqAlt) {
 		arquivoAlterado = arqAlt;
+		txtAntigo = txtCodigo.getText();
 	}
 	
 	public void habilitaNumeroLinhas() {
@@ -102,6 +105,7 @@ public class PainelCodigo extends JPanel {
 			}
 			scanner.close();
 			txtCodigo.setText(conteudo);
+			txtAntigo = conteudo;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
