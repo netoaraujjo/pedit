@@ -1,4 +1,4 @@
-// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7º PERÍODO\CONSTRUÇÃO DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
+// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7ï¿½ PERï¿½ODO\CONSTRUï¿½ï¿½O DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
 
 package antlr;
 import java.util.Map;
@@ -9,6 +9,10 @@ import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
+
+import application.Chave;
+import application.Info;
+
 import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -62,7 +66,7 @@ public class PortugolParser extends Parser {
 	public ATN getATN() { return _ATN; }
 
 
-	public static Map<String, Integer> tabelaSimbolos = new HashMap<String, Integer>();
+	public static Map<Chave, Info> tabelaSimbolos = new HashMap<Chave, Info>();
 
 	public PortugolParser(TokenStream input) {
 		super(input);

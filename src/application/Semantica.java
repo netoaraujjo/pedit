@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -60,8 +61,9 @@ public class Semantica {
 						.getRuleInvocationStack();
 				Collections.reverse(stack);
 				StringBuilder buf = new StringBuilder();
-				buf.append("Linha " + line + ":" + charPositionInLine +  " " + msg + "\n");
-				
+				buf.append("Linha " + line + ":" + charPositionInLine + " "
+						+ msg + "\n");
+
 				error += buf.toString();
 			}
 
@@ -97,13 +99,24 @@ public class Semantica {
 		walker.walk(ps, tree);
 
 		output = ps.getOutput();
-		output += "\n" + PortugolParser.tabelaSimbolos;
+
+		// output += "\n" + PortugolParser.tabelaSimbolos;
+
+		Set<Chave> chaves = PortugolParser.tabelaSimbolos.keySet();
+		for (Chave key : chaves) {
+			if (key != null)
+				output += "\n" + key.getId() + " -> TIPO: "
+						+ PortugolParser.tabelaSimbolos.get(key).getTipo()
+						+ " | CATEGORIA: "
+						+ PortugolParser.tabelaSimbolos.get(key).getCategoria()
+						+ " | ESCOPO: " + key.getEscopo();
+		}
 
 		// System.out.println(PortugolParser.tabelaSimbolos);
-		
+
 		saida.put("error", error);
 		saida.put("output", output);
-		
+
 		return saida;
 
 	}
