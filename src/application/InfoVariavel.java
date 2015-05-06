@@ -1,10 +1,10 @@
 package application;
 
-public class Info {
+public class InfoVariavel {
 	private int tipo;
 	private int categoria;
 
-	public Info(int tipo, int categoria) {
+	public InfoVariavel(int tipo, int categoria) {
 		this.tipo = tipo;
 		this.categoria = categoria;
 	}

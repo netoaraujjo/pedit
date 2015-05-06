@@ -1,51 +1,97 @@
 package antlr;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import antlr.PortugolParser.ParametroContext;
 import application.Chave;
 import application.Constantes;
-import application.Info;
+import application.InfoFuncao;
+import application.InfoVariavel;
 
 public class PortugolSemantica extends PortugolBaseListener {
-
+	private Map<Chave, InfoVariavel> tsVar = new HashMap<Chave, InfoVariavel>();
+	private Map<Chave, InfoFuncao> tsFunc = new HashMap<Chave, InfoFuncao>();
 	private String output = "";
+	private String erro = "";
 	private int escopo = 0;
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
+
 		for (TerminalNode no : ctx.ID()) {
-			PortugolParser.tabelaSimbolos.put(new Chave(no.getText(), escopo),
-					new Info(ctx.tipo().t, Constantes.VARIAVEL));
+			Set<Chave> chaves = tsVar.keySet();
+			for (Chave key : chaves) {
+				if (key != null) {
+					if (key.getId().compareTo(no.getText()) == 0
+							&& key.getEscopo() == escopo) {
+						tsVar.put(new Chave(no.getText(), escopo),
+								new InfoVariavel(ctx.tipo().t,
+										Constantes.VARIAVEL));
+					} else {
+						erro += "Identificador " + no.getText()
+								+ " ja foi criado no escopo atual.\n";
+					}
+				}
+			}
 		}
+
+		// for (TerminalNode no : ctx.ID()) {
+		// Chave key = new Chave(no.getText(), escopo);
+		// if (tsVar.containsKey(key)) {
+		// tsVar.put(new Chave(no.getText(), escopo),
+		// new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL));
+		// } else {
+		// erro += "Identificador " + no.getText()
+		// + " ja foi criado no escopo atual.\n";
+		// }
+		// }
 	}
 
 	@Override
 	public void enterDeclarConst(PortugolParser.DeclarConstContext ctx) {
-		PortugolParser.tabelaSimbolos.put(new Chave(ctx.atribuicao().ID()
-				.getText(), escopo), new Info(ctx.tipo().t,
-				Constantes.CONSTANTE));
+		if (ctx.atribuicao().ID() != null) {
+			if (!tsVar.containsKey(new Chave(ctx.atribuicao().ID().getText(),
+					escopo))) {
+				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
+						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE));
+			} else {
+				erro += "Identificador " + ctx.atribuicao().ID().getText()
+						+ " ja foi criado no escopo atual.\n";
+			}
+		}
 	}
 
 	@Override
 	public void enterFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
 		escopo += 1;
-		PortugolParser.tabelaSimbolos.put(new Chave("principal", escopo),
-				new Info(Constantes.INTEIRO, Constantes.FUNCAO_PRINCIPAL));
+		tsFunc.put(new Chave("principal", escopo), new InfoFuncao(
+				Constantes.INTEIRO, Constantes.FUNCAO_PRINCIPAL,
+				new ArrayList<Integer>()));
 	}
 
 	@Override
 	public void enterDeclarFunc(PortugolParser.DeclarFuncContext ctx) {
 		escopo += 1;
-		PortugolParser.tabelaSimbolos.put(
-				new Chave(ctx.ID().getText(), escopo), new Info(ctx.tipo().t,
-						Constantes.FUNCAO));
 
-		for (ParametroContext parametro : ctx.parametro()) {
-			PortugolParser.tabelaSimbolos.put(new Chave(parametro.ID()
-					.getText(), escopo), new Info(parametro.tipo().t,
-					Constantes.PARAMETRO));
+		ArrayList<Integer> seqParam = new ArrayList<Integer>();
+
+		for (ParametroContext param : ctx.parametro()) {
+			tsVar.put(new Chave(param.ID().getText(), escopo),
+					new InfoVariavel(param.tipo().t, Constantes.PARAMETRO));
+			seqParam.add(param.tipo().t);
 		}
+
+		if (!tsFunc.containsKey(new Chave(ctx.ID().getText(), escopo)))
+			tsFunc.put(new Chave(ctx.ID().getText(), escopo), new InfoFuncao(
+					ctx.tipo().t, Constantes.FUNCAO, seqParam));
+		else
+			erro += "Ja existe uma funcao com o identificador " + ctx.ID().getText();
+
 	}
 
 	/*
@@ -105,6 +151,18 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	public String getOutput() {
 		return output;
+	}
+
+	public String getErro() {
+		return erro;
+	}
+
+	public Map<Chave, InfoVariavel> getTsVar() {
+		return tsVar;
+	}
+
+	public Map<Chave, InfoFuncao> getTsFunc() {
+		return tsFunc;
 	}
 
 }

@@ -1,16 +1,15 @@
-// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7ï¿½ PERï¿½ODO\CONSTRUï¿½ï¿½O DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
+// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7º PERÍODO\CONSTRUÇÃO DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
 
 package antlr;
-import java.util.Map;
-import java.util.HashMap;
 
+import org.antlr.v4.runtime.Lexer;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
-
-import application.Chave;
-import application.Info;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class PortugolLexer extends Lexer {
@@ -50,9 +49,6 @@ public class PortugolLexer extends Lexer {
 		"REAL", "RETORNO", "SAIR", "SOMA", "SUBTRACAO", "VIRGULA", "COMENTARIO_DE_LINHA", 
 		"COMENTARIO", "ID", "WS"
 	};
-
-
-	public static Map<Chave, Info> tabelaSimbolos = new HashMap<Chave, Info>();
 
 
 	public PortugolLexer(CharStream input) {

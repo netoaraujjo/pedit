@@ -656,12 +656,15 @@ public class MainWindow extends JFrame {
 		        
 		        StyleConstants.setForeground(style, Color.blue);
 
-		        try { doc.insertString(doc.getLength(), hash.get("output") + "\n",style); }
+		        try { doc.insertString(doc.getLength(), hash.get("output") + "\n", style); }
 		        catch (BadLocationException e1){}
 		        
 		        StyleConstants.setForeground(style, Color.red);
 
-		        try { doc.insertString(doc.getLength(), hash.get("error") + "\n",style); }
+		        try { doc.insertString(doc.getLength(), hash.get("erroSint") + "\n", style); }
+		        catch (BadLocationException e1){}
+		        
+		        try { doc.insertString(doc.getLength(), hash.get("erroSem") + "\n", style); }
 		        catch (BadLocationException e1){}
 
 				painelLog.setSelectedIndex(1);
@@ -1077,7 +1080,6 @@ public class MainWindow extends JFrame {
 		DefaultCompletionProvider provider = new DefaultCompletionProvider();
 
 		provider.addCompletion(new BasicCompletion(provider, "programa"));
-		provider.addCompletion(new BasicCompletion(provider, "final"));
 		provider.addCompletion(new BasicCompletion(provider, "inteiro"));
 		provider.addCompletion(new BasicCompletion(provider, "real"));
 		provider.addCompletion(new BasicCompletion(provider, "logico"));

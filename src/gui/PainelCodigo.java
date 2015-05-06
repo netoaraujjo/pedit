@@ -13,7 +13,9 @@ import java.util.Scanner;
 
 import javax.swing.JPanel;
 
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 /**
@@ -38,6 +40,15 @@ public class PainelCodigo extends JPanel {
 		setLayout(new BorderLayout());
 		//txtCodigo = new JTextPane();
 		txtCodigo = new RSyntaxTextArea();
+		
+		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
+		atmf.putMapping("text/minhaLinguagem", "application.MarkerTokens");
+		
+		txtCodigo.setSyntaxEditingStyle("text/minhaLinguagem");
+		
+		txtCodigo.setCodeFoldingEnabled(true);
+		txtCodigo.setAntiAliasingEnabled(true);
+		
 		txtCodigo.setSelectionColor(Color.LIGHT_GRAY);
 		
 		arquivoAlterado = false;

@@ -33,9 +33,12 @@ import antlr.PortugolSemantica;
  *
  */
 public class Semantica {
+	public Map<Chave, InfoVariavel> tsVar;
+	public Map<Chave, InfoFuncao> tsFunc;
 	private Map<String, String> saida = new HashMap<>();
 	private String output;
-	private String error = "";
+	private String erroSint = "";
+	private String erroSem;
 
 	public Map<String, String> executa(File arquivo) throws Exception {
 
@@ -64,7 +67,7 @@ public class Semantica {
 				buf.append("Linha " + line + ":" + charPositionInLine + " "
 						+ msg + "\n");
 
-				error += buf.toString();
+				erroSint += buf.toString();
 			}
 
 			@Override
@@ -99,22 +102,39 @@ public class Semantica {
 		walker.walk(ps, tree);
 
 		output = ps.getOutput();
+		erroSem = ps.getErro();
 
-		// output += "\n" + PortugolParser.tabelaSimbolos;
+		tsVar = ps.getTsVar();
+		tsFunc = ps.getTsFunc();
 
-		Set<Chave> chaves = PortugolParser.tabelaSimbolos.keySet();
+		output += "--: VARIAVEIS :--\n";
+
+		Set<Chave> chaves = tsVar.keySet();
 		for (Chave key : chaves) {
 			if (key != null)
-				output += "\n" + key.getId() + " -> TIPO: "
-						+ PortugolParser.tabelaSimbolos.get(key).getTipo()
-						+ " | CATEGORIA: "
-						+ PortugolParser.tabelaSimbolos.get(key).getCategoria()
-						+ " | ESCOPO: " + key.getEscopo();
+				output += key.getId() + " -> TIPO: " + tsVar.get(key).getTipo()
+						+ " | CATEGORIA: " + tsVar.get(key).getCategoria()
+						+ " | ESCOPO: " + key.getEscopo() + "\n";
+		}
+
+		output += "\n--: FUNCOES :--\n";
+
+		chaves = tsFunc.keySet();
+		for (Chave key : chaves) {
+			if (key != null)
+				output += key.getId() + " -> TIPO: "
+						+ tsFunc.get(key).getTipo() + " | CATEGORIA: "
+						+ tsFunc.get(key).getCategoria() + " | QNTD. PARAM.: "
+						+ tsFunc.get(key).getQntdParametro()
+						+ " | SEQ. PARAM.: "
+						+ tsFunc.get(key).getSeqParametro() + " | ESCOPO: "
+						+ key.getEscopo() + "\n";
 		}
 
 		// System.out.println(PortugolParser.tabelaSimbolos);
 
-		saida.put("error", error);
+		saida.put("erroSint", erroSint);
+		saida.put("erroSem", erroSem);
 		saida.put("output", output);
 
 		return saida;
