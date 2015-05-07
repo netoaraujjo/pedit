@@ -14,6 +14,7 @@ import application.InfoFuncao;
 import application.InfoVariavel;
 
 public class PortugolSemantica extends PortugolBaseListener {
+
 	private Map<Chave, InfoVariavel> tsVar = new HashMap<Chave, InfoVariavel>();
 	private Map<Chave, InfoFuncao> tsFunc = new HashMap<Chave, InfoFuncao>();
 	private String output = "";
@@ -78,60 +79,47 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
-	/*
-	 * @Override public void enterAtribuicao(PortugolParser.AtribuicaoContext
-	 * ctx) { output += "ID: " + ctx.ID().getText() + "\n";
-	 * 
-	 * if (ctx.expressao().isEmpty()) { output += "ATRIBUICAO: " +
-	 * ctx.exprLogica().getText() + "\n"; } else { output += "ATRIBUICAO: " +
-	 * ctx.expressao().getText() + "\n"; } }
-	 * 
-	 * @Override public void enterEscrever(PortugolParser.EscreverContext ctx) {
-	 * String str = "";
-	 * 
-	 * for (ArgumentosContext arg : ctx.argumentos()) { if
-	 * (arg.getText().contains("\"")) str += arg.getText().substring(1,
-	 * arg.getText().length() - 1) + "\n"; else str += arg.getText().toString()
-	 * + "\n"; }
-	 * 
-	 * output += "ESCREVER: " + str + "\n"; }
-	 * 
-	 * @Override public void
-	 * enterChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) { String str
-	 * = "";
-	 * 
-	 * output += "ID: " + ctx.ID().toString() + "\n";
-	 * 
-	 * for (ArgumentosContext arg : ctx.argumentos()) { if (arg.chamadaDeFunc()
-	 * != null) str += arg.chamadaDeFunc().getText() + "\n"; else if
-	 * (arg.expressao() != null) str += arg.expressao().getText() + "\n"; else
-	 * if (arg.exprLogica() != null) str += arg.exprLogica().getText() + "\n"; }
-	 * 
-	 * output += "ARGUMENTOS: " + str + "\n"; }
-	 * 
-	 * @Override public void enterLer(PortugolParser.LerContext ctx) { String
-	 * str = "";
-	 * 
-	 * for (TerminalNode t : ctx.ID()) { str += t.getText() + "\n"; }
-	 * 
-	 * output += "LER: " + str + "\n"; }
-	 * 
-	 * @Override public void enterRetorna(PortugolParser.RetornaContext ctx) {
-	 * output += "RETORNA: " + ctx.expressao().getText() + "\n"; }
-	 * 
-	 * @Override public void enterComandos(PortugolParser.ComandosContext ctx) {
-	 * String str = "";
-	 * 
-	 * if (ctx.atribuicao() != null) str += ctx.atribuicao().getText() + "\n";
-	 * else if (ctx.ler() != null) str += ctx.ler().getText() + "\n"; else if
-	 * (ctx.escrever() != null) str += ctx.escrever().getText() + "\n"; else if
-	 * (ctx.decisao() != null) str += ctx.decisao().getText() + "\n"; else if
-	 * (ctx.para() != null) str += ctx.para().getText() + "\n"; else if
-	 * (ctx.enquanto() != null) str += ctx.enquanto().getText() + "\n"; else if
-	 * (ctx.retorna() != null) str += ctx.retorna().getText() + "\n";
-	 * 
-	 * output += "COMANDOS: " + str + "\n"; }
-	 */
+	@Override
+	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
+
+		if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
+				&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+			erro += "Identificador \"" + ctx.ID().getText()
+					+ "\" não foi criado.\n";
+		}
+
+	}
+
+	@Override
+	public void enterLer(PortugolParser.LerContext ctx) {
+		for (TerminalNode no : ctx.ID()) {
+			if (!existeChaveVar(no.getText(), escopo, tsVar)
+					&& !existeChaveVar(no.getText(), 0, tsVar)) {
+				erro += "Identificador \"" + no.getText()
+						+ "\" não foi criado.\n";
+			}
+		}
+	}
+
+	@Override
+	public void enterPara(PortugolParser.ParaContext ctx) {
+		if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
+				&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+			erro += "Identificador \"" + ctx.ID().getText()
+					+ "\" não foi criado.\n";
+		}
+	}
+
+	@Override
+	public void enterExpressao(PortugolParser.ExpressaoContext ctx) {
+		if (ctx.ID() != null) {
+			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
+					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+				erro += "Identificador \"" + ctx.ID().getText()
+						+ "\" não foi criado.\n";
+			}
+		}
+	}
 
 	public String getOutput() {
 		return output;
@@ -151,6 +139,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	public boolean existeChaveVar(String id, int escopo,
 			Map<Chave, InfoVariavel> hash) {
+
 		boolean existe = false;
 
 		Set<Chave> chaves = hash.keySet();
@@ -167,6 +156,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	public boolean existeChaveFunc(String id, Map<Chave, InfoFuncao> hash) {
+
 		boolean existe = false;
 
 		Set<Chave> chaves = hash.keySet();
