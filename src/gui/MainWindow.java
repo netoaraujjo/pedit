@@ -638,9 +638,7 @@ public class MainWindow extends JFrame {
 				Semantica sem = new Semantica();
 				Map<String, String> hash = null;
 				
-				String txt = abas.get(tabbebPaneCodigo.getSelectedIndex()).getTexto();
-				File arq = abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo();
-				fileControler.salvarArquivo(txt, arq);
+				salvaArquivo();
 				
 				try {
 					hash = sem.executa(abas.get(tabbebPaneCodigo.getSelectedIndex()).getArquivo());
@@ -1037,12 +1035,7 @@ public class MainWindow extends JFrame {
 	private class SalvarArquivoHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			int indice = tabbebPaneCodigo.getSelectedIndex();
-			String txt = abas.get(indice).getTexto();
-			File arq = abas.get(indice).getArquivo();
-			fileControler.salvarArquivo(txt, arq);
-			abas.get(indice).setArquivoAlterado(false);
-			tabbebPaneCodigo.setTitleAt(indice, abas.get(indice).getArquivo().getName());
+			salvaArquivo();
 		}
 	}
 	
@@ -1111,6 +1104,15 @@ public class MainWindow extends JFrame {
 		AutoCompletion ac = new AutoCompletion(prov);
 		
 		ac.install(aba.getTextArea());
+	}
+	
+	public void salvaArquivo() {
+		int indice = tabbebPaneCodigo.getSelectedIndex();
+		String txt = abas.get(indice).getTexto();
+		File arq = abas.get(indice).getArquivo();
+		fileControler.salvarArquivo(txt, arq);
+		abas.get(indice).setArquivoAlterado(false);
+		tabbebPaneCodigo.setTitleAt(indice, abas.get(indice).getArquivo().getName());
 	}
 
 }

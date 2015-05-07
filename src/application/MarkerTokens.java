@@ -36,7 +36,7 @@ public class MarkerTokens extends AbstractTokenMaker {
 		tokenMap.put("logico", Token.DATA_TYPE);
 		tokenMap.put("palavra", Token.DATA_TYPE);
 		
-		tokenMap.put("verdadeiro", Token.LITERAL_BOOLEAN);
+		tokenMap.put("verdade", Token.LITERAL_BOOLEAN);
 		tokenMap.put("falso", Token.LITERAL_BOOLEAN);
 
 		return tokenMap;

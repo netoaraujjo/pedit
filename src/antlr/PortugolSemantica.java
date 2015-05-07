@@ -22,47 +22,30 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
-
 		for (TerminalNode no : ctx.ID()) {
-			Set<Chave> chaves = tsVar.keySet();
-			for (Chave key : chaves) {
-				if (key != null) {
-					if (key.getId().compareTo(no.getText()) == 0
-							&& key.getEscopo() == escopo) {
-						tsVar.put(new Chave(no.getText(), escopo),
-								new InfoVariavel(ctx.tipo().t,
-										Constantes.VARIAVEL));
-					} else {
-						erro += "Identificador " + no.getText()
-								+ " ja foi criado no escopo atual.\n";
-					}
-				}
+			if (!existeChaveVar(no.getText(), this.escopo, tsVar)) {
+				tsVar.put(new Chave(no.getText(), escopo),
+						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL));
+			} else {
+				erro += "Identificador " + no.getText()
+						+ " ja foi criado no escopo atual.\n";
 			}
 		}
-
-		// for (TerminalNode no : ctx.ID()) {
-		// Chave key = new Chave(no.getText(), escopo);
-		// if (tsVar.containsKey(key)) {
-		// tsVar.put(new Chave(no.getText(), escopo),
-		// new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL));
-		// } else {
-		// erro += "Identificador " + no.getText()
-		// + " ja foi criado no escopo atual.\n";
-		// }
-		// }
 	}
 
 	@Override
 	public void enterDeclarConst(PortugolParser.DeclarConstContext ctx) {
 		if (ctx.atribuicao().ID() != null) {
-			if (!tsVar.containsKey(new Chave(ctx.atribuicao().ID().getText(),
-					escopo))) {
+			if (!existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
+					tsVar)) {
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE));
 			} else {
 				erro += "Identificador " + ctx.atribuicao().ID().getText()
 						+ " ja foi criado no escopo atual.\n";
 			}
+		} else {
+			erro += "Constante nao foi inicializada corretamente.\n";
 		}
 	}
 
@@ -86,12 +69,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 			seqParam.add(param.tipo().t);
 		}
 
-		if (!tsFunc.containsKey(new Chave(ctx.ID().getText(), escopo)))
-			tsFunc.put(new Chave(ctx.ID().getText(), escopo), new InfoFuncao(
-					ctx.tipo().t, Constantes.FUNCAO, seqParam));
-		else
-			erro += "Ja existe uma funcao com o identificador " + ctx.ID().getText();
-
+		if (!existeChaveFunc(ctx.ID().getText(), tsFunc)) {
+			tsFunc.put(new Chave(ctx.ID().getText(), this.escopo),
+					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam));
+		} else {
+			erro += "Ja existe uma funcao com o identificador "
+					+ ctx.ID().getText();
+		}
 	}
 
 	/*
@@ -163,6 +147,39 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	public Map<Chave, InfoFuncao> getTsFunc() {
 		return tsFunc;
+	}
+
+	public boolean existeChaveVar(String id, int escopo,
+			Map<Chave, InfoVariavel> hash) {
+		boolean existe = false;
+
+		Set<Chave> chaves = hash.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getEscopo() == escopo && key.getId().compareTo(id) == 0) {
+					existe = true;
+					break;
+				}
+			}
+		}
+
+		return existe;
+	}
+
+	public boolean existeChaveFunc(String id, Map<Chave, InfoFuncao> hash) {
+		boolean existe = false;
+
+		Set<Chave> chaves = hash.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getId().compareTo(id) == 0) {
+					existe = true;
+					break;
+				}
+			}
+		}
+
+		return existe;
 	}
 
 }

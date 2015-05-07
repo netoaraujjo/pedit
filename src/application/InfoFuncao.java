@@ -2,26 +2,14 @@ package application;
 
 import java.util.ArrayList;
 
-public class InfoFuncao {
-	private int tipo;
-	private int categoria;
+public class InfoFuncao extends InfoVariavel {
 	private int qntdParametro;
 	private ArrayList<Integer> seqParametro;
 
-	public InfoFuncao(int tipo, int categoria,
-			ArrayList<Integer> seqParametro) {
-		this.tipo = tipo;
-		this.categoria = categoria;
+	public InfoFuncao(int tipo, int categoria, ArrayList<Integer> seqParametro) {
+		super(tipo, categoria);
 		this.seqParametro = seqParametro;
 		this.qntdParametro = seqParametro.size();
-	}
-
-	public int getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(int tipo) {
-		this.tipo = tipo;
 	}
 
 	public int getQntdParametro() {
@@ -38,14 +26,6 @@ public class InfoFuncao {
 
 	public void setSeqParametro(ArrayList<Integer> seqParametro) {
 		this.seqParametro = seqParametro;
-	}
-
-	public int getCategoria() {
-		return categoria;
-	}
-
-	public void setCategoria(int categoria) {
-		this.categoria = categoria;
 	}
 
 }

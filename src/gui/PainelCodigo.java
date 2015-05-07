@@ -42,9 +42,9 @@ public class PainelCodigo extends JPanel {
 		txtCodigo = new RSyntaxTextArea();
 		
 		AbstractTokenMakerFactory atmf = (AbstractTokenMakerFactory) TokenMakerFactory.getDefaultInstance();
-		atmf.putMapping("text/minhaLinguagem", "application.MarkerTokens");
+		atmf.putMapping("text/myLanguage", "application.MarkerTokens");
 		
-		txtCodigo.setSyntaxEditingStyle("text/minhaLinguagem");
+		txtCodigo.setSyntaxEditingStyle("text/myLanguage");
 		
 		txtCodigo.setCodeFoldingEnabled(true);
 		txtCodigo.setAntiAliasingEnabled(true);

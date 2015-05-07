@@ -1,5 +1,9 @@
 /antlr/
 /application/
-/input
-/input.por
+/config.ini
+/controller/
+/exceptions/
 /gui/
+/icons/
+/input.por
+/lib/
