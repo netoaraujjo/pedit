@@ -93,8 +93,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterLer(PortugolParser.LerContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
-			if (!existeChaveVar(no.getText(), escopo, tsVar)
-					&& !existeChaveVar(no.getText(), 0, tsVar)) {
+			if (existeChaveVar(no.getText(), this.escopo, tsVar)) {
+				if (argumentoLogico(no.getText(), this.escopo)) {
+					erro += "Identificador \"" + no.getText()
+							+ "\" é do tipo lógico.";
+				}
+			} else if (existeChaveVar(no.getText(), 0, tsVar)) {
+				if (argumentoLogico(no.getText(), 0)) {
+					erro += "Identificador \"" + no.getText()
+							+ "\" é do tipo lógico.";
+				}
+			} else {
 				erro += "Identificador \"" + no.getText()
 						+ "\" não foi criado.\n";
 			}
@@ -121,20 +130,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
-	public String getOutput() {
-		return output;
-	}
-
-	public String getErro() {
-		return erro;
-	}
-
-	public Map<Chave, InfoVariavel> getTsVar() {
-		return tsVar;
-	}
-
-	public Map<Chave, InfoFuncao> getTsFunc() {
-		return tsFunc;
+	@Override
+	public void enterExprLogica(PortugolParser.ExprLogicaContext ctx) {
+		if (ctx.ID() != null) {
+			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
+					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+				erro += "Identificador \"" + ctx.ID().getText()
+						+ "\" não foi criado.\n";
+			}
+		}
 	}
 
 	public boolean existeChaveVar(String id, int escopo,
@@ -170,6 +174,39 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return existe;
+	}
+
+	public boolean argumentoLogico(String id, int escopo) {
+
+		boolean logico = false;
+
+		Set<Chave> chaves = tsVar.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getEscopo() == escopo && key.getId().compareTo(id) == 0
+						&& tsVar.get(key).getTipo() == Constantes.LOGICO) {
+					logico = true;
+					break;
+				}
+			}
+		}
+		return logico;
+	}
+
+	public String getOutput() {
+		return output;
+	}
+
+	public String getErro() {
+		return erro;
+	}
+
+	public Map<Chave, InfoVariavel> getTsVar() {
+		return tsVar;
+	}
+
+	public Map<Chave, InfoFuncao> getTsFunc() {
+		return tsFunc;
 	}
 
 }
