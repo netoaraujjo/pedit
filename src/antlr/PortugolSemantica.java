@@ -28,8 +28,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 				tsVar.put(new Chave(no.getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL));
 			} else {
-				erro += "Identificador " + no.getText()
-						+ " ja foi criado no escopo atual.\n";
+				erro += "Identificador \"" + no.getText()
+						+ "\" já foi criado no escopo atual.\n";
 			}
 		}
 	}
@@ -42,8 +42,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE));
 			} else {
-				erro += "Identificador " + ctx.atribuicao().ID().getText()
-						+ " ja foi criado no escopo atual.\n";
+				erro += "Identificador \"" + ctx.atribuicao().ID().getText()
+						+ "\" já foi criado no escopo atual.\n";
 			}
 		} else {
 			erro += "Constante nao foi inicializada corretamente.\n";
@@ -52,7 +52,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
-		escopo += 1;
+		escopo = -1;
 		tsFunc.put(new Chave("principal", escopo), new InfoFuncao(
 				Constantes.INTEIRO, Constantes.FUNCAO_PRINCIPAL,
 				new ArrayList<Integer>()));
@@ -65,29 +65,34 @@ public class PortugolSemantica extends PortugolBaseListener {
 		ArrayList<Integer> seqParam = new ArrayList<Integer>();
 
 		for (ParametroContext param : ctx.parametro()) {
-			tsVar.put(new Chave(param.ID().getText(), escopo),
-					new InfoVariavel(param.tipo().t, Constantes.PARAMETRO));
-			seqParam.add(param.tipo().t);
+			if (!existeChaveVar(param.ID().getText(), this.escopo, tsVar)) {
+				tsVar.put(new Chave(param.ID().getText(), escopo),
+						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO));
+				seqParam.add(param.tipo().t);
+			} else {
+				erro += "Identificador \"" + param.ID().getText()
+						+ "\" já foi criado no escopo atual.\n";
+			}
 		}
 
 		if (!existeChaveFunc(ctx.ID().getText(), tsFunc)) {
 			tsFunc.put(new Chave(ctx.ID().getText(), this.escopo),
 					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam));
 		} else {
-			erro += "Ja existe uma funcao com o identificador "
-					+ ctx.ID().getText();
+			erro += "Já existe uma funcao com o identificador \""
+					+ ctx.ID().getText() + "\".\n";
 		}
 	}
 
 	@Override
 	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
-
-		if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
-				&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
-			erro += "Identificador \"" + ctx.ID().getText()
-					+ "\" n�o foi criado.\n";
+		if (ctx.ID() != null) {
+			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
+					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+				erro += "Identificador \"" + ctx.ID().getText()
+						+ "\" não foi criado.\n";
+			}
 		}
-
 	}
 
 	@Override
@@ -96,16 +101,16 @@ public class PortugolSemantica extends PortugolBaseListener {
 			if (existeChaveVar(no.getText(), this.escopo, tsVar)) {
 				if (argumentoLogico(no.getText(), this.escopo)) {
 					erro += "Identificador \"" + no.getText()
-							+ "\" � do tipo l�gico.";
+							+ "\" é do tipo logico.\n";
 				}
 			} else if (existeChaveVar(no.getText(), 0, tsVar)) {
 				if (argumentoLogico(no.getText(), 0)) {
 					erro += "Identificador \"" + no.getText()
-							+ "\" � do tipo l�gico.";
+							+ "\" é do tipo logico.\n";
 				}
 			} else {
 				erro += "Identificador \"" + no.getText()
-						+ "\" n�o foi criado.\n";
+						+ "\" não foi criado.\n";
 			}
 		}
 	}
@@ -115,7 +120,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
 				&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
 			erro += "Identificador \"" + ctx.ID().getText()
-					+ "\" n�o foi criado.\n";
+					+ "\" não foi criado.\n";
 		}
 	}
 
@@ -125,7 +130,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
 					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
 				erro += "Identificador \"" + ctx.ID().getText()
-						+ "\" n�o foi criado.\n";
+						+ "\" não foi criado.\n";
 			}
 		}
 	}
@@ -136,8 +141,41 @@ public class PortugolSemantica extends PortugolBaseListener {
 			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
 					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
 				erro += "Identificador \"" + ctx.ID().getText()
-						+ "\" n�o foi criado.\n";
+						+ "\" não foi criado.\n";
 			}
+		}
+	}
+
+	@Override
+	public void enterChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
+		Chave chave = null;
+		InfoFuncao infoFuncao = null;
+		if (existeChaveFunc(ctx.ID().getText(), tsFunc)) { // Função não existe
+			Set<Chave> chaves = tsFunc.keySet();
+			for (Chave key : chaves) {
+				if (key != null) {
+					if (key.getId().compareTo(ctx.ID().getText()) == 0) {
+						chave = key;
+						infoFuncao = tsFunc.get(key);
+						break;
+					}
+				}
+			}
+
+			/* Função não está no escopo correto */
+			if (chave.getEscopo() == this.escopo || this.escopo == -1) {
+				if (infoFuncao.getQntdParametro() == ctx.argumentos().size()) {
+					//	Testar se os tipos são iguais 
+				} else {
+					erro += "Chamada da função \"" + ctx.ID().getText()
+							+ "\" tem quantidade de argumentos incompatível.\n";
+				}
+			} else {
+				erro += "Impossível chamar função \"" + ctx.ID().getText()
+						+ "\" no escopo atual.\n";
+			}
+		} else {
+			erro += "A função \"" + ctx.ID().getText() + "\" não foi declarada.\n";
 		}
 	}
 

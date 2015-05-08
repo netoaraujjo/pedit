@@ -86,7 +86,7 @@ public class MainWindow extends JFrame {
 	private JMenuItem abrir;
 	private JMenuItem salvar;
 	private JMenuItem salvarComo;
-	private JMenuItem imprimir;
+	private JMenuItem salvarTodos;
 	private JMenuItem sair;
 	// Menu Editar
 	private JMenu menuEditar;
@@ -123,7 +123,7 @@ public class MainWindow extends JFrame {
 	private JButton botaoNovo;
 	private JButton botaoAbrir;
 	private JButton botaoSalvar;
-	private JButton botaoImprimir;
+	private JButton botaoSalvarTodos;
 	// Toolbar Editar
 	private JToolBar toolbarEditar;
 	private JButton botaoDesfazer;
@@ -340,11 +340,18 @@ public class MainWindow extends JFrame {
 		salvar.addActionListener(new SalvarArquivoHandler());
 		
 		salvarComo = new JMenuItem("Salvar como...");
-		salvarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+//		salvarComo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
 		salvarComo.addActionListener(new SalvarComoHandler());
 		
-		imprimir = new JMenuItem("Imprimir");
-		imprimir.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
+		salvarTodos = new JMenuItem("Salvar Todos");
+		salvarTodos.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK));
+		salvarTodos.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				salvaTodos();
+			}
+		});
 		
 		sair = new JMenuItem("Sair");
 		sair.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
@@ -361,7 +368,7 @@ public class MainWindow extends JFrame {
 		menuArquivo.add(salvar);
 		menuArquivo.add(salvarComo);
 		menuArquivo.addSeparator();
-		menuArquivo.add(imprimir);
+		menuArquivo.add(salvarTodos);
 		menuArquivo.addSeparator();
 		menuArquivo.add(sair);
 	}
@@ -409,6 +416,10 @@ public class MainWindow extends JFrame {
 				} else {
 					txt.replaceSelection("// ");
 				}
+				if (!abas.get(tabbebPaneCodigo.getSelectedIndex()).isArquivoAlterado()) {
+					abas.get(tabbebPaneCodigo.getSelectedIndex()).setArquivoAlterado(true);
+					alteraTituloAba();
+				}
 			}
 		});
 		
@@ -425,6 +436,10 @@ public class MainWindow extends JFrame {
 					txt.replaceSelection("/* " + txtSelecionado + " */");
 				} else {
 					txt.replaceSelection("/* */");
+				}
+				if (!abas.get(tabbebPaneCodigo.getSelectedIndex()).isArquivoAlterado()) {
+					abas.get(tabbebPaneCodigo.getSelectedIndex()).setArquivoAlterado(true);
+					alteraTituloAba();
 				}
 			}
 		});
@@ -569,15 +584,22 @@ public class MainWindow extends JFrame {
 		botaoSalvar.setFocusPainted(false);
 		
 		Icon iconeImprimir = new ImageIcon(getClass().getResource(iconDir + "print.png"));
-		botaoImprimir = new JButton(iconeImprimir);
-		botaoImprimir.setToolTipText("Imprimir (Ctrl+P)");
-		botaoImprimir.setBorderPainted(false);
-		botaoImprimir.setFocusPainted(false);
+		botaoSalvarTodos = new JButton(iconeImprimir);
+		botaoSalvarTodos.setToolTipText("Salvar Todos (Ctrl+Shift+S)");
+		botaoSalvarTodos.setBorderPainted(false);
+		botaoSalvarTodos.setFocusPainted(false);
+		botaoSalvarTodos.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				salvaTodos();
+			}
+		});
 		
 		toolbarArquivo.add(botaoNovo);
 		toolbarArquivo.add(botaoAbrir);
 		toolbarArquivo.add(botaoSalvar);
-		toolbarArquivo.add(botaoImprimir);
+		toolbarArquivo.add(botaoSalvarTodos);
 	}
 	
 	private void configuraToolbarEditar() {
@@ -687,7 +709,7 @@ public class MainWindow extends JFrame {
 	private void habilitaFerramentasEdicao(boolean status) {
 		salvar.setEnabled(status);
 		salvarComo.setEnabled(status);
-		imprimir.setEnabled(status);
+		salvarTodos.setEnabled(status);
 		
 		desfazer.setEnabled(status);
 		refazer.setEnabled(status);
@@ -699,7 +721,7 @@ public class MainWindow extends JFrame {
 		comentarioBloco.setEnabled(status);
 		
 		botaoSalvar.setEnabled(status);
-		botaoImprimir.setEnabled(status);
+		botaoSalvarTodos.setEnabled(status);
 		botaoDesfazer.setEnabled(status);
 		botaoRefazer.setEnabled(status);
 		botaoRecortar.setEnabled(status);
@@ -1113,6 +1135,16 @@ public class MainWindow extends JFrame {
 		fileControler.salvarArquivo(txt, arq);
 		abas.get(indice).setArquivoAlterado(false);
 		tabbebPaneCodigo.setTitleAt(indice, abas.get(indice).getArquivo().getName());
+	}
+	
+	public void salvaTodos() {
+		for (int i = 0; i < tabbebPaneCodigo.getTabCount(); i++) {
+			String txt = abas.get(i).getTexto();
+			File arq = abas.get(i).getArquivo();
+			fileControler.salvarArquivo(txt, arq);
+			abas.get(i).setArquivoAlterado(false);
+			tabbebPaneCodigo.setTitleAt(i, abas.get(i).getArquivo().getName());
+		}
 	}
 
 }

@@ -83,6 +83,12 @@ public class MarkerTokens extends AbstractTokenMaker {
 				currentTokenStart = i; // Starting a new token here.
 
 				switch (c) {
+				
+				case '/':
+					if(array[i+1] == '/'){
+						currentTokenType = Token.COMMENT_EOL;
+						break;
+					}
 
 				case ' ':
 				case '\t':
@@ -93,11 +99,6 @@ public class MarkerTokens extends AbstractTokenMaker {
 					currentTokenType = Token.LITERAL_STRING_DOUBLE_QUOTE;
 					break;
 
-				case '/':
-					if(array[i+1] == '/'){
-						currentTokenType = Token.COMMENT_EOL;
-						break;
-					}
 				default:
 					if (RSyntaxUtilities.isDigit(c)) {
 						currentTokenType = Token.LITERAL_NUMBER_DECIMAL_INT;
