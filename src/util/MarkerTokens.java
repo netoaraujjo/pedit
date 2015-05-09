@@ -1,4 +1,4 @@
-package application;
+package util;
 
 import javax.swing.text.Segment;
 
