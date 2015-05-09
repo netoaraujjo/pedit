@@ -1,4 +1,4 @@
-package application;
+package util;
 
 public class Constantes {
 
@@ -11,14 +11,14 @@ public class Constantes {
 	public final static int PALAVRA = 4;
 
 	/**********************************************
-	 * Categoria Variável
+	 * Categoria Variï¿½vel
 	 *********************************************/
 	public static final int VARIAVEL = 5;
 	public static final int CONSTANTE = 6;
 	public static final int PARAMETRO = 7;
 
 	/**********************************************
-	 * Categoria Função
+	 * Categoria Funï¿½ï¿½o
 	 *********************************************/
 	public static final int FUNCAO = 8;
 	public static final int FUNCAO_PRINCIPAL = 9;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package application;
+package compiler;
 
 import java.io.File;
 import java.io.FileInputStream;

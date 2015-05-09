@@ -1,4 +1,4 @@
-package application;
+package compiler;
 
 public class InfoVariavel {
 	private int tipo;
