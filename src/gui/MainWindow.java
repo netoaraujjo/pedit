@@ -583,8 +583,8 @@ public class MainWindow extends JFrame {
 		botaoSalvar.setBorderPainted(false);
 		botaoSalvar.setFocusPainted(false);
 		
-		Icon iconeImprimir = new ImageIcon(getClass().getResource(iconDir + "print.png"));
-		botaoSalvarTodos = new JButton(iconeImprimir);
+		Icon iconeSalvarTodos = new ImageIcon(getClass().getResource(iconDir + "save_all.png"));
+		botaoSalvarTodos = new JButton(iconeSalvarTodos);
 		botaoSalvarTodos.setToolTipText("Salvar Todos (Ctrl+Shift+S)");
 		botaoSalvarTodos.setBorderPainted(false);
 		botaoSalvarTodos.setFocusPainted(false);
