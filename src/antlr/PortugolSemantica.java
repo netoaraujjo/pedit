@@ -7,11 +7,11 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import compiler.Chave;
+import compiler.InfoFuncao;
+import compiler.InfoVariavel;
+import util.Constantes;
 import antlr.PortugolParser.ParametroContext;
-import application.Chave;
-import application.Constantes;
-import application.InfoFuncao;
-import application.InfoVariavel;
 
 public class PortugolSemantica extends PortugolBaseListener {
 

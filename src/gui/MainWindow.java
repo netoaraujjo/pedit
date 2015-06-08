@@ -62,7 +62,8 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ShorthandCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import application.Semantica;
+import compiler.Semantica;
+
 import controller.FileController;
 
 /**
@@ -465,6 +466,7 @@ public class MainWindow extends JFrame {
 			public void itemStateChanged(ItemEvent e) {
 				if (verPainelLateral.isSelected()) {
 					painelLateral.setVisible(true);
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
 				} else {
 					painelLateral.setVisible(false);
 					SwingUtilities.updateComponentTreeUI(MainWindow.this);
@@ -479,6 +481,7 @@ public class MainWindow extends JFrame {
 			public void itemStateChanged(ItemEvent e) {
 				if (verConsole.isSelected()) {
 					painelInfo.setVisible(true);
+					SwingUtilities.updateComponentTreeUI(MainWindow.this);
 				} else {
 					painelInfo.setVisible(false);
 					SwingUtilities.updateComponentTreeUI(MainWindow.this);
@@ -583,8 +586,8 @@ public class MainWindow extends JFrame {
 		botaoSalvar.setBorderPainted(false);
 		botaoSalvar.setFocusPainted(false);
 		
-		Icon iconeImprimir = new ImageIcon(getClass().getResource(iconDir + "print.png"));
-		botaoSalvarTodos = new JButton(iconeImprimir);
+		Icon iconeSalvarTodos = new ImageIcon(getClass().getResource(iconDir + "save_all.png"));
+		botaoSalvarTodos = new JButton(iconeSalvarTodos);
 		botaoSalvarTodos.setToolTipText("Salvar Todos (Ctrl+Shift+S)");
 		botaoSalvarTodos.setBorderPainted(false);
 		botaoSalvarTodos.setFocusPainted(false);
