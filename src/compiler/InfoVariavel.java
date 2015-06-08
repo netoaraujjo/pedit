@@ -1,28 +1,19 @@
 package compiler;
 
-public class InfoVariavel {
-	private int tipo;
-	private int categoria;
+public class InfoVariavel extends Info {
+	private int endereco;
 
-	public InfoVariavel(int tipo, int categoria) {
-		this.tipo = tipo;
-		this.categoria = categoria;
+	public InfoVariavel(int tipo, int categoria, int endereco) {
+		super(tipo, categoria);
+		this.endereco = endereco;
 	}
 
-	public int getTipo() {
-		return tipo;
+	public int getEndereco() {
+		return endereco;
 	}
 
-	public void setTipo(int tipo) {
-		this.tipo = tipo;
-	}
-
-	public int getCategoria() {
-		return categoria;
-	}
-
-	public void setCategoria(int categoria) {
-		this.categoria = categoria;
+	public void setEndereco(int endereco) {
+		this.endereco = endereco;
 	}
 
 }

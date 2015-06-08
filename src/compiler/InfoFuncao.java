@@ -2,7 +2,7 @@ package compiler;
 
 import java.util.ArrayList;
 
-public class InfoFuncao extends InfoVariavel {
+public class InfoFuncao extends Info {
 	private int qntdParametro;
 	private ArrayList<Integer> seqParametro;
 

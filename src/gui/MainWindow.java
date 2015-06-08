@@ -660,6 +660,7 @@ public class MainWindow extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				long tempoInicial = System.currentTimeMillis();
 				Semantica sem = new Semantica();
 				Map<String, String> hash = null;
 				
@@ -691,6 +692,18 @@ public class MainWindow extends JFrame {
 		        catch (BadLocationException e1){}
 
 				painelLog.setSelectedIndex(1);
+				
+				
+				long tempoFinal = System.currentTimeMillis() - tempoInicial;
+				
+				StyledDocument doc2 = textLog.getStyledDocument();
+
+		        Style style2 = textLog.addStyle("I'm a Style", null);
+		        
+		        //StyleConstants.setForeground(style, Color.blue);
+
+		        try { doc2.insertString(doc2.getLength(), "O programa foi executado em \"" + tempoFinal + "\" milissegundos.\n", style2); }
+		        catch (BadLocationException e1){}
 			}
 		});
 		

@@ -20,13 +20,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private String output = "";
 	private String erro = "";
 	private int escopo = 0;
+	private int endereceVar = 0;
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo, tsVar)) {
 				tsVar.put(new Chave(no.getText(), escopo),
-						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL));
+						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL, endereceVar));
+				endereceVar++;
 			} else {
 				erro += "Identificador \"" + no.getText()
 						+ "\" já foi criado no escopo atual.\n";
@@ -40,7 +42,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 			if (!existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
 					tsVar)) {
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
-						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE));
+						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE, endereceVar));
+				endereceVar++;
 			} else {
 				erro += "Identificador \"" + ctx.atribuicao().ID().getText()
 						+ "\" já foi criado no escopo atual.\n";
@@ -67,7 +70,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 		for (ParametroContext param : ctx.parametro()) {
 			if (!existeChaveVar(param.ID().getText(), this.escopo, tsVar)) {
 				tsVar.put(new Chave(param.ID().getText(), escopo),
-						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO));
+						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO, endereceVar));
+				endereceVar++;
 				seqParam.add(param.tipo().t);
 			} else {
 				erro += "Identificador \"" + param.ID().getText()
