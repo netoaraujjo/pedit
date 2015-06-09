@@ -114,7 +114,9 @@ public class Semantica {
 			if (key != null)
 				output += key.getId() + " -> TIPO: " + tsVar.get(key).getTipo()
 						+ " | CATEGORIA: " + tsVar.get(key).getCategoria()
-						+ " | ESCOPO: " + key.getEscopo() + "\n";
+						+ " | ESCOPO: " + key.getEscopo()
+						+ " | ENDEREÇO: " + tsVar.get(key).getEndereco()
+						+ " | VALOR: " + tsVar.get(key).getValor() + "\n";
 		}
 
 		output += "\n--: FUNCOES :--\n";

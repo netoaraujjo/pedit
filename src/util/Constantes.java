@@ -11,16 +11,22 @@ public class Constantes {
 	public final static int PALAVRA = 4;
 
 	/**********************************************
-	 * Categoria Vari�vel
+	 * Categoria Variável
 	 *********************************************/
 	public static final int VARIAVEL = 5;
 	public static final int CONSTANTE = 6;
 	public static final int PARAMETRO = 7;
 
 	/**********************************************
-	 * Categoria Fun��o
+	 * Categoria Função
 	 *********************************************/
 	public static final int FUNCAO = 8;
 	public static final int FUNCAO_PRINCIPAL = 9;
+	
+	/**********************************************
+	 * Tipo Lógico
+	 *********************************************/
+	public static final String VERDADE = "true";
+	public static final String FALSO = "false";
 	
 }

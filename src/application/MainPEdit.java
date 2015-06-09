@@ -8,7 +8,7 @@ import gui.MainWindow;
 import javax.swing.JFrame;
 
 /**
- * @author Francisco Neto, Lu�s Guilherme
+ * @author Francisco Neto, Luís Guilherme
  *
  */
 public class MainPEdit {

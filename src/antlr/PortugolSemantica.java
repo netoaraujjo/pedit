@@ -26,8 +26,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo, tsVar)) {
+
+				String valor = retornaValor(ctx.tipo().t);
+
 				tsVar.put(new Chave(no.getText(), escopo),
-						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL, endereceVar));
+						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL,
+								endereceVar, valor));
 				endereceVar++;
 			} else {
 				erro += "Identificador \"" + no.getText()
@@ -41,8 +45,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 		if (ctx.atribuicao().ID() != null) {
 			if (!existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
 					tsVar)) {
+
+				String valor = ""; // Falta descobrir o valor da constante
+
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
-						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE, endereceVar));
+						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE,
+								endereceVar, valor));
 				endereceVar++;
 			} else {
 				erro += "Identificador \"" + ctx.atribuicao().ID().getText()
@@ -69,8 +77,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		for (ParametroContext param : ctx.parametro()) {
 			if (!existeChaveVar(param.ID().getText(), this.escopo, tsVar)) {
+
+				String valor = retornaValor(param.tipo().t);
+
 				tsVar.put(new Chave(param.ID().getText(), escopo),
-						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO, endereceVar));
+						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO,
+								endereceVar, valor));
 				endereceVar++;
 				seqParam.add(param.tipo().t);
 			} else {
@@ -169,7 +181,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			/* Função não está no escopo correto */
 			if (chave.getEscopo() == this.escopo || this.escopo == -1) {
 				if (infoFuncao.getQntdParametro() == ctx.argumentos().size()) {
-					//	Testar se os tipos são iguais 
+					// Testar se os tipos são iguais
 				} else {
 					erro += "Chamada da função \"" + ctx.ID().getText()
 							+ "\" tem quantidade de argumentos incompatível.\n";
@@ -179,7 +191,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ "\" no escopo atual.\n";
 			}
 		} else {
-			erro += "A função \"" + ctx.ID().getText() + "\" não foi declarada.\n";
+			erro += "A função \"" + ctx.ID().getText()
+					+ "\" não foi declarada.\n";
 		}
 	}
 
@@ -233,6 +246,22 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 		}
 		return logico;
+	}
+
+	public String retornaValor(int tipo) {
+		String value = "";
+		
+		if(tipo == Constantes.INTEIRO) {
+			value = "0";
+		} else if (tipo == Constantes.REAL) {
+			value = "0.0";
+		} else if (tipo == Constantes.PALAVRA) {
+			value = "";
+		}else if (tipo == Constantes.LOGICO) {
+			value = Constantes.FALSO;
+		}
+		
+		return value;
 	}
 
 	public String getOutput() {
