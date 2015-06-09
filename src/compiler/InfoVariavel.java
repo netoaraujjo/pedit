@@ -7,7 +7,7 @@ public class InfoVariavel extends Info {
 	public InfoVariavel(int tipo, int categoria, int endereco, String valor) {
 		super(tipo, categoria);
 		this.endereco = endereco;
-		this.setValor(valor);
+		this.valor = valor;
 	}
 
 	public int getEndereco() {
