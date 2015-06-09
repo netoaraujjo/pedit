@@ -673,6 +673,7 @@ public class MainWindow extends JFrame {
 				}
 				
 				textConsole.setText("");
+				textLog.setText("");
 				
 				StyledDocument doc = textConsole.getStyledDocument();
 
@@ -704,6 +705,11 @@ public class MainWindow extends JFrame {
 
 		        try { doc2.insertString(doc2.getLength(), "O programa foi executado em \"" + tempoFinal + "\" milissegundos.\n", style2); }
 		        catch (BadLocationException e1){}
+		        
+		        if (hash.get("erroSint").isEmpty() && hash.get("erroSem").isEmpty()) {
+		        	try { doc2.insertString(doc2.getLength(), "O programa foi executado com sucesso!\n", style2); }
+			        catch (BadLocationException e1){}
+		        }
 			}
 		});
 		
