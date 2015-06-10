@@ -7,11 +7,12 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import util.Constantes;
+import antlr.PortugolParser.ParametroContext;
+
 import compiler.Chave;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
-import util.Constantes;
-import antlr.PortugolParser.ParametroContext;
 
 public class PortugolSemantica extends PortugolBaseListener {
 
@@ -205,6 +206,52 @@ public class PortugolSemantica extends PortugolBaseListener {
 		} else {
 			erro += "Linha " + ctx.getStart().getLine() + " - A função \""
 					+ ctx.ID().getText() + "\" não foi declarada.\n";
+		}
+	}
+
+	@Override
+	public void enterComandos(PortugolParser.ComandosContext ctx) {
+		if (ctx.atribuicao() != null) {
+			InfoVariavel infoVariavel = null;
+			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
+					tsVar)) {
+				Set<Chave> chaves = tsVar.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.atribuicao().ID().getText()) == 0
+								&& key.getEscopo() == this.escopo) {
+							infoVariavel = tsVar.get(key);
+							break;
+						}
+					}
+				}
+				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - A constante \""
+							+ ctx.atribuicao().ID().getText()
+							+ "\" não pode ser modificada.\n";
+				}
+			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0, tsVar)) { // Variavel
+																					// existe
+				Set<Chave> chaves = tsVar.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.atribuicao().ID().getText()) == 0
+								&& key.getEscopo() == 0) {
+							infoVariavel = tsVar.get(key);
+							break;
+						}
+					}
+				}
+				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - A constante \""
+							+ ctx.atribuicao().ID().getText()
+							+ "\" não pode ser modificada.\n";
+				}
+			}
 		}
 	}
 
