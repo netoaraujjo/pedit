@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
@@ -23,10 +24,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private int escopo = 0;
 	private int endereceVar = 0;
 
+	private ArrayList<Integer> tiposVariaveisAtr = new ArrayList<Integer>();
+
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
-			if (!existeChaveVar(no.getText(), this.escopo, tsVar)) {
+			if (!existeChaveVar(no.getText(), this.escopo)) {
 
 				tsVar.put(new Chave(no.getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL,
@@ -43,8 +46,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterDeclarConst(PortugolParser.DeclarConstContext ctx) {
 		if (ctx.atribuicao().ID() != null) {
-			if (!existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
-					tsVar)) {
+			if (!existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
 
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE,
@@ -81,7 +83,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		ArrayList<Integer> seqParam = new ArrayList<Integer>();
 
 		for (ParametroContext param : ctx.parametro()) {
-			if (!existeChaveVar(param.ID().getText(), this.escopo, tsVar)) {
+			if (!existeChaveVar(param.ID().getText(), this.escopo)) {
 
 				tsVar.put(new Chave(param.ID().getText(), escopo),
 						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO,
@@ -108,8 +110,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
 		if (ctx.ID() != null) {
-			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
-					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+			if (!existeChaveVar(ctx.ID().getText(), escopo)
+					&& !existeChaveVar(ctx.ID().getText(), 0)) {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + ctx.ID().getText()
 						+ "\" não foi criado.\n";
@@ -120,13 +122,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterLer(PortugolParser.LerContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
-			if (existeChaveVar(no.getText(), this.escopo, tsVar)) {
+			if (existeChaveVar(no.getText(), this.escopo)) {
 				if (argumentoLogico(no.getText(), this.escopo)) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Identificador \"" + no.getText()
 							+ "\" é do tipo logico.\n";
 				}
-			} else if (existeChaveVar(no.getText(), 0, tsVar)) {
+			} else if (existeChaveVar(no.getText(), 0)) {
 				if (argumentoLogico(no.getText(), 0)) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Identificador \"" + no.getText()
@@ -142,8 +144,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterPara(PortugolParser.ParaContext ctx) {
-		if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
-				&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+		if (!existeChaveVar(ctx.ID().getText(), escopo)
+				&& !existeChaveVar(ctx.ID().getText(), 0)) {
 			erro += "Linha " + ctx.getStart().getLine() + " - Identificador \""
 					+ ctx.ID().getText() + "\" não foi criado.\n";
 		}
@@ -151,21 +153,37 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterExpressao(PortugolParser.ExpressaoContext ctx) {
-		if (ctx.ID() != null) {
-			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
-					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
-				erro += "Linha " + ctx.getStart().getLine()
-						+ " - Identificador \"" + ctx.ID().getText()
-						+ "\" não foi criado.\n";
+
+		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
+
+		for (ParserRuleContext exprCtx : paisExpr) {
+			if (exprCtx instanceof PortugolParser.AtribuicaoContext) {
+				if (ctx.NUM_INTEIRO() != null) {
+					tiposVariaveisAtr.add(Constantes.INTEIRO);
+				} else if (ctx.NUM_REAL() != null) {
+					tiposVariaveisAtr.add(Constantes.REAL);
+				} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+					tiposVariaveisAtr.add(Constantes.PALAVRA);
+				} else if (ctx.ID() != null) {
+					if (existeID(ctx.ID().getText(), ctx.getStart().getLine())) {
+						tiposVariaveisAtr.add(getTipoID(ctx.ID().getText()));
+					}
+				} else if (ctx.chamadaDeFunc() != null) {
+					//
+				}
 			}
+		}
+
+		if (ctx.ID() != null) {
+			existeID(ctx.ID().getText(), ctx.getStart().getLine());
 		}
 	}
 
 	@Override
 	public void enterExprLogica(PortugolParser.ExprLogicaContext ctx) {
 		if (ctx.ID() != null) {
-			if (!existeChaveVar(ctx.ID().getText(), escopo, tsVar)
-					&& !existeChaveVar(ctx.ID().getText(), 0, tsVar)) {
+			if (!existeChaveVar(ctx.ID().getText(), escopo)
+					&& !existeChaveVar(ctx.ID().getText(), 0)) {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + ctx.ID().getText()
 						+ "\" não foi criado.\n";
@@ -213,8 +231,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void enterComandos(PortugolParser.ComandosContext ctx) {
 		if (ctx.atribuicao() != null) {
 			InfoVariavel infoVariavel = null;
-			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo,
-					tsVar)) {
+			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
 				Set<Chave> chaves = tsVar.keySet();
 				for (Chave key : chaves) {
 					if (key != null) {
@@ -232,8 +249,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 							+ ctx.atribuicao().ID().getText()
 							+ "\" não pode ser modificada.\n";
 				}
-			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0, tsVar)) { // Variavel
-																					// existe
+			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
+																				// existe
 				Set<Chave> chaves = tsVar.keySet();
 				for (Chave key : chaves) {
 					if (key != null) {
@@ -255,12 +272,27 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
-	public boolean existeChaveVar(String id, int escopo,
-			Map<Chave, InfoVariavel> hash) {
+	@Override
+	public void exitAtribuicao(PortugolParser.AtribuicaoContext ctx) {
+
+		if (ctx.expressao() != null) {
+			int tipoIdAtr = getTipoID(ctx.ID().getText());
+
+			for (Integer tipo : tiposVariaveisAtr) {
+				if (tipo != tipoIdAtr) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - Atribuição entre tipos incompatíveis.\n";
+				}
+			}
+
+		}
+	}
+
+	public boolean existeChaveVar(String id, int escopo) {
 
 		boolean existe = false;
 
-		Set<Chave> chaves = hash.keySet();
+		Set<Chave> chaves = tsVar.keySet();
 		for (Chave key : chaves) {
 			if (key != null) {
 				if (key.getEscopo() == escopo && key.getId().compareTo(id) == 0) {
@@ -268,6 +300,18 @@ public class PortugolSemantica extends PortugolBaseListener {
 					break;
 				}
 			}
+		}
+
+		return existe;
+	}
+
+	public boolean existeID(String id, int linha) {
+		boolean existe = true;
+
+		if (!existeChaveVar(id, escopo) && !existeChaveVar(id, 0)) {
+			erro += "Linha " + linha + " - Identificador \"" + id
+					+ "\" não foi criado.\n";
+			existe = false;
 		}
 
 		return existe;
@@ -321,6 +365,44 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return value;
+	}
+
+	public ArrayList<ParserRuleContext> getPaisExpr(
+			PortugolParser.ExpressaoContext ctx) {
+
+		ParserRuleContext ruleCtx = ctx.getParent();
+
+		ArrayList<ParserRuleContext> paisExpr = new ArrayList<ParserRuleContext>();
+
+		while (ruleCtx != null) {
+			paisExpr.add(ruleCtx);
+			ruleCtx = ruleCtx.getParent();
+		}
+
+		return paisExpr;
+	}
+
+	public int getTipoID(String id) {
+		int tipo = 0;
+
+		Set<Chave> chaves = tsVar.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getEscopo() == this.escopo
+						&& key.getId().compareTo(id) == 0) {
+					InfoVariavel info = tsVar.get(key);
+					tipo = info.getTipo();
+					break;
+				} else if (key.getEscopo() == 0
+						&& key.getId().compareTo(id) == 0) {
+					InfoVariavel info = tsVar.get(key);
+					tipo = info.getTipo();
+					break;
+				}
+			}
+		}
+
+		return tipo;
 	}
 
 	public String getOutput() {

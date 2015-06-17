@@ -43,6 +43,7 @@ comandos: atribuicao
         | para
         | enquanto
         | retorna
+        | 'sair' ';'
         ;
 
 ler: 'ler' '(' ID (',' ID)* ')' ';';
@@ -65,12 +66,12 @@ decisao: 'se' '(' exprLogica ')' '{'
        ;
 
 para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? '{'
-            (comandos | 'sair' ';')*
+            comandos*
       '}'
     ;
 
 enquanto: 'enquanto' '(' exprLogica ')' '{'
-            (comandos | 'sair' ';')*
+            comandos*
           '}'
         ;
 
