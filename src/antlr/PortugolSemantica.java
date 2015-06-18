@@ -2,6 +2,7 @@ package antlr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	private ArrayList<Integer> tiposVariaveisAtribuicao = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposVariaveisArgumentos = new ArrayList<Integer>();
+
+	private ArrayList<Integer> tiposVariaveisRetornos = new ArrayList<Integer>();
+	private ArrayList<Integer> tiposRetornoFuncao = new ArrayList<Integer>();
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
@@ -78,6 +82,23 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	@Override
+	public void exitFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
+		List<ComandosContext> comandos = ctx.comandos();
+		
+		if (!comandos.isEmpty()) {
+			for (ComandosContext cmd : comandos) {
+				if (cmd.retorna() != null) {
+					verificaTipoRetorno(Constantes.INTEIRO, cmd.retorna().stop.getLine(), "principal");
+				}
+			}
+		}
+		
+		if (ctx.retorna() != null) {
+			verificaTipoRetorno(Constantes.INTEIRO, ctx.start.getLine(), "principal");
+		}
+	}
+
+	@Override
 	public void enterDeclarFunc(PortugolParser.DeclarFuncContext ctx) {
 
 		escopo += 1;
@@ -109,6 +130,24 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
+	@Override
+	public void exitDeclarFunc(PortugolParser.DeclarFuncContext ctx) {
+		List<ComandosContext> comandos = ctx.comandos();
+		
+		if (!comandos.isEmpty()) {
+			for (ComandosContext cmd : comandos) {
+				if (cmd.retorna() != null) {
+					verificaTipoRetorno(ctx.tipo().t, cmd.retorna().stop.getLine(), ctx.ID().getText());
+				}
+			}
+		}
+		
+		if (ctx.retorna() != null) {
+			verificaTipoRetorno(ctx.tipo().t, ctx.retorna().stop.getLine(), ctx.ID().getText());
+		}
+		
+	}
+	
 	@Override
 	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
 		if (ctx.ID() != null) {
@@ -155,14 +194,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterExpressao(PortugolParser.ExpressaoContext ctx) {
-
+		boolean flag = true;
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
-
+		
 		for (ParserRuleContext exprCtx : paisExpr) {
-			if (exprCtx instanceof PortugolParser.AtribuicaoContext) {
+			if ((exprCtx instanceof PortugolParser.AtribuicaoContext) && flag) {
 				setTipoVariaveisAtribuicao(ctx);
 			} else if (exprCtx instanceof PortugolParser.ArgumentosContext) {
 				setTipoVariaveisArgumentos(ctx);
+				flag = false;
+			} else if (exprCtx instanceof PortugolParser.RetornaContext) {
+				setTipoVariaveisRetornos(ctx);
 			}
 		}
 
@@ -261,6 +303,21 @@ public class PortugolSemantica extends PortugolBaseListener {
 		} else if (ctx.sair() != null) {
 			analisaSair(ctx);
 		}
+	}
+
+	@Override
+	public void exitRetorna(PortugolParser.RetornaContext ctx) {
+		int tipo = tiposVariaveisRetornos.get(0);
+
+		for (int i = 1; i < tiposVariaveisRetornos.size(); i++) {
+			if (tiposVariaveisRetornos.get(i) != tipo) {
+				tipo = 0;
+				break;
+			}
+		}
+
+		tiposRetornoFuncao.add(tipo);
+		tiposVariaveisRetornos.clear();
 	}
 
 	@Override
@@ -433,6 +490,43 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
+	private void setTipoVariaveisRetornos(ExpressaoContext ctx) {
+		if (ctx.NUM_INTEIRO() != null) {
+			tiposVariaveisRetornos.add(Constantes.INTEIRO);
+		} else if (ctx.NUM_REAL() != null) {
+			tiposVariaveisRetornos.add(Constantes.REAL);
+		} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+			tiposVariaveisRetornos.add(Constantes.PALAVRA);
+		} else if (ctx.ID() != null) {
+			if (existeID(ctx.ID().getText())) {
+				tiposVariaveisRetornos.add(getTipoID(ctx.ID().getText()));
+			}
+		} else if (ctx.chamadaDeFunc() != null) {
+
+			int tipo = 0;
+
+			if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função
+																		// não
+																		// existe
+
+				Set<Chave> chaves = tsFunc.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.chamadaDeFunc().ID().getText()) == 0) {
+							InfoFuncao infoFuncao = tsFunc.get(key);
+							tipo = infoFuncao.getTipo();
+							break;
+						}
+					}
+				}
+			}
+
+			tiposVariaveisRetornos.add(tipo);
+
+		}
+	}
+
 	private void setTipoVariaveisArgumentos(ExpressaoContext ctx) {
 		if (ctx.NUM_INTEIRO() != null) {
 			tiposVariaveisArgumentos.add(Constantes.INTEIRO);
@@ -544,6 +638,16 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ " - Comando \"sair\" não está dentro de um laço de repetição.\n";
 			}
 		}
+	}
+
+	private void verificaTipoRetorno(int tipoFunc, int linha, String idFunc) {
+		if (tipoFunc != tiposRetornoFuncao.get(0)) {
+			erro += "Linha " + linha
+					+ " - Tipo de retorno incompatível com o tipo da função \""
+					+ idFunc + "\".\n";
+		}
+		
+		tiposRetornoFuncao.remove(0);
 	}
 
 	public String getOutput() {
