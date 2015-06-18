@@ -9,9 +9,9 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
+import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
-
 import compiler.Chave;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
@@ -257,51 +257,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterComandos(PortugolParser.ComandosContext ctx) {
 		if (ctx.atribuicao() != null) {
-			if (ctx.atribuicao().ID() == null) {
-				erro += "Linha "
-						+ ctx.start.getLine()
-						+ " - Retorno da função não é atribuído a nenhum identificador.\n";
-			} else {
-				InfoVariavel infoVariavel = null;
-				if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
-					Set<Chave> chaves = tsVar.keySet();
-					for (Chave key : chaves) {
-						if (key != null) {
-							if (key.getId().compareTo(
-									ctx.atribuicao().ID().getText()) == 0
-									&& key.getEscopo() == this.escopo) {
-								infoVariavel = tsVar.get(key);
-								break;
-							}
-						}
-					}
-					if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
-						erro += "Linha " + ctx.getStart().getLine()
-								+ " - A constante \""
-								+ ctx.atribuicao().ID().getText()
-								+ "\" não pode ser modificada.\n";
-					}
-				} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
-																					// existe
-					Set<Chave> chaves = tsVar.keySet();
-					for (Chave key : chaves) {
-						if (key != null) {
-							if (key.getId().compareTo(
-									ctx.atribuicao().ID().getText()) == 0
-									&& key.getEscopo() == 0) {
-								infoVariavel = tsVar.get(key);
-								break;
-							}
-						}
-					}
-					if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
-						erro += "Linha " + ctx.getStart().getLine()
-								+ " - A constante \""
-								+ ctx.atribuicao().ID().getText()
-								+ "\" não pode ser modificada.\n";
-					}
-				}
-			}
+			analisaAtribuicao(ctx);
+		} else if (ctx.sair() != null) {
+			analisaSair(ctx);
 		}
 	}
 
@@ -509,6 +467,82 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 			tiposVariaveisArgumentos.add(tipo);
 
+		}
+	}
+
+	private void analisaAtribuicao(ComandosContext ctx) {
+		if (ctx.atribuicao().ID() == null) {
+			erro += "Linha "
+					+ ctx.start.getLine()
+					+ " - Retorno da função não é atribuído a nenhum identificador.\n";
+		} else {
+			InfoVariavel infoVariavel = null;
+			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
+				Set<Chave> chaves = tsVar.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.atribuicao().ID().getText()) == 0
+								&& key.getEscopo() == this.escopo) {
+							infoVariavel = tsVar.get(key);
+							break;
+						}
+					}
+				}
+				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - A constante \""
+							+ ctx.atribuicao().ID().getText()
+							+ "\" não pode ser modificada.\n";
+				}
+			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
+																				// existe
+				Set<Chave> chaves = tsVar.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.atribuicao().ID().getText()) == 0
+								&& key.getEscopo() == 0) {
+							infoVariavel = tsVar.get(key);
+							break;
+						}
+					}
+				}
+				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - A constante \""
+							+ ctx.atribuicao().ID().getText()
+							+ "\" não pode ser modificada.\n";
+				}
+			}
+		}
+	}
+
+	private void analisaSair(ComandosContext ctx) {
+		boolean flag = false;
+		ParserRuleContext ruleCtx = ctx.sair().getParent();
+
+		ArrayList<ParserRuleContext> paisSair = new ArrayList<ParserRuleContext>();
+
+		while (ruleCtx != null) {
+			paisSair.add(ruleCtx);
+			ruleCtx = ruleCtx.getParent();
+		}
+
+		if (!paisSair.isEmpty()) {
+			for (ParserRuleContext sairCtx : paisSair) {
+				if (sairCtx instanceof PortugolParser.EnquantoContext
+						|| sairCtx instanceof PortugolParser.ParaContext) {
+					flag = true;
+					break;
+				}
+			}
+
+			if (flag == false) {
+				erro += "Linha "
+						+ ctx.start.getLine()
+						+ " - Comando \"sair\" não está dentro de um laço de repetição.\n";
+			}
 		}
 	}
 

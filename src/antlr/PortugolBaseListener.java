@@ -227,6 +227,19 @@ public class PortugolBaseListener implements PortugolListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterSair(@NotNull PortugolParser.SairContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitSair(@NotNull PortugolParser.SairContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterExprLogica(@NotNull PortugolParser.ExprLogicaContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -187,6 +187,17 @@ public interface PortugolListener extends ParseTreeListener {
 	void exitDeclarVar(@NotNull PortugolParser.DeclarVarContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link PortugolParser#sair}.
+	 * @param ctx the parse tree
+	 */
+	void enterSair(@NotNull PortugolParser.SairContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#sair}.
+	 * @param ctx the parse tree
+	 */
+	void exitSair(@NotNull PortugolParser.SairContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link PortugolParser#exprLogica}.
 	 * @param ctx the parse tree
 	 */
