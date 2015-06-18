@@ -28,6 +28,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private ArrayList<Integer> tiposVariaveisAtribuicao = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposVariaveisArgumentos = new ArrayList<Integer>();
 
+	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo)) {
@@ -256,43 +257,49 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterComandos(PortugolParser.ComandosContext ctx) {
 		if (ctx.atribuicao() != null) {
-			InfoVariavel infoVariavel = null;
-			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
-				Set<Chave> chaves = tsVar.keySet();
-				for (Chave key : chaves) {
-					if (key != null) {
-						if (key.getId().compareTo(
-								ctx.atribuicao().ID().getText()) == 0
-								&& key.getEscopo() == this.escopo) {
-							infoVariavel = tsVar.get(key);
-							break;
+			if (ctx.atribuicao().ID() == null) {
+				erro += "Linha "
+						+ ctx.start.getLine()
+						+ " - Retorno da função não é atribuído a nenhum identificador.\n";
+			} else {
+				InfoVariavel infoVariavel = null;
+				if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
+					Set<Chave> chaves = tsVar.keySet();
+					for (Chave key : chaves) {
+						if (key != null) {
+							if (key.getId().compareTo(
+									ctx.atribuicao().ID().getText()) == 0
+									&& key.getEscopo() == this.escopo) {
+								infoVariavel = tsVar.get(key);
+								break;
+							}
 						}
 					}
-				}
-				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
-					erro += "Linha " + ctx.getStart().getLine()
-							+ " - A constante \""
-							+ ctx.atribuicao().ID().getText()
-							+ "\" não pode ser modificada.\n";
-				}
-			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
-																				// existe
-				Set<Chave> chaves = tsVar.keySet();
-				for (Chave key : chaves) {
-					if (key != null) {
-						if (key.getId().compareTo(
-								ctx.atribuicao().ID().getText()) == 0
-								&& key.getEscopo() == 0) {
-							infoVariavel = tsVar.get(key);
-							break;
+					if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+						erro += "Linha " + ctx.getStart().getLine()
+								+ " - A constante \""
+								+ ctx.atribuicao().ID().getText()
+								+ "\" não pode ser modificada.\n";
+					}
+				} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
+																					// existe
+					Set<Chave> chaves = tsVar.keySet();
+					for (Chave key : chaves) {
+						if (key != null) {
+							if (key.getId().compareTo(
+									ctx.atribuicao().ID().getText()) == 0
+									&& key.getEscopo() == 0) {
+								infoVariavel = tsVar.get(key);
+								break;
+							}
 						}
 					}
-				}
-				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
-					erro += "Linha " + ctx.getStart().getLine()
-							+ " - A constante \""
-							+ ctx.atribuicao().ID().getText()
-							+ "\" não pode ser modificada.\n";
+					if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+						erro += "Linha " + ctx.getStart().getLine()
+								+ " - A constante \""
+								+ ctx.atribuicao().ID().getText()
+								+ "\" não pode ser modificada.\n";
+					}
 				}
 			}
 		}
