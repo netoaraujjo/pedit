@@ -97,7 +97,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 		}
 
-		if (!existeChaveFunc(ctx.ID().getText(), tsFunc)) {
+		if (!existeChaveFunc(ctx.ID().getText())) {
 			tsFunc.put(new Chave(ctx.ID().getText(), this.escopo),
 					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam));
 		} else {
@@ -169,7 +169,25 @@ public class PortugolSemantica extends PortugolBaseListener {
 						tiposVariaveisAtr.add(getTipoID(ctx.ID().getText()));
 					}
 				} else if (ctx.chamadaDeFunc() != null) {
-					//
+					
+					int tipo = 0;
+					
+					if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função não existe
+						
+						Set<Chave> chaves = tsFunc.keySet();
+						for (Chave key : chaves) {
+							if (key != null) {
+								if (key.getId().compareTo(ctx.chamadaDeFunc().ID().getText()) == 0) {
+									InfoFuncao infoFuncao = tsFunc.get(key);
+									tipo = infoFuncao.getTipo();
+									break;
+								}
+							}
+						}
+					}
+					
+					tiposVariaveisAtr.add(tipo);
+					
 				}
 			}
 		}
@@ -195,7 +213,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void enterChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
 		Chave chave = null;
 		InfoFuncao infoFuncao = null;
-		if (existeChaveFunc(ctx.ID().getText(), tsFunc)) { // Função não existe
+		if (existeChaveFunc(ctx.ID().getText())) { // Função não existe
 			Set<Chave> chaves = tsFunc.keySet();
 			for (Chave key : chaves) {
 				if (key != null) {
@@ -285,6 +303,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 				}
 			}
 
+			tiposVariaveisAtr.clear();
+
 		}
 	}
 
@@ -317,11 +337,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return existe;
 	}
 
-	public boolean existeChaveFunc(String id, Map<Chave, InfoFuncao> hash) {
+	public boolean existeChaveFunc(String id) {
 
 		boolean existe = false;
 
-		Set<Chave> chaves = hash.keySet();
+		Set<Chave> chaves = tsFunc.keySet();
 		for (Chave key : chaves) {
 			if (key != null) {
 				if (key.getId().compareTo(id) == 0) {
