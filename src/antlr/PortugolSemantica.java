@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
+import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
 
 import compiler.Chave;
@@ -24,7 +25,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private int escopo = 0;
 	private int endereceVar = 0;
 
-	private ArrayList<Integer> tiposVariaveisAtr = new ArrayList<Integer>();
+	private ArrayList<Integer> tiposVariaveisAtribuicao = new ArrayList<Integer>();
+	private ArrayList<Integer> tiposVariaveisArgumentos = new ArrayList<Integer>();
 
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
@@ -157,43 +159,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		for (ParserRuleContext exprCtx : paisExpr) {
 			if (exprCtx instanceof PortugolParser.AtribuicaoContext) {
-				if (ctx.NUM_INTEIRO() != null) {
-					tiposVariaveisAtr.add(Constantes.INTEIRO);
-				} else if (ctx.NUM_REAL() != null) {
-					tiposVariaveisAtr.add(Constantes.REAL);
-				} else if (ctx.CADEIA_DE_CARACTERES() != null) {
-					tiposVariaveisAtr.add(Constantes.PALAVRA);
-				} else if (ctx.ID() != null) {
-					if (existeID(ctx.ID().getText())) {
-						tiposVariaveisAtr.add(getTipoID(ctx.ID().getText()));
-					}
-				} else if (ctx.chamadaDeFunc() != null) {
-					
-					int tipo = 0;
-					
-					if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função não existe
-						
-						Set<Chave> chaves = tsFunc.keySet();
-						for (Chave key : chaves) {
-							if (key != null) {
-								if (key.getId().compareTo(ctx.chamadaDeFunc().ID().getText()) == 0) {
-									InfoFuncao infoFuncao = tsFunc.get(key);
-									tipo = infoFuncao.getTipo();
-									break;
-								}
-							}
-						}
-					}
-					
-					tiposVariaveisAtr.add(tipo);
-					
-				}
+				setTipoVariaveisAtribuicao(ctx);
+			} else if (exprCtx instanceof PortugolParser.ArgumentosContext) {
+				setTipoVariaveisArgumentos(ctx);
 			}
 		}
 
 		if (ctx.ID() != null) {
 			if (!existeID(ctx.ID().getText())) {
-				erro += "Linha " + ctx.getStart().getLine() + " - Identificador \"" + ctx.ID().getText() + "\" não foi criado.\n";
+				erro += "Linha " + ctx.getStart().getLine()
+						+ " - Identificador \"" + ctx.ID().getText()
+						+ "\" não foi criado.\n";
 			}
 		}
 	}
@@ -243,6 +219,37 @@ public class PortugolSemantica extends PortugolBaseListener {
 		} else {
 			erro += "Linha " + ctx.getStart().getLine() + " - A função \""
 					+ ctx.ID().getText() + "\" não foi declarada.\n";
+		}
+	}
+
+	@Override
+	public void exitChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
+		InfoFuncao infoFuncao = null;
+		Set<Chave> chaves = tsFunc.keySet();
+
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getId().compareTo(ctx.ID().getText()) == 0) {
+					infoFuncao = tsFunc.get(key);
+					break;
+				}
+			}
+		}
+
+		if (infoFuncao != null) {
+			ArrayList<Integer> seqParam = infoFuncao.getSeqParametro();
+
+			if (seqParam.size() == tiposVariaveisArgumentos.size()) {
+				for (int i = 0; i < seqParam.size(); i++) {
+					if (seqParam.get(i) != tiposVariaveisArgumentos.get(i)) {
+						erro += "Linha " + ctx.getStart().getLine()
+								+ " - Chamada de função \""
+								+ ctx.ID().getText()
+								+ "\" com tipo incompatível no argumento "
+								+ (i + 1) + "\n";
+					}
+				}
+			}
 		}
 	}
 
@@ -297,19 +304,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 		if (ctx.expressao() != null) {
 			int tipoIdAtr = getTipoID(ctx.ID().getText());
 
-			for (Integer tipo : tiposVariaveisAtr) {
+			for (Integer tipo : tiposVariaveisAtribuicao) {
 				if (tipo != tipoIdAtr) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Atribuição entre tipos incompatíveis.\n";
 				}
 			}
 
-			tiposVariaveisAtr.clear();
+			tiposVariaveisAtribuicao.clear();
 
 		}
 	}
 
-	public boolean existeChaveVar(String id, int escopo) {
+	private boolean existeChaveVar(String id, int escopo) {
 
 		boolean existe = false;
 
@@ -326,7 +333,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return existe;
 	}
 
-	public boolean existeID(String id) {
+	private boolean existeID(String id) {
 		boolean existe = true;
 
 		if (!existeChaveVar(id, escopo) && !existeChaveVar(id, 0)) {
@@ -370,7 +377,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return logico;
 	}
 
-	public String retornaValor(int tipo) {
+	private String retornaValor(int tipo) {
 		String value = "";
 
 		if (tipo == Constantes.INTEIRO) {
@@ -386,7 +393,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return value;
 	}
 
-	public ArrayList<ParserRuleContext> getPaisExpr(
+	private ArrayList<ParserRuleContext> getPaisExpr(
 			PortugolParser.ExpressaoContext ctx) {
 
 		ParserRuleContext ruleCtx = ctx.getParent();
@@ -401,7 +408,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return paisExpr;
 	}
 
-	public int getTipoID(String id) {
+	private int getTipoID(String id) {
 		int tipo = 0;
 
 		Set<Chave> chaves = tsVar.keySet();
@@ -422,6 +429,80 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return tipo;
+	}
+
+	private void setTipoVariaveisAtribuicao(PortugolParser.ExpressaoContext ctx) {
+		if (ctx.NUM_INTEIRO() != null) {
+			tiposVariaveisAtribuicao.add(Constantes.INTEIRO);
+		} else if (ctx.NUM_REAL() != null) {
+			tiposVariaveisAtribuicao.add(Constantes.REAL);
+		} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+			tiposVariaveisAtribuicao.add(Constantes.PALAVRA);
+		} else if (ctx.ID() != null) {
+			if (existeID(ctx.ID().getText())) {
+				tiposVariaveisAtribuicao.add(getTipoID(ctx.ID().getText()));
+			}
+		} else if (ctx.chamadaDeFunc() != null) {
+
+			int tipo = 0;
+
+			if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função
+																		// não
+																		// existe
+
+				Set<Chave> chaves = tsFunc.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.chamadaDeFunc().ID().getText()) == 0) {
+							InfoFuncao infoFuncao = tsFunc.get(key);
+							tipo = infoFuncao.getTipo();
+							break;
+						}
+					}
+				}
+			}
+
+			tiposVariaveisAtribuicao.add(tipo);
+
+		}
+	}
+
+	private void setTipoVariaveisArgumentos(ExpressaoContext ctx) {
+		if (ctx.NUM_INTEIRO() != null) {
+			tiposVariaveisArgumentos.add(Constantes.INTEIRO);
+		} else if (ctx.NUM_REAL() != null) {
+			tiposVariaveisArgumentos.add(Constantes.REAL);
+		} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+			tiposVariaveisArgumentos.add(Constantes.PALAVRA);
+		} else if (ctx.ID() != null) {
+			if (existeID(ctx.ID().getText())) {
+				tiposVariaveisArgumentos.add(getTipoID(ctx.ID().getText()));
+			}
+		} else if (ctx.chamadaDeFunc() != null) {
+
+			int tipo = 0;
+
+			if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função
+																		// não
+																		// existe
+
+				Set<Chave> chaves = tsFunc.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.chamadaDeFunc().ID().getText()) == 0) {
+							InfoFuncao infoFuncao = tsFunc.get(key);
+							tipo = infoFuncao.getTipo();
+							break;
+						}
+					}
+				}
+			}
+
+			tiposVariaveisArgumentos.add(tipo);
+
+		}
 	}
 
 	public String getOutput() {
