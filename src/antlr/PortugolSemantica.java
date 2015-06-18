@@ -26,7 +26,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	private ArrayList<Integer> tiposVariaveisAtr = new ArrayList<Integer>();
 
-	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo)) {
@@ -165,7 +164,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 				} else if (ctx.CADEIA_DE_CARACTERES() != null) {
 					tiposVariaveisAtr.add(Constantes.PALAVRA);
 				} else if (ctx.ID() != null) {
-					if (existeID(ctx.ID().getText(), ctx.getStart().getLine())) {
+					if (existeID(ctx.ID().getText())) {
 						tiposVariaveisAtr.add(getTipoID(ctx.ID().getText()));
 					}
 				} else if (ctx.chamadaDeFunc() != null) {
@@ -193,7 +192,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		if (ctx.ID() != null) {
-			existeID(ctx.ID().getText(), ctx.getStart().getLine());
+			if (!existeID(ctx.ID().getText())) {
+				erro += "Linha " + ctx.getStart().getLine() + " - Identificador \"" + ctx.ID().getText() + "\" não foi criado.\n";
+			}
 		}
 	}
 
@@ -325,12 +326,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return existe;
 	}
 
-	public boolean existeID(String id, int linha) {
+	public boolean existeID(String id) {
 		boolean existe = true;
 
 		if (!existeChaveVar(id, escopo) && !existeChaveVar(id, 0)) {
-			erro += "Linha " + linha + " - Identificador \"" + id
-					+ "\" não foi criado.\n";
 			existe = false;
 		}
 
