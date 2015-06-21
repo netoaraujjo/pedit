@@ -194,15 +194,16 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterExpressao(PortugolParser.ExpressaoContext ctx) {
-		boolean flag = true;
+		boolean ehArgumento = false;
+		
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
 		
 		for (ParserRuleContext exprCtx : paisExpr) {
-			if ((exprCtx instanceof PortugolParser.AtribuicaoContext) && flag) {
+			if ((exprCtx instanceof PortugolParser.AtribuicaoContext) && !ehArgumento) {
 				setTipoVariaveisAtribuicao(ctx);
-			} else if (exprCtx instanceof PortugolParser.ArgumentosContext) {
+			} else if (exprCtx instanceof PortugolParser.ArgumentosContext && !ehArgumento) {
 				setTipoVariaveisArgumentos(ctx);
-				flag = false;
+				ehArgumento = true;
 			} else if (exprCtx instanceof PortugolParser.RetornaContext) {
 				setTipoVariaveisRetornos(ctx);
 			}
@@ -215,6 +216,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ "\" não foi criado.\n";
 			}
 		}
+		
 	}
 
 	@Override
@@ -267,6 +269,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void exitChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
+		
 		InfoFuncao infoFuncao = null;
 		Set<Chave> chaves = tsFunc.keySet();
 
@@ -281,19 +284,32 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		if (infoFuncao != null) {
 			ArrayList<Integer> seqParam = infoFuncao.getSeqParametro();
-
-			if (seqParam.size() == tiposVariaveisArgumentos.size()) {
+			
+			int tam = tiposVariaveisArgumentos.size();
+			
+			if (seqParam.size() <= tam) {
 				for (int i = 0; i < seqParam.size(); i++) {
-					if (seqParam.get(i) != tiposVariaveisArgumentos.get(i)) {
+					
+					tam = tiposVariaveisArgumentos.size();
+					
+					if (seqParam.get(i) == tiposVariaveisArgumentos.get(tam - 1)) {
+						
+						tiposVariaveisArgumentos.remove(tam - 1);
+						
+					} else {
+						
+						tiposVariaveisArgumentos.remove(tam - 1);
 						erro += "Linha " + ctx.getStart().getLine()
 								+ " - Chamada de função \""
 								+ ctx.ID().getText()
 								+ "\" com tipo incompatível no argumento "
 								+ (i + 1) + "\n";
+						
 					}
 				}
 			}
 		}
+		
 	}
 
 	@Override
@@ -365,7 +381,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return existe;
 	}
 
-	public boolean existeChaveFunc(String id) {
+	private boolean existeChaveFunc(String id) {
 
 		boolean existe = false;
 
@@ -382,7 +398,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return existe;
 	}
 
-	public boolean argumentoLogico(String id, int escopo) {
+	private boolean argumentoLogico(String id, int escopo) {
 
 		boolean logico = false;
 
