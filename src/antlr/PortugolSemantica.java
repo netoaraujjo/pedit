@@ -199,12 +199,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
 		
 		for (ParserRuleContext exprCtx : paisExpr) {
-			if ((exprCtx instanceof PortugolParser.AtribuicaoContext) && !ehArgumento) {
+			if (exprCtx instanceof PortugolParser.AtribuicaoContext && !ehArgumento) {
 				setTipoVariaveisAtribuicao(ctx);
 			} else if (exprCtx instanceof PortugolParser.ArgumentosContext && !ehArgumento) {
 				setTipoVariaveisArgumentos(ctx);
 				ehArgumento = true;
-			} else if (exprCtx instanceof PortugolParser.RetornaContext) {
+			} else if (exprCtx instanceof PortugolParser.RetornaContext && !ehArgumento) {
 				setTipoVariaveisRetornos(ctx);
 			}
 		}
