@@ -84,6 +84,19 @@ public class PortugolBaseListener implements PortugolListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterSenao(@NotNull PortugolParser.SenaoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitSenao(@NotNull PortugolParser.SenaoContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterArgumentos(@NotNull PortugolParser.ArgumentosContext ctx) { }
 	/**
 	 * {@inheritDoc}

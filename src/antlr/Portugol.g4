@@ -43,8 +43,10 @@ comandos: atribuicao
         | para
         | enquanto
         | retorna
-        | 'sair' ';'
+        | sair
         ;
+
+sair: 'sair' ';';
 
 ler: 'ler' '(' ID (',' ID)* ')' ';';
 
@@ -60,10 +62,13 @@ argumentos: expressao
 decisao: 'se' '(' exprLogica ')' '{'
              comandos*
          '}'
-         ('senao' '{'
-             comandos*
-         '}')?
+         (senao)?
        ;
+
+senao: 'senao' '{'
+             comandos*
+         '}'
+     ;
 
 para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? '{'
             comandos*

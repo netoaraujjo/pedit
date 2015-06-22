@@ -66,6 +66,17 @@ public interface PortugolListener extends ParseTreeListener {
 	void exitRetorna(@NotNull PortugolParser.RetornaContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link PortugolParser#senao}.
+	 * @param ctx the parse tree
+	 */
+	void enterSenao(@NotNull PortugolParser.SenaoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#senao}.
+	 * @param ctx the parse tree
+	 */
+	void exitSenao(@NotNull PortugolParser.SenaoContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link PortugolParser#argumentos}.
 	 * @param ctx the parse tree
 	 */
