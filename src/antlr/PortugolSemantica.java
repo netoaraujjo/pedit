@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
@@ -33,6 +34,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private ArrayList<Integer> tiposRetornoFuncao = new ArrayList<Integer>();
 
 	private ArrayList<Integer> tiposPara = new ArrayList<Integer>();
+	private ArrayList<Integer> tiposEnquanto = new ArrayList<Integer>();
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
@@ -193,15 +195,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void enterPara(PortugolParser.ParaContext ctx) {
 		analisaPara(ctx);
 	}
-	
+
 	@Override
 	public void exitPara(PortugolParser.ParaContext ctx) {
 		int tipo = tiposPara.get(0);
 
 		for (int i = 1; i < tiposPara.size(); i++) {
 			if (tiposPara.get(i) != tipo) {
-				erro += "Linha " + ctx.getStart().getLine()
-						+ " - Expressão com tipo diferente de INTEIRO na posição " + (i+1) + "\n";
+				erro += "Linha "
+						+ ctx.getStart().getLine()
+						+ " - Expressão com tipo diferente de INTEIRO na posição "
+						+ (i + 1) + "\n";
 			}
 		}
 
@@ -228,6 +232,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 			} else if (exprCtx instanceof PortugolParser.ParaContext
 					&& !ehArgumento) {
 				setTipoPara(ctx);
+			} else if (exprCtx instanceof PortugolParser.EnquantoContext) {
+				setTipoEnquanto(ctx);
 			}
 		}
 
@@ -342,6 +348,21 @@ public class PortugolSemantica extends PortugolBaseListener {
 		} else if (ctx.sair() != null) {
 			analisaSair(ctx);
 		}
+	}
+
+	@Override
+	public void exitEnquanto(PortugolParser.EnquantoContext ctx) {
+		int tipo = tiposEnquanto.get(0);
+
+		for (int i = 1; i < tiposEnquanto.size(); i++) {
+			if (tiposEnquanto.get(i) != tipo) {
+				erro += "Linha "
+						+ ctx.getStart().getLine()
+						+ " - Expressões são de tipos diferentes\n";
+			}
+		}
+
+		tiposEnquanto.clear();
 	}
 
 	@Override
@@ -636,6 +657,42 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 
 			tiposPara.add(tipo);
+		}
+	}
+
+	private void setTipoEnquanto(ExpressaoContext ctx) {
+		if (ctx.NUM_INTEIRO() != null) {
+			tiposEnquanto.add(Constantes.INTEIRO);
+		} else if (ctx.NUM_REAL() != null) {
+			tiposEnquanto.add(Constantes.REAL);
+		} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+			tiposEnquanto.add(Constantes.PALAVRA);
+		} else if (ctx.ID() != null) {
+			if (existeID(ctx.ID().getText())) {
+				tiposEnquanto.add(getTipoID(ctx.ID().getText()));
+			}
+		} else if (ctx.chamadaDeFunc() != null) {
+
+			int tipo = 0;
+
+			if (existeChaveFunc(ctx.chamadaDeFunc().ID().getText())) { // Função
+																		// não
+																		// existe
+
+				Set<Chave> chaves = tsFunc.keySet();
+				for (Chave key : chaves) {
+					if (key != null) {
+						if (key.getId().compareTo(
+								ctx.chamadaDeFunc().ID().getText()) == 0) {
+							InfoFuncao infoFuncao = tsFunc.get(key);
+							tipo = infoFuncao.getTipo();
+							break;
+						}
+					}
+				}
+			}
+
+			tiposEnquanto.add(tipo);
 		}
 	}
 
