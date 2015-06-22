@@ -1,5 +1,6 @@
 /antlr/
 /application/
+/compiler/
 /config.ini
 /controller/
 /exceptions/
@@ -8,4 +9,3 @@
 /input.por
 /lib/
 /util/
-/compiler/

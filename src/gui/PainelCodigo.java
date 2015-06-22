@@ -33,7 +33,7 @@ public class PainelCodigo extends JPanel {
 	private RSyntaxTextArea txtCodigo;
 	RTextScrollPane sp;
 	private boolean arquivoAlterado;
-	String txtAntigo;
+	String txtAntigo = "";
 	
 	public PainelCodigo(File arq, boolean novo) {
 		arquivo = arq;
@@ -52,8 +52,6 @@ public class PainelCodigo extends JPanel {
 		txtCodigo.setSelectionColor(Color.LIGHT_GRAY);
 		
 		arquivoAlterado = false;
-		
-		
 		
 		txtCodigo.addKeyListener(new KeyListener() {
 			
@@ -84,10 +82,6 @@ public class PainelCodigo extends JPanel {
 		}
 		
 		add(sp);
-	}
-	
-	public void isTextoModificado() {
-		
 	}
 	
 	public boolean isArquivoAlterado() {
