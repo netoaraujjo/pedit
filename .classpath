@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="src/lib/antlr-4.5-complete.jar"/>
 	<classpathentry kind="lib" path="src/lib/autocomplete.jar"/>
 	<classpathentry kind="lib" path="src/lib/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="src/lib/jasmin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

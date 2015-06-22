@@ -97,7 +97,8 @@ public class Semantica {
 		ParseTree tree = parser.prog();
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		PortugolSemantica ps = new PortugolSemantica();
+		//PortugolSemantica ps = new PortugolSemantica();
+		PortugolSemantica ps = new PortugolSemantica(arquivo);
 
 		walker.walk(ps, tree);
 

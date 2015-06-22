@@ -1,5 +1,6 @@
 package antlr;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,9 @@ import util.Constantes;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
+
 import compiler.Chave;
+import compiler.GeraCodigo;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
 
@@ -31,7 +34,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	private ArrayList<Integer> tiposVariaveisRetornos = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposRetornoFuncao = new ArrayList<Integer>();
-
+	
+	private GeraCodigo geraCodigo;
+	
+	// Construtor padrão vazio
+	public PortugolSemantica() {}
+	
+	// Construtor recebe o nome do arquivo, que também será o nome do arquivo .j
+	public PortugolSemantica(File arq) {
+		geraCodigo = new GeraCodigo(arq);
+	}
+	
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
@@ -85,6 +98,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void exitFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
 		List<ComandosContext> comandos = ctx.comandos();
 		
+		geraCodigo.abreMain(tsVar.size());
+		
 		if (!comandos.isEmpty()) {
 			for (ComandosContext cmd : comandos) {
 				if (cmd.retorna() != null) {
@@ -96,6 +111,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 		if (ctx.retorna() != null) {
 			verificaTipoRetorno(Constantes.INTEIRO, ctx.start.getLine(), "principal");
 		}
+		
+
+		
+		geraCodigo.fechaMain();
+		
 	}
 
 	@Override
