@@ -75,8 +75,9 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private String sep = File.separator;
-	private String iconDir = ".." + sep + "icons" + sep;
-
+	//private String iconDir = ".." + sep + "icons" + sep;
+	private String iconDir = sep + "icons" + sep;
+	
 	/**********************************************
 	 * Barra de menu
 	 *********************************************/
@@ -297,7 +298,7 @@ public class MainWindow extends JFrame {
 			}
 			scanner.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	

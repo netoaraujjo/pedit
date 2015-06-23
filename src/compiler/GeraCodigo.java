@@ -53,9 +53,9 @@ public class GeraCodigo {
 			salvarArquivoJasmin();
 			try {
 				gerarArquivoClass();
-				gerarArquivoSh();
 				executar();
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -112,48 +112,10 @@ public class GeraCodigo {
 		}
 	}
 	
-	private void gerarArquivoSh() throws InterruptedException, IOException {
-		File arquivo = new File(diretorio + SEP + nomeProg + ".sh");
-		String conteudo = "java " + nomeProg;
-		try {
-			Formatter saida = new Formatter(arquivo);
-			saida.format("%s", conteudo);
-			saida.close();
-		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(
-					null,
-					"Ocorreu um erro na producao do executavel e o mesmo nao foi gerado",
-					"Erro",
-					JOptionPane.ERROR_MESSAGE);
-		}
-		
-		ProcessBuilder pb = new ProcessBuilder(
-				"chmod", 
-				"+x", 
-				nomeProg + ".sh");
-		
-		pb.directory(new File(diretorio));
-		
-		Process process = pb.start();
-		process.waitFor();
-		
-		BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-		BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		
-		String txt;
-		
-		while ((txt = readerErro.readLine()) != null) {
-			System.out.println(txt + "\n");
-		}
-		
-		while ((txt = readerSucesso.readLine()) != null) {
-			System.out.println(txt + "\n");
-		}
-	}
-	
 	private void executar() throws IOException, InterruptedException {
+		String comando = "java " + nomeProg;
 		
-		ProcessBuilder pb = new ProcessBuilder("." + SEP + nomeProg + ".sh");
+		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
 		
 		pb.directory(new File(diretorio));
 		
