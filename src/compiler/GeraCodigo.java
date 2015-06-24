@@ -33,22 +33,38 @@ public class GeraCodigo {
 	private void inicializa() {
 		codigo  = ".class public " + nomeProg + "\n";
 		codigo += ".super java/lang/Object\n\n";
+		
+		codigo += ".method public static pause()V\n";
+		codigo += ".limit stack 10\n";
+		codigo += ".limit locals 10\n\n";
+		
+		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+		codigo += "ldc \"Pressione ENTER para continuar...\"\n";
+		codigo += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n\n";
+		
+		codigo += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codigo += "invokevirtual java/io/InputStream/read()I\n\n";
+		
+		codigo += "return\n\n";
+		
+		codigo += ".end method\n\n";
 	}
 	
 	public void abreMain(int qtdVar) {
 		codigo += ".method public static main([Ljava/lang/String;)V\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n";
-		
-		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
-		codigo += "ldc \"Digite dois valores:\"\n";
-		codigo += "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n";
 	}
 	
 	public void fechaMain() {
+		
+		codigo += "invokestatic " + nomeProg + ".pause()V\n\n";
+		
 		codigo += "return\n";
 		codigo += ".end method";
+		
 		imprimeCodigo();
+		
 		if (gerar) {
 			salvarArquivoJasmin();
 			try {

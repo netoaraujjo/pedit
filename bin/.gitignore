@@ -1,3 +1,11 @@
-/compiler/
 /antlr/
+/application/
+/compiler/
+/config.ini
+/controller/
+/exceptions/
 /gui/
+/icons/
+/input.por
+/lib/
+/util/
