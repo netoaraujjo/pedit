@@ -9,6 +9,7 @@ import java.util.Formatter;
 
 import javax.swing.JOptionPane;
 
+import util.Constantes;
 import exceptions.ExecutarCodigoException;
 import exceptions.GerarClassException;
 
@@ -29,9 +30,11 @@ public class GeraCodigo {
 		inicializa();
 	}
 	
+	
 	public void setGerar(boolean gerar) {
 		this.gerar = gerar;
 	}
+	
 	
 	private void inicializa() {
 		codigo  = ".class public " + nomeProg + "\n";
@@ -51,13 +54,15 @@ public class GeraCodigo {
 		codigo += "return\n\n";
 		
 		codigo += ".end method\n\n";
-	}
+	} // fim inicializa
+	
 	
 	public void abreMain(int qtdVar) {
 		codigo += ".method public static main([Ljava/lang/String;)V\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
-		codigo += ".limit locals " + (qtdVar + 10) + "\n";
+		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
 	}
+	
 	
 	public void fechaMain() {
 		
@@ -74,15 +79,21 @@ public class GeraCodigo {
 				gerarArquivoClass();
 				executar();
 			} catch (GerarClassException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						null, 
+						e.getMessage(), 
+						"Erro", 
+						JOptionPane.ERROR_MESSAGE);
 			} catch (ExecutarCodigoException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						null, 
+						e.getMessage(), 
+						"Erro", 
+						JOptionPane.ERROR_MESSAGE);
 			}
-			
 		}
-	}
+	} // fim fechaMain
+	
 	
 	private void gerarArquivoClass() throws GerarClassException {
 		
@@ -116,12 +127,13 @@ public class GeraCodigo {
 		} catch (IOException | InterruptedException e) {
 			throw new GerarClassException();
 		}
-		
-	}
+	} // fim gerarArquivoClass
+	
 	
 	private void imprimeCodigo() {
 		System.out.println(codigo);
 	}
+	
 	
 	private void salvarArquivoJasmin() {
 		File arquivo = new File(pathArq);
@@ -137,6 +149,7 @@ public class GeraCodigo {
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	
 	
 	private void executar() throws ExecutarCodigoException {
 		String comando = "java " + nomeProg;
@@ -165,7 +178,27 @@ public class GeraCodigo {
 		} catch (IOException | InterruptedException e) {
 			throw new ExecutarCodigoException();
 		}
+	} // fim executar
+	
+	public void abreDeclrVar(int tipo, int endereco) {
 		
+		switch (tipo) {
+			case Constantes.INTEIRO:
+			case Constantes.LOGICO:
+				codigo += "ldc 0\n";
+				codigo += "istore " + endereco + "\n";
+				break;
+			case Constantes.REAL:
+				codigo += "ldc 0.0\n";
+				codigo += "fstore " + endereco + "\n";
+				break;
+			case Constantes.PALAVRA:
+				codigo += "ldc 0\n";
+				codigo += "astore " + endereco + "\n";
+				break;
+			default:
+				break;
+		}
 		
 	}
 }
