@@ -9,6 +9,9 @@ import java.util.Formatter;
 
 import javax.swing.JOptionPane;
 
+import exceptions.ExecutarCodigoException;
+import exceptions.GerarClassException;
+
 public class GeraCodigo {
 	private final String SEP = File.separator;
 	private String pathArq;
@@ -70,17 +73,18 @@ public class GeraCodigo {
 			try {
 				gerarArquivoClass();
 				executar();
-			} catch (IOException e) {
+			} catch (GerarClassException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (InterruptedException e) {
+			} catch (ExecutarCodigoException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 	}
 	
-	private void gerarArquivoClass() throws IOException, InterruptedException {
+	private void gerarArquivoClass() throws GerarClassException {
 		
 		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("").getPath() + "lib"+ SEP +"jasmin.jar";
 		
@@ -92,21 +96,27 @@ public class GeraCodigo {
 		
 		pb.directory(new File(diretorio));
 		
-		Process process = pb.start();
-		process.waitFor();
-		
-		BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-		BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		
-		String txt;
-		
-		while ((txt = readerErro.readLine()) != null) {
-			System.out.println(txt + "\n");
+		Process process;
+		try {
+			process = pb.start();
+			process.waitFor();
+			
+			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			
+			String txt;
+			
+			while ((txt = readerErro.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+			
+			while ((txt = readerSucesso.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+		} catch (IOException | InterruptedException e) {
+			throw new GerarClassException();
 		}
 		
-		while ((txt = readerSucesso.readLine()) != null) {
-			System.out.println(txt + "\n");
-		}
 	}
 	
 	private void imprimeCodigo() {
@@ -128,28 +138,34 @@ public class GeraCodigo {
 		}
 	}
 	
-	private void executar() throws IOException, InterruptedException {
+	private void executar() throws ExecutarCodigoException {
 		String comando = "java " + nomeProg;
 		
 		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
 		
 		pb.directory(new File(diretorio));
 		
-		Process process = pb.start();
-		process.waitFor();
-		
-		BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-		BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-		
-		String txt;
-		
-		while ((txt = readerErro.readLine()) != null) {
-			System.out.println(txt + "\n");
+		Process process;
+		try {
+			process = pb.start();
+			process.waitFor();
+			
+			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			
+			String txt;
+			
+			while ((txt = readerErro.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+			
+			while ((txt = readerSucesso.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+		} catch (IOException | InterruptedException e) {
+			throw new ExecutarCodigoException();
 		}
 		
-		while ((txt = readerSucesso.readLine()) != null) {
-			System.out.println(txt + "\n");
-		}
 		
 	}
 }
