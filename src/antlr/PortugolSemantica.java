@@ -27,24 +27,25 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private String output = "";
 	private String erro = "";
 	private int escopo = 0;
-	private int endereceVar = 0;
+	private int enderecoVar = 0;
 
 	private ArrayList<Integer> tiposVariaveisAtribuicao = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposVariaveisArgumentos = new ArrayList<Integer>();
 
 	private ArrayList<Integer> tiposVariaveisRetornos = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposRetornoFuncao = new ArrayList<Integer>();
-	
+
 	private GeraCodigo geraCodigo;
-	
+
 	// Construtor padrão vazio
-	public PortugolSemantica() {}
-	
+	public PortugolSemantica() {
+	}
+
 	// Construtor recebe o nome do arquivo, que também será o nome do arquivo .j
 	public PortugolSemantica(File arq) {
 		geraCodigo = new GeraCodigo(arq);
+		geraCodigo.setGerar(false);
 	}
-
 
 	private ArrayList<Integer> tiposPara = new ArrayList<Integer>();
 	private ArrayList<Integer> tiposEnquanto = new ArrayList<Integer>();
@@ -56,8 +57,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 				tsVar.put(new Chave(no.getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL,
-								endereceVar, retornaValor(ctx.tipo().t)));
-				endereceVar++;
+								enderecoVar, retornaValor(ctx.tipo().t)));
+				enderecoVar++;
 			} else {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + no.getText()
@@ -73,9 +74,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 				tsVar.put(new Chave(ctx.atribuicao().ID().getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.CONSTANTE,
-								endereceVar, "")); // Falta descobrir o valor da
+								enderecoVar, "")); // Falta descobrir o valor da
 													// constante
-				endereceVar++;
+				enderecoVar++;
 			} else {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \""
@@ -101,7 +102,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void exitFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
 		List<ComandosContext> comandos = ctx.comandos();
-		
+
 		geraCodigo.abreMain(tsVar.size());
 
 		if (!comandos.isEmpty()) {
@@ -117,7 +118,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			verificaTipoRetorno(Constantes.INTEIRO, ctx.start.getLine(),
 					"principal");
 		}
-		
+
 		geraCodigo.fechaMain();
 	}
 
@@ -133,8 +134,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 				tsVar.put(new Chave(param.ID().getText(), escopo),
 						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO,
-								endereceVar, retornaValor(param.tipo().t)));
-				endereceVar++;
+								enderecoVar, retornaValor(param.tipo().t)));
+				enderecoVar++;
 				seqParam.add(param.tipo().t);
 			} else {
 				erro += "Linha " + ctx.getStart().getLine()
@@ -216,7 +217,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void exitPara(PortugolParser.ParaContext ctx) {
 		int tipo = tiposPara.get(0);
-
+		
 		for (int i = 1; i < tiposPara.size(); i++) {
 			if (tiposPara.get(i) != tipo) {
 				erro += "Linha "
@@ -234,6 +235,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 		boolean ehArgumento = false;
 
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
+		
+		if (paisExpr.get(0) instanceof PortugolParser.ParaContext) {
+			setTipoPara(ctx);
+		}
 
 		for (ParserRuleContext exprCtx : paisExpr) {
 			if (exprCtx instanceof PortugolParser.AtribuicaoContext
@@ -246,9 +251,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 			} else if (exprCtx instanceof PortugolParser.RetornaContext
 					&& !ehArgumento) {
 				setTipoVariaveisRetornos(ctx);
-			} else if (exprCtx instanceof PortugolParser.ParaContext
-					&& !ehArgumento) {
-				setTipoPara(ctx);
 			} else if (exprCtx instanceof PortugolParser.EnquantoContext) {
 				setTipoEnquanto(ctx);
 			}
@@ -272,6 +274,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + ctx.ID().getText()
 						+ "\" não foi criado.\n";
+			} else {
+				if (getTipoID(ctx.ID().getText()) != Constantes.LOGICO) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - Identificador \"" + ctx.ID().getText()
+							+ "\" não é do tipo lógico.\n";
+				}
 			}
 		}
 	}
@@ -369,17 +377,21 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void exitEnquanto(PortugolParser.EnquantoContext ctx) {
-		int tipo = tiposEnquanto.get(0);
+		if (!tiposEnquanto.isEmpty()) {
+			
+			erro += "TIPOS ENQUANTO => " + tiposEnquanto + "\n\n";
+			
+			int tipo = tiposEnquanto.get(0);
 
-		for (int i = 1; i < tiposEnquanto.size(); i++) {
-			if (tiposEnquanto.get(i) != tipo) {
-				erro += "Linha "
-						+ ctx.getStart().getLine()
-						+ " - Expressões são de tipos diferentes\n";
+			for (int i = 1; i < tiposEnquanto.size(); i++) {
+				if (tiposEnquanto.get(i) != tipo) {
+					erro += "Linha " + ctx.getStart().getLine()
+							+ " - Expressões são de tipos diferentes\n";
+				}
 			}
-		}
 
-		tiposEnquanto.clear();
+			tiposEnquanto.clear();
+		}
 	}
 
 	@Override
@@ -518,11 +530,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 					InfoVariavel info = tsVar.get(key);
 					tipo = info.getTipo();
 					break;
-				} else if (key.getEscopo() == 0
-						&& key.getId().compareTo(id) == 0) {
-					InfoVariavel info = tsVar.get(key);
-					tipo = info.getTipo();
-					break;
+				}
+			}
+		}
+		
+		if (tipo == 0) {
+			for (Chave key : chaves) {
+				if (key != null) {
+					if (key.getEscopo() == 0
+							&& key.getId().compareTo(id) == 0) {
+						InfoVariavel info = tsVar.get(key);
+						tipo = info.getTipo();
+						break;
+					}
 				}
 			}
 		}
