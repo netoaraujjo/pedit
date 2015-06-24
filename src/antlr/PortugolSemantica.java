@@ -14,11 +14,11 @@ import util.Constantes;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
-
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
+import exceptions.GerarClassException;
 
 public class PortugolSemantica extends PortugolBaseListener {
 
@@ -44,7 +44,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	// Construtor recebe o nome do arquivo, que também será o nome do arquivo .j
 	public PortugolSemantica(File arq) {
 		geraCodigo = new GeraCodigo(arq);
-		geraCodigo.setGerar(false);
+		geraCodigo.setGerar(true);
 	}
 
 	private ArrayList<Integer> tiposPara = new ArrayList<Integer>();
@@ -58,6 +58,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 				tsVar.put(new Chave(no.getText(), escopo),
 						new InfoVariavel(ctx.tipo().t, Constantes.VARIAVEL,
 								enderecoVar, retornaValor(ctx.tipo().t)));
+				
+				geraCodigo.abreDeclrVar(ctx.tipo().t, enderecoVar, this.escopo, no.getText());
 				enderecoVar++;
 			} else {
 				erro += "Linha " + ctx.getStart().getLine()
@@ -65,6 +67,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ "\" já foi criado no escopo atual.\n";
 			}
 		}
+
 	}
 
 	@Override

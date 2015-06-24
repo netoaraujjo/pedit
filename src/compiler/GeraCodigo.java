@@ -38,7 +38,24 @@ public class GeraCodigo {
 	
 	private void inicializa() {
 		codigo  = ".class public " + nomeProg + "\n";
-		codigo += ".super java/lang/Object\n\n";
+		codigo += ".super java/lang/Object\n\n";		
+	} // fim inicializa
+	
+	
+	public void abreMain(int qtdVar) {
+		codigo += "\n";
+		codigo += ".method public static main([Ljava/lang/String;)V\n";
+		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
+		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
+	} // fim abreMain
+	
+	
+	public void fechaMain() {
+		
+		codigo += "invokestatic " + nomeProg + ".pause()V\n\n";
+		
+		codigo += "return\n";
+		codigo += ".end method\n\n";
 		
 		codigo += ".method public static pause()V\n";
 		codigo += ".limit stack 10\n";
@@ -53,22 +70,6 @@ public class GeraCodigo {
 		
 		codigo += "return\n\n";
 		
-		codigo += ".end method\n\n";
-	} // fim inicializa
-	
-	
-	public void abreMain(int qtdVar) {
-		codigo += ".method public static main([Ljava/lang/String;)V\n";
-		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
-		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
-	}
-	
-	
-	public void fechaMain() {
-		
-		codigo += "invokestatic " + nomeProg + ".pause()V\n\n";
-		
-		codigo += "return\n";
 		codigo += ".end method";
 		
 		imprimeCodigo();
@@ -180,21 +181,33 @@ public class GeraCodigo {
 		}
 	} // fim executar
 	
-	public void abreDeclrVar(int tipo, int endereco) {
+	public void abreDeclrVar(int tipo, int endereco, int escopo, String id) {
 		
 		switch (tipo) {
 			case Constantes.INTEIRO:
 			case Constantes.LOGICO:
-				codigo += "ldc 0\n";
-				codigo += "istore " + endereco + "\n";
+				if (escopo == 0) {
+					codigo += ".field public " + id + " I\n";
+				} else {
+					codigo += "ldc 0\n";
+					codigo += "istore " + endereco + "\n";
+				}
 				break;
 			case Constantes.REAL:
-				codigo += "ldc 0.0\n";
-				codigo += "fstore " + endereco + "\n";
+				if (escopo == 0) {
+					codigo += ".field public " + id + " F\n";
+				} else {
+					codigo += "ldc 0.0\n";
+					codigo += "fstore " + endereco + "\n";
+				}
 				break;
 			case Constantes.PALAVRA:
-				codigo += "ldc 0\n";
-				codigo += "astore " + endereco + "\n";
+				if (escopo == 0) {
+					codigo += ".field public " + id + " I\n";
+				} else {
+					codigo += "ldc \"\"\n";
+					codigo += "astore " + endereco + "\n";
+				}
 				break;
 			default:
 				break;
