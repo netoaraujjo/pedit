@@ -119,10 +119,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 					"principal");
 		}
 		
-
-		
 		geraCodigo.fechaMain();
-		
 	}
 
 	@Override

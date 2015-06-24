@@ -12,7 +12,7 @@ public class ArquivoJaExistenteException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public ArquivoJaExistenteException() {
-		super("Arquivo ja existente");
+		super("Arquivo já existente!");
 	}
 	
 }
