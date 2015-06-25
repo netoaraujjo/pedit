@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
-
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -53,7 +53,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
-		System.out.println("enterDeclarVar");
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo)) {
 
@@ -62,8 +61,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 								enderecoVarGlobal, enderecoVarLocal,
 								retornaValor(ctx.tipo().t)));
 
-				geraCodigo.abreDeclrVar(ctx.tipo().t, enderecoVarGlobal,
-						this.escopo, no.getText());
+				geraCodigo.abreDeclrVar(ctx.tipo().t, enderecoVarGlobal, enderecoVarLocal, this.escopo, no.getText());
 
 				enderecoVarGlobal++;
 				enderecoVarLocal++;
@@ -142,6 +140,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 		escopo += 1;
 
 		ArrayList<Integer> seqParam = new ArrayList<Integer>();
+		
+		List<InfoVariavel> ivTemp = new ArrayList<>();
 
 		for (ParametroContext param : ctx.parametro()) {
 			if (!existeChaveVar(param.ID().getText(), this.escopo)) {
@@ -149,6 +149,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 				tsVar.put(
 						new Chave(param.ID().getText(), escopo),
 						new InfoVariavel(param.tipo().t, Constantes.PARAMETRO,
+								enderecoVarGlobal, enderecoVarLocal, retornaValor(param.tipo().t)));
+				
+				ivTemp.add(new InfoVariavel(param.tipo().t, Constantes.PARAMETRO,
 								enderecoVarGlobal, enderecoVarLocal, retornaValor(param.tipo().t)));
 				
 				enderecoVarGlobal++;
@@ -169,6 +172,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 					+ " - Já existe uma funcao com o identificador \""
 					+ ctx.ID().getText() + "\".\n";
 		}
+		
+		geraCodigo.abreFuncao(ctx.tipo().t, ctx.ID().getText(), tsVar.size());
+		
+		for (InfoVariavel iv : ivTemp) {
+			geraCodigo.abreDeclaracaoParametro(
+					iv.getTipo(), 
+					iv.getEnderecoGlobal(), 
+					iv.getEnderecoLocal());
+		}
 	}
 
 	@Override
@@ -188,7 +200,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 			verificaTipoRetorno(ctx.tipo().t, ctx.retorna().stop.getLine(), ctx
 					.ID().getText());
 		}
-
+		
+		geraCodigo.fechaFuncao(ctx.tipo().t);
 	}
 
 	@Override
