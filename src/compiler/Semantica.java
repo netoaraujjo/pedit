@@ -97,7 +97,7 @@ public class Semantica {
 		ParseTree tree = parser.prog();
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		//PortugolSemantica ps = new PortugolSemantica();
+		// PortugolSemantica ps = new PortugolSemantica();
 		PortugolSemantica ps = new PortugolSemantica(arquivo);
 
 		walker.walk(ps, tree);
@@ -116,8 +116,11 @@ public class Semantica {
 				output += key.getId() + " -> TIPO: " + tsVar.get(key).getTipo()
 						+ " | CATEGORIA: " + tsVar.get(key).getCategoria()
 						+ " | ESCOPO: " + key.getEscopo()
-						+ " | ENDEREÇO: " + tsVar.get(key).getEndereco()
-						+ " | VALOR: " + tsVar.get(key).getValor() + "\n";
+						+ " | ENDEREÇO GLOBAL: "
+						+ tsVar.get(key).getEnderecoGlobal()
+						+ " | ENDEREÇO LOCAL: "
+						+ tsVar.get(key).getEnderecoLocal() + " | VALOR: "
+						+ tsVar.get(key).getValor() + "\n";
 		}
 
 		output += "\n--: FUNCOES :--\n";
