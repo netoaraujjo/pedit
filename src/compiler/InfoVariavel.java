@@ -1,21 +1,23 @@
 package compiler;
 
 public class InfoVariavel extends Info {
-	private int endereco;
+	private int enderecoGlobal;
+	private int enderecoLocal;
 	private String valor;
 
-	public InfoVariavel(int tipo, int categoria, int endereco, String valor) {
+	public InfoVariavel(int tipo, int categoria, int enderecoGlobal, int enderecoLocal, String valor) {
 		super(tipo, categoria);
-		this.endereco = endereco;
+		this.enderecoGlobal = enderecoGlobal;
+		this.enderecoLocal = enderecoLocal;
 		this.valor = valor;
 	}
 
-	public int getEndereco() {
-		return endereco;
+	public int getEnderecoGlobal() {
+		return enderecoGlobal;
 	}
 
-	public void setEndereco(int endereco) {
-		this.endereco = endereco;
+	public void setEnderecoGlobal(int enderecoGlobal) {
+		this.enderecoGlobal = enderecoGlobal;
 	}
 
 	public String getValor() {
@@ -24,6 +26,14 @@ public class InfoVariavel extends Info {
 
 	public void setValor(String valor) {
 		this.valor = valor;
+	}
+
+	public int getEnderecoLocal() {
+		return enderecoLocal;
+	}
+
+	public void setEnderecoLocal(int enderecoLocal) {
+		this.enderecoLocal = enderecoLocal;
 	}
 
 }
