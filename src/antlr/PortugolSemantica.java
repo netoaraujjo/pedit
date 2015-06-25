@@ -52,6 +52,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterDeclarVar(PortugolParser.DeclarVarContext ctx) {
+		System.out.println("enterDeclarVar");
 		for (TerminalNode no : ctx.ID()) {
 			if (!existeChaveVar(no.getText(), this.escopo)) {
 
@@ -100,13 +101,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 		tsFunc.put(new Chave("principal", escopo), new InfoFuncao(
 				Constantes.INTEIRO, Constantes.FUNCAO_PRINCIPAL,
 				new ArrayList<Integer>()));
+		
+		geraCodigo.abreMain(tsVar.size());
 	}
 
 	@Override
 	public void exitFuncPrincipal(PortugolParser.FuncPrincipalContext ctx) {
 		List<ComandosContext> comandos = ctx.comandos();
-
-		geraCodigo.abreMain(tsVar.size());
 
 		if (!comandos.isEmpty()) {
 			for (ComandosContext cmd : comandos) {

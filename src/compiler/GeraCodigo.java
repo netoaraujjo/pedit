@@ -51,8 +51,8 @@ public class GeraCodigo {
 	
 	
 	public void fechaMain() {
-		
-		codigo += "invokestatic " + nomeProg + ".pause()V\n\n";
+		codigo += "\n";
+		codigo += "invokestatic " + nomeProg + ".pause()V\n";
 		
 		codigo += "return\n";
 		codigo += ".end method\n\n";
@@ -81,16 +81,16 @@ public class GeraCodigo {
 				executar();
 			} catch (GerarClassException e) {
 				JOptionPane.showMessageDialog(
-						null, 
-						e.getMessage(), 
-						"Erro", 
-						JOptionPane.ERROR_MESSAGE);
+					null, 
+					e.getMessage(), 
+					"Erro", 
+					JOptionPane.ERROR_MESSAGE);
 			} catch (ExecutarCodigoException e) {
 				JOptionPane.showMessageDialog(
-						null, 
-						e.getMessage(), 
-						"Erro", 
-						JOptionPane.ERROR_MESSAGE);
+					null, 
+					e.getMessage(), 
+					"Erro", 
+					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	} // fim fechaMain
@@ -144,12 +144,12 @@ public class GeraCodigo {
 			saida.close();
 		} catch (FileNotFoundException e) {
 			JOptionPane.showMessageDialog(
-					null,
-					"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
-					"Erro",
-					JOptionPane.ERROR_MESSAGE);
+				null,
+				"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
+				"Erro",
+				JOptionPane.ERROR_MESSAGE);
 		}
-	}
+	} // salvarArquivoJasmin
 	
 	
 	private void executar() throws ExecutarCodigoException {
@@ -181,13 +181,13 @@ public class GeraCodigo {
 		}
 	} // fim executar
 	
+	
 	public void abreDeclrVar(int tipo, int endereco, int escopo, String id) {
-		
 		switch (tipo) {
 			case Constantes.INTEIRO:
 			case Constantes.LOGICO:
 				if (escopo == 0) {
-					codigo += ".field public " + id + " I\n";
+					codigo += ".field public " + id + " I = 0\n";
 				} else {
 					codigo += "ldc 0\n";
 					codigo += "istore " + endereco + "\n";
@@ -195,7 +195,7 @@ public class GeraCodigo {
 				break;
 			case Constantes.REAL:
 				if (escopo == 0) {
-					codigo += ".field public " + id + " F\n";
+					codigo += ".field public " + id + " F = 0.0\n";
 				} else {
 					codigo += "ldc 0.0\n";
 					codigo += "fstore " + endereco + "\n";
@@ -203,15 +203,12 @@ public class GeraCodigo {
 				break;
 			case Constantes.PALAVRA:
 				if (escopo == 0) {
-					codigo += ".field public " + id + " I\n";
+					codigo += ".field public " + id + " Ljava/lang/String; = \"\"\n";
 				} else {
 					codigo += "ldc \"\"\n";
 					codigo += "astore " + endereco + "\n";
 				}
 				break;
-			default:
-				break;
 		}
-		
-	}
+	} // fim abreDeclrVar
 }
