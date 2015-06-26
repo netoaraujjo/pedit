@@ -61,13 +61,16 @@ public class GeraCodigo {
 	
 	
 	public void fechaMain() {
+		
+		
+		
 		codigo += "\n";
 		codigo += "invokestatic " + nomeProg + ".pause()V\n";
 		
 		codigo += "return\n";
 		codigo += ".end method";
 		
-		pause();
+		codigo += pause();
 		
 		//imprimeCodigo();
 		
@@ -93,22 +96,28 @@ public class GeraCodigo {
 	} // fim fechaMain
 	
 	
-	public void pause() {
-		codigo += "\n\n";
-		codigo += ".method public static pause()V\n";
-		codigo += ".limit stack 10\n";
-		codigo += ".limit locals 10\n\n";
+	
+	
+	
+	private String pause() {
+		String codPause = "";
+		codPause += "\n\n";
+		codPause += ".method public static pause()V\n";
+		codPause += ".limit stack 10\n";
+		codPause += ".limit locals 10\n\n";
 		
-		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
-		codigo += "ldc \"Pressione ENTER para continuar...\"\n";
-		codigo += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n\n";
+		codPause += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+		codPause += "ldc \"Pressione ENTER para continuar...\"\n";
+		codPause += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n\n";
 		
-		codigo += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
-		codigo += "invokevirtual java/io/InputStream/read()I\n";
+		codPause += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codPause += "invokevirtual java/io/InputStream/read()I\n";
 		
-		codigo += "return\n";
+		codPause += "return\n";
 		
-		codigo += ".end method";
+		codPause += ".end method";
+		
+		return codPause;
 	} // fim pause
 	
 	
