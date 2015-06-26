@@ -8,13 +8,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
+
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -239,6 +239,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 	}
 
+	@Override
+	public void enterEscrever(PortugolParser.EscreverContext ctx) {
+		// Implementar o que for preciso
+	}
+	
 	@Override
 	public void enterPara(PortugolParser.ParaContext ctx) {
 		analisaPara(ctx);
@@ -860,6 +865,22 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		tiposRetornoFuncao.remove(0);
+	}
+	
+	private InfoVariavel getInfoVariavel(String id, int escopo) {
+		InfoVariavel infoVariavel = null;
+		
+		Set<Chave> chaves = tsVar.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getEscopo() == escopo && key.getId().compareTo(id) == 0) {
+					infoVariavel = tsVar.get(key);
+					break;
+				}
+			}
+		}
+
+		return infoVariavel;
 	}
 
 	public String getOutput() {
