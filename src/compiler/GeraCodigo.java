@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Formatter;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -72,7 +73,6 @@ public class GeraCodigo {
 		
 		codigo += pause();
 		
-		//imprimeCodigo();
 		
 		if (gerar) {
 			salvarArquivoJasmin();
@@ -96,7 +96,11 @@ public class GeraCodigo {
 	} // fim fechaMain
 	
 	
-	
+	public void gerarEscrever() {
+		codigo += "\n";
+		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
+		codigo += "";
+	}
 	
 	
 	private String pause() {
@@ -156,11 +160,6 @@ public class GeraCodigo {
 	} // fim gerarArquivoClass
 	
 	
-	private void imprimeCodigo() {
-		System.out.println(codigo);
-	} // fim imprimeCodigo
-	
-	
 	private void salvarArquivoJasmin() {
 		File arquivo = new File(pathArq);
 		try {
@@ -208,93 +207,89 @@ public class GeraCodigo {
 	
 	
 	public void abreDeclrVar(int tipo, int enderecoGlobal, int enderecoLocal, int escopo, String id) {
-		switch (tipo) {
-			case Constantes.INTEIRO:
-			case Constantes.LOGICO:
-				if (escopo == 0) {
-					codigo += ".field public " + id + " I = 0\n";
-				} else {
-					codigo += "ldc 0\n";
-					codigo += "istore " + enderecoLocal + "\n";
-				}
-				break;
-			case Constantes.REAL:
-				if (escopo == 0) {
-					codigo += ".field public " + id + " F = 0.0\n";
-				} else {
-					codigo += "ldc 0.0\n";
-					codigo += "fstore " + enderecoLocal + "\n";
-				}
-				break;
-			case Constantes.PALAVRA:
-				if (escopo == 0) {
-					codigo += ".field public " + id + " Ljava/lang/String; = \"\"\n";
-				} else {
-					codigo += "ldc \"\"\n";
-					codigo += "astore " + enderecoLocal + "\n";
-				}
-				break;
+		if (escopo == 0) {
+			codigo += ".field public " + id + " " + getTipoDeDado(tipo) + " = " 
+				+ getInicializacaoPorTipo(tipo) + "\n";
+		} else {
+			codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
+			codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
 		}
 	} // fim abreDeclrVar
 	
 	
-	public void abreFuncao(int tipo, String idFuncao, int qtdVar) {
-		String tipoFunc = "";
+	public void abreFuncao(int tipo, String idFuncao, int qtdVar, List<InfoVariavel> parametros) {
+		codigo += "\n.method public " + idFuncao + "(";
 		
-		switch (tipo) {
-			case Constantes.INTEIRO:
-			case Constantes.LOGICO:
-				tipoFunc = "I";
-				break;
-			case Constantes.REAL:
-				tipoFunc = "F";
-				break;
-			case Constantes.PALAVRA:
-				tipoFunc = "Ljava/lang/String;";
-				break;
+		// insere os tipos dos parametros
+		for (InfoVariavel param : parametros) {
+			codigo += getTipoDeDado(param.getTipo());
 		}
 		
-		codigo += "\n.method public " + idFuncao + "()" + tipoFunc + "\n";
+		codigo += ")" + getTipoDeDado(tipo)+ "\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
+		
+		// declara os parametros
+		for (InfoVariavel param : parametros) {
+			abreDeclaracaoParametro(
+					param.getTipo(), 
+					param.getEnderecoGlobal(), 
+					param.getEnderecoLocal());
+		}
+		
 	} // fim abreFuncao
 	
 	
 	public void abreDeclaracaoParametro(int tipo, int enderecoGlobal, int enderecoLocal) {
-		switch (tipo) {
-			case Constantes.INTEIRO:
-			case Constantes.LOGICO:
-				codigo += "ldc 0\n";
-				codigo += "istore " + enderecoLocal + "\n";
-				break;
-			case Constantes.REAL:
-				codigo += "ldc 0.0\n";
-				codigo += "fstore " + enderecoLocal + "\n";
-				break;
-			case Constantes.PALAVRA:
-				codigo += "ldc \"\"\n";
-				codigo += "astore " + enderecoLocal + "\n";
-				break;
-		}
+		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
+		codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
 	} // fim abreDeclaracaoParametro
 	
 	
 	public void fechaFuncao(int tipo) {
 		codigo += "\n";
-		codigo += "ldc 0\n";
-		switch (tipo) {
-			case Constantes.INTEIRO:
-			case Constantes.LOGICO:
-				codigo += "ireturn";
-				break;
-			case Constantes.REAL:
-				codigo += "freturn";
-				break;
-			case Constantes.PALAVRA:
-				codigo += "areturn";
-				break;
-		}
-		codigo += "\n";
+		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
+		codigo += getTipoDaExpressao(tipo) + "return\n";
 		codigo += ".end method\n";
 	} // fim fechaFuncao
-}
+	
+	
+	private String getTipoDeDado(int tipoDeDado) {
+        switch (tipoDeDado) {
+            case Constantes.INTEIRO:
+            case Constantes.LOGICO:
+                return "I";
+            case Constantes.REAL:
+                return "F";
+            default:
+                return "Ljava/lang/String;";
+        }
+    } // fim getTipoDeDado
+	
+	
+	private String getTipoDaExpressao(int tipoExpressao) {
+        switch (tipoExpressao) {
+        	case Constantes.INTEIRO:
+        	case Constantes.LOGICO:
+                return "i";
+            case Constantes.REAL:
+                return "f";
+            default:
+                return "a";
+        }
+    } // fim getTipoDaExpressao
+	
+	
+	private String getInicializacaoPorTipo(int tipo) {
+		switch (tipo) {
+	    	case Constantes.INTEIRO:
+	    	case Constantes.LOGICO:
+	            return "0";
+	        case Constantes.REAL:
+	            return "0.0";
+	        default:
+	            return "\"\"";
+	    }
+	} // fim getInicializacaoPorTipo
+	
+} // fim classe GeraCodigo

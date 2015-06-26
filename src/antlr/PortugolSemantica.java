@@ -11,10 +11,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import util.Constantes;
+import antlr.PortugolParser.ArgumentosContext;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
-
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -173,14 +173,14 @@ public class PortugolSemantica extends PortugolBaseListener {
 					+ ctx.ID().getText() + "\".\n";
 		}
 		
-		geraCodigo.abreFuncao(ctx.tipo().t, ctx.ID().getText(), tsVar.size());
+		geraCodigo.abreFuncao(ctx.tipo().t, ctx.ID().getText(), tsVar.size(), ivTemp);
 		
-		for (InfoVariavel iv : ivTemp) {
+		/*for (InfoVariavel iv : ivTemp) {
 			geraCodigo.abreDeclaracaoParametro(
 					iv.getTipo(), 
 					iv.getEnderecoGlobal(), 
 					iv.getEnderecoLocal());
-		}
+		}*/
 	}
 
 	@Override
@@ -242,6 +242,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterEscrever(PortugolParser.EscreverContext ctx) {
 		// Implementar o que for preciso
+		List<ArgumentosContext> args = ctx.argumentos();
 	}
 	
 	@Override
