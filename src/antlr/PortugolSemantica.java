@@ -174,13 +174,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 		
 		geraCodigo.abreFuncao(ctx.tipo().t, ctx.ID().getText(), tsVar.size(), ivTemp);
-		
-		/*for (InfoVariavel iv : ivTemp) {
-			geraCodigo.abreDeclaracaoParametro(
-					iv.getTipo(), 
-					iv.getEnderecoGlobal(), 
-					iv.getEnderecoLocal());
-		}*/
 	}
 
 	@Override
@@ -237,12 +230,18 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ "\" não foi criado.\n";
 			}
 		}
+		
+		for (TerminalNode no : ctx.ID()) {
+			
+		}
+		
 	}
 
 	@Override
 	public void enterEscrever(PortugolParser.EscreverContext ctx) {
 		// Implementar o que for preciso
 		List<ArgumentosContext> args = ctx.argumentos();
+		
 	}
 	
 	@Override

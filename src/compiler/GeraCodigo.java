@@ -40,6 +40,7 @@ public class GeraCodigo {
 	private void inicializa() {
 		codigo  = ".class public " + nomeProg + "\n";
 		codigo += ".super java/lang/Object\n\n";
+		codigo += ".field public static scanner_field Ljava/util/Scanner;\n\n";
 	} // fim inicializa
 	
 	
@@ -53,26 +54,33 @@ public class GeraCodigo {
 	} // fim geraConstrutor
 	
 	public void abreMain(int qtdVar) {
+		// inserir metodos padroes
 		geraConstrutor();
+		codigo += leInteiro();
+		codigo += leFloat();
+		codigo += leString();
+		
+		codigo += pause();
 		
 		codigo += ".method public static main([Ljava/lang/String;)V\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
+		
+		codigo += "new java/util/Scanner\n";
+		codigo += "dup\n";
+		codigo += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codigo += "invokespecial java/util/Scanner/<init>(Ljava/io/InputStream;)V\n\n";
 	} // fim abreMain
 	
 	
 	public void fechaMain() {
-		
-		
-		
 		codigo += "\n";
 		codigo += "invokestatic " + nomeProg + ".pause()V\n";
 		
 		codigo += "return\n";
 		codigo += ".end method";
 		
-		codigo += pause();
-		
+		//codigo += pause();
 		
 		if (gerar) {
 			salvarArquivoJasmin();
@@ -80,130 +88,103 @@ public class GeraCodigo {
 				gerarArquivoClass();
 				executar();
 			} catch (GerarClassException e) {
-				JOptionPane.showMessageDialog(
-					null, 
-					e.getMessage(), 
-					"Erro", 
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
 					JOptionPane.ERROR_MESSAGE);
 			} catch (ExecutarCodigoException e) {
-				JOptionPane.showMessageDialog(
-					null, 
-					e.getMessage(), 
-					"Erro", 
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
 					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	} // fim fechaMain
 	
 	
-	public void gerarEscrever() {
+	public void gerarLer(int tipo, int enderecoLocal) {
+		codigo += "invokestatic " + nomeProg + "";
+	}
+	
+	
+	public void gerarEscrever(int tipo, int enderecoLocal) {
 		codigo += "\n";
 		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
-		codigo += "";
+		codigo += getTipoDaExpressao(tipo) + "load " + enderecoLocal + "\n";
+		codigo += "invokevirtual java/io/PrintStream/println(" + getTipoDeDado(tipo) + ")V\n\n";
 	}
+	
+	
+	private String leInteiro() {
+		String codLeInteiro = "";
+		codLeInteiro += ".method public static leInteiro()I\n";
+		codLeInteiro += ".limit stack 5\n";
+		codLeInteiro += "new java/io/BufferedReader\n";
+		codLeInteiro += "dup\n";
+		codLeInteiro += "new java/io/InputStreamReader\n";
+		codLeInteiro += "dup\n";
+		codLeInteiro += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codLeInteiro += "invokespecial java/io/InputStreamReader/<init>(Ljava/io/InputStream;)V\n";
+		codLeInteiro += "invokespecial java/io/BufferedReader/<init>(Ljava/io/Reader;)V\n";
+		codLeInteiro += "invokevirtual java/io/BufferedReader/readLine()Ljava/lang/String;\n";
+		codLeInteiro += "invokestatic java/lang/Integer/parseInt(Ljava/lang/String;)I\n";
+		codLeInteiro += "ireturn\n";
+		codLeInteiro += ".end method\n\n";
+		
+		return codLeInteiro;
+	} // fim leInteiro
+	
+	
+	private String leFloat() {
+		String codLeFloat = "";
+		codLeFloat += ".method public static leFloat()F\n";
+		codLeFloat += ".limit stack 5\n";
+		codLeFloat += "new java/io/BufferedReader\n";
+		codLeFloat += "dup\n";
+		codLeFloat += "new java/io/InputStreamReader\n";
+		codLeFloat += "dup\n";
+		codLeFloat += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codLeFloat += "invokespecial java/io/InputStreamReader/<init>(Ljava/io/InputStream;)V\n";
+		codLeFloat += "invokespecial java/io/BufferedReader/<init>(Ljava/io/Reader;)V\n";
+		codLeFloat += "invokevirtual java/io/BufferedReader/readLine()Ljava/lang/String;\n";
+		codLeFloat += "invokestatic java/lang/Float/parseFloat(Ljava/lang/String;)F\n";
+		codLeFloat += "freturn\n";
+		codLeFloat += ".end method\n\n";
+		
+		return codLeFloat;
+	} // fim leFloat
+	
+	
+	private String leString() {
+		String codLeString = "";
+		codLeString += ".method public static leString()Ljava/lang/String;\n";
+		codLeString += ".limit stack 5\n";
+		codLeString += "new java/io/BufferedReader\n";
+		codLeString += "dup\n";
+		codLeString += "new java/io/InputStreamReader\n";
+		codLeString += "dup\n";
+		codLeString += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
+		codLeString += "invokespecial java/io/InputStreamReader/<init>(Ljava/io/InputStream;)V\n";
+		codLeString += "invokespecial java/io/BufferedReader/<init>(Ljava/io/Reader;)V\n";
+		codLeString += "invokevirtual java/io/BufferedReader/readLine()Ljava/lang/String;\n";
+		codLeString += "areturn\n";
+		codLeString += ".end method\n\n";
+		
+		return codLeString;
+	} // fim leString
 	
 	
 	private String pause() {
 		String codPause = "";
-		codPause += "\n\n";
 		codPause += ".method public static pause()V\n";
-		codPause += ".limit stack 10\n";
-		codPause += ".limit locals 10\n\n";
-		
+		codPause += ".limit stack 5\n";
+		codPause += ".limit locals 5\n";
 		codPause += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
 		codPause += "ldc \"Pressione ENTER para continuar...\"\n";
-		codPause += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n\n";
-		
+		codPause += "invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V\n";
 		codPause += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
 		codPause += "invokevirtual java/io/InputStream/read()I\n";
-		
 		codPause += "return\n";
-		
-		codPause += ".end method";
+		codPause += ".end method\n\n";
 		
 		return codPause;
 	} // fim pause
-	
-	
-	private void gerarArquivoClass() throws GerarClassException {
-		
-		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("").getPath() + "lib"+ SEP +"jasmin.jar";
-		
-		ProcessBuilder pb = new ProcessBuilder(
-				"java", 
-				"-jar", 
-				pathJasmin, 
-				pathArq);
-		
-		pb.directory(new File(diretorio));
-		
-		Process process;
-		try {
-			process = pb.start();
-			process.waitFor();
-			
-			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			
-			String txt;
-			
-			while ((txt = readerErro.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-			
-			while ((txt = readerSucesso.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new GerarClassException();
-		}
-	} // fim gerarArquivoClass
-	
-	
-	private void salvarArquivoJasmin() {
-		File arquivo = new File(pathArq);
-		try {
-			Formatter saida = new Formatter(arquivo);
-			saida.format("%s", codigo);
-			saida.close();
-		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(
-				null,
-				"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
-				"Erro",
-				JOptionPane.ERROR_MESSAGE);
-		}
-	} // salvarArquivoJasmin
-	
-	
-	private void executar() throws ExecutarCodigoException {
-		String comando = "java " + nomeProg;
-		
-		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
-		
-		pb.directory(new File(diretorio));
-		
-		Process process;
-		try {
-			process = pb.start();
-			process.waitFor();
-			
-			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			
-			String txt;
-			
-			while ((txt = readerErro.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-			
-			while ((txt = readerSucesso.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new ExecutarCodigoException();
-		}
-	} // fim executar
 	
 	
 	public void abreDeclrVar(int tipo, int enderecoGlobal, int enderecoLocal, int escopo, String id) {
@@ -291,5 +272,87 @@ public class GeraCodigo {
 	            return "\"\"";
 	    }
 	} // fim getInicializacaoPorTipo
+	
+	
+	private void gerarArquivoClass() throws GerarClassException {
+		
+		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("").getPath() + "lib"+ SEP +"jasmin.jar";
+		
+		ProcessBuilder pb = new ProcessBuilder(
+				"java", 
+				"-jar", 
+				pathJasmin, 
+				pathArq);
+		
+		pb.directory(new File(diretorio));
+		
+		Process process;
+		try {
+			process = pb.start();
+			process.waitFor();
+			
+			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			
+			String txt;
+			
+			while ((txt = readerErro.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+			
+			while ((txt = readerSucesso.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+		} catch (IOException | InterruptedException e) {
+			throw new GerarClassException();
+		}
+	} // fim gerarArquivoClass
+	
+	
+	private void salvarArquivoJasmin() {
+		File arquivo = new File(pathArq);
+		try {
+			Formatter saida = new Formatter(arquivo);
+			saida.format("%s", codigo);
+			saida.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(
+				null,
+				"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
+				"Erro",
+				JOptionPane.ERROR_MESSAGE);
+		}
+	} // salvarArquivoJasmin
+	
+	
+	private void executar() throws ExecutarCodigoException {
+		String comando = "java " + nomeProg;
+		
+		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
+		
+		pb.directory(new File(diretorio));
+		
+		Process process;
+		try {
+			process = pb.start();
+			process.waitFor();
+			
+			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			
+			String txt;
+			
+			while ((txt = readerErro.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+			
+			while ((txt = readerSucesso.readLine()) != null) {
+				System.out.println(txt + "\n");
+			}
+		} catch (IOException | InterruptedException e) {
+			throw new ExecutarCodigoException();
+		}
+	} // fim executar
+	
 	
 } // fim classe GeraCodigo
