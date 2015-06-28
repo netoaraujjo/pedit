@@ -19,6 +19,7 @@ import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
+import exceptions.GerarClassException;
 
 public class PortugolSemantica extends PortugolBaseListener {
 
@@ -217,6 +218,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Identificador \"" + no.getText()
 							+ "\" é do tipo logico.\n";
+				} else {
+					InfoVariavel iv = getInfoVariavel(no.getText(), this.escopo);
+					geraCodigo.gerarLer(iv.getTipo(), iv.getEnderecoLocal());
 				}
 			} else if (existeChaveVar(no.getText(), 0)) {
 				if (argumentoLogico(no.getText(), 0)) {
@@ -230,11 +234,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ "\" não foi criado.\n";
 			}
 		}
-		
-		for (TerminalNode no : ctx.ID()) {
-			
-		}
-		
 	}
 
 	@Override

@@ -99,7 +99,9 @@ public class GeraCodigo {
 	
 	
 	public void gerarLer(int tipo, int enderecoLocal) {
-		codigo += "invokestatic " + nomeProg + "";
+		codigo += "\n";
+		codigo += "invokestatic " + nomeProg + "." + getTipoLeitura(tipo) + "\n";
+		codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
 	}
 	
 	
@@ -259,6 +261,18 @@ public class GeraCodigo {
                 return "a";
         }
     } // fim getTipoDaExpressao
+	
+	
+	private String getTipoLeitura(int tipo) {
+		switch (tipo) {
+			case Constantes.INTEIRO:
+	            return "leInteiro()I";
+	        case Constantes.REAL:
+	            return "leFloat()F";
+	        default:
+	            return "leString()Ljava/lang/String;";
+		}
+	}
 	
 	
 	private String getInicializacaoPorTipo(int tipo) {
