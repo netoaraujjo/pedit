@@ -238,9 +238,20 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterEscrever(PortugolParser.EscreverContext ctx) {
-		// Implementar o que for preciso
-		List<ArgumentosContext> args = ctx.argumentos();
-		
+		for (ArgumentosContext argumento : ctx.argumentos()) {
+			if (argumento.expressao() != null) {
+				if (argumento.expressao().CADEIA_DE_CARACTERES() != null) {
+					geraCodigo.geraEscreverMensagem(argumento.expressao().CADEIA_DE_CARACTERES().getText());
+				} else if (argumento.expressao().NUM_INTEIRO() != null) {
+					geraCodigo.geraEscreverMensagem("\"" + argumento.expressao().NUM_INTEIRO().getText() + "\"");
+				} else if (argumento.expressao().NUM_REAL() != null) {
+					geraCodigo.geraEscreverMensagem("\"" + argumento.expressao().NUM_REAL().getText() + "\"");
+				} else if (argumento.expressao().ID() != null) {
+					InfoVariavel iv = getInfoVariavel(argumento.expressao().ID().getText(), this.escopo);
+					geraCodigo.gerarEscrever(iv.getTipo(), iv.getEnderecoLocal());
+				}
+			}
+		}
 	}
 	
 	@Override
