@@ -111,7 +111,6 @@ public class GeraCodigo {
 		codigo += "\n";
 		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
 		codigo += "ldc " + mensagem + "\n";
-		System.out.println("ldc " + mensagem);
 		codigo += "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n\n";
 	}
 	
