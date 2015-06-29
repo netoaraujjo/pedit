@@ -80,21 +80,21 @@ enquanto: 'enquanto' '(' exprLogica ')' '{'
           '}'
         ;
 
-expressao returns [int t]: '-' expressao
-         | expressao ('*' | '/') expressao
-         | expressao ('+' | '-') expressao
+expressao: '-' expressao
+         | expressao op = ('*' | '/') expressao
+         | expressao op = ('+' | '-') expressao
          | '(' expressao ')'
-         | NUM_INTEIRO {$t = 1;}
-         | NUM_REAL {$t = 2;}
+         | valor = NUM_INTEIRO
+         | valor = NUM_REAL
          | chamadaDeFunc
-         | CADEIA_DE_CARACTERES {$t = 4;}
+         | valor = CADEIA_DE_CARACTERES
          | ID
          ;
 
 exprLogica: '!' exprLogica
           | '(' exprLogica ')'
           | exprLogica OPERADORES_IGUALDADES exprLogica
-          | expressao (OPERADORES_IGUALDADES | OPERADORES_SUPERIORIDADE) expressao
+          | expressao a=(OPERADORES_IGUALDADES | OPERADORES_SUPERIORIDADE) expressao
           | BOOLEANO
           | ID
           ;

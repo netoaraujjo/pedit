@@ -15,7 +15,8 @@ import antlr.PortugolParser.ArgumentosContext;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
-
+import ast.Ast;
+import ast.No;
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -42,6 +43,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private ArrayList<Integer> tiposEnquanto = new ArrayList<Integer>();
 
 	private GeraCodigo geraCodigo;
+	//private Ast ast;
 
 	// Construtor padrão vazio
 	public PortugolSemantica() {
@@ -294,6 +296,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
 
 		for (ParserRuleContext exprCtx : paisExpr) {
+
+			if (exprCtx instanceof PortugolParser.AtribuicaoContext
+					|| exprCtx instanceof PortugolParser.DecisaoContext
+					|| exprCtx instanceof PortugolParser.EnquantoContext) {
+				setAst(ctx);
+			}
+
 			if (exprCtx instanceof PortugolParser.AtribuicaoContext
 					&& !ehArgumento) {
 				setTipoVariaveisAtribuicao(ctx);
@@ -326,6 +335,26 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 		}
 
+	}
+	
+
+	@Override
+	public void exitExpressao(PortugolParser.ExpressaoContext ctx) {
+		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
+
+		for (ParserRuleContext pai : paisExpr) {
+			if (pai instanceof PortugolParser.AtribuicaoContext
+					|| pai instanceof PortugolParser.DecisaoContext
+					|| pai instanceof PortugolParser.EnquantoContext) {
+				if (ctx.op != null) {
+					Ast.up();
+				} else if (ctx.ID() != null) {
+					Ast.up();
+				} else if (ctx.valor != null) {
+					Ast.up();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -502,6 +531,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 			tiposVariaveisAtribuicao.clear();
 
 		}
+		
+		Ast.gerarPosFixa(Ast.root);
+		System.out.println(Ast.posFixa);
+		
+		Ast.print();
+		Ast.reinit();
 	}
 
 	private boolean existeChaveVar(String id, int escopo) {
@@ -959,6 +994,60 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return infoVariavel;
+	}
+	
+	private void setAst(ExpressaoContext ctx) {
+		boolean escopoEhZero = false;
+		
+		if (ctx.op != null) {
+            No n = new No(ctx.op.getText());
+            n.setAtributo("tipo", "op");
+            Ast.init(n);
+
+        } else if (ctx.ID() != null) {
+            No n = new No(ctx.ID().getText());
+            n.setAtributo("tipo", "id");
+            Chave key = getChaveTsVar(ctx.ID().getText(), this.escopo);
+            
+            if (key == null) {
+            	key = getChaveTsVar(ctx.ID().getText(), 0);
+            	escopoEhZero = true;
+            }
+            
+            if (key != null) {
+                InfoVariavel var = this.tsVar.get(key);
+                if (escopoEhZero) {
+                    n.setAtributo("posicao", String.valueOf(var.getEnderecoGlobal()));
+                } else {
+                    n.setAtributo("posicao", String.valueOf(var.getEnderecoLocal()));
+                }
+                n.setAtributo("type", String.valueOf(var.getTipo()));
+
+            }
+            Ast.init(n);
+
+        } else if (ctx.valor != null) {
+            No n = new No(ctx.valor.getText());
+            n.setAtributo("tipo", "valor");
+            Ast.init(n);
+
+        }
+	}
+	
+	private Chave getChaveTsVar(String id, int escopo) {
+		Chave chave = null;
+
+		Set<Chave> chaves = tsVar.keySet();
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getEscopo() == escopo && key.getId().compareTo(id) == 0) {
+					chave = key;
+					break;
+				}
+			}
+		}
+
+		return chave;
 	}
 
 	public String getOutput() {
