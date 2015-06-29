@@ -43,7 +43,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private ArrayList<Integer> tiposEnquanto = new ArrayList<Integer>();
 
 	private GeraCodigo geraCodigo;
-	//private Ast ast;
+
+	// private Ast ast;
 
 	// Construtor padrão vazio
 	public PortugolSemantica() {
@@ -336,7 +337,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 	}
-	
 
 	@Override
 	public void exitExpressao(PortugolParser.ExpressaoContext ctx) {
@@ -516,25 +516,35 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	@Override
+	// Só gera para variaveis locais
 	public void exitAtribuicao(PortugolParser.AtribuicaoContext ctx) {
 
 		if (ctx.expressao() != null) {
+			boolean tipoErrado = false;
+
 			int tipoIdAtr = getTipoID(ctx.ID().getText());
 
 			for (Integer tipo : tiposVariaveisAtribuicao) {
 				if (tipo != tipoIdAtr) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Atribuição entre tipos incompatíveis.\n";
+
+					tipoErrado = true;
 				}
+			}
+
+			InfoVariavel var = getInfoVariavel(ctx.ID().getText(), this.escopo);
+			if (!tipoErrado && var != null) {
+				Ast.gerarPosFixa(Ast.root);
+
+				geraCodigo.gerarAtribuicao(Ast.posFixa, tipoIdAtr,
+						var.getEnderecoLocal());
 			}
 
 			tiposVariaveisAtribuicao.clear();
 
 		}
-		
-		Ast.gerarPosFixa(Ast.root);
-		System.out.println(Ast.posFixa);
-		
+
 		Ast.print();
 		Ast.reinit();
 	}
@@ -995,45 +1005,47 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		return infoVariavel;
 	}
-	
+
 	private void setAst(ExpressaoContext ctx) {
 		boolean escopoEhZero = false;
-		
+
 		if (ctx.op != null) {
-            No n = new No(ctx.op.getText());
-            n.setAtributo("tipo", "op");
-            Ast.init(n);
+			No n = new No(ctx.op.getText());
+			n.setAtributo("tipo", "op");
+			Ast.init(n);
 
-        } else if (ctx.ID() != null) {
-            No n = new No(ctx.ID().getText());
-            n.setAtributo("tipo", "id");
-            Chave key = getChaveTsVar(ctx.ID().getText(), this.escopo);
-            
-            if (key == null) {
-            	key = getChaveTsVar(ctx.ID().getText(), 0);
-            	escopoEhZero = true;
-            }
-            
-            if (key != null) {
-                InfoVariavel var = this.tsVar.get(key);
-                if (escopoEhZero) {
-                    n.setAtributo("posicao", String.valueOf(var.getEnderecoGlobal()));
-                } else {
-                    n.setAtributo("posicao", String.valueOf(var.getEnderecoLocal()));
-                }
-                n.setAtributo("type", String.valueOf(var.getTipo()));
+		} else if (ctx.ID() != null) {
+			No n = new No(ctx.ID().getText());
+			n.setAtributo("tipo", "id");
+			Chave key = getChaveTsVar(ctx.ID().getText(), this.escopo);
 
-            }
-            Ast.init(n);
+			if (key == null) {
+				key = getChaveTsVar(ctx.ID().getText(), 0);
+				escopoEhZero = true;
+			}
 
-        } else if (ctx.valor != null) {
-            No n = new No(ctx.valor.getText());
-            n.setAtributo("tipo", "valor");
-            Ast.init(n);
+			if (key != null) {
+				InfoVariavel var = this.tsVar.get(key);
+				if (escopoEhZero) {
+					n.setAtributo("posicao",
+							String.valueOf(var.getEnderecoGlobal()));
+				} else {
+					n.setAtributo("posicao",
+							String.valueOf(var.getEnderecoLocal()));
+				}
+				n.setAtributo("type", String.valueOf(var.getTipo()));
 
-        }
+			}
+			Ast.init(n);
+
+		} else if (ctx.valor != null) {
+			No n = new No(ctx.valor.getText());
+			n.setAtributo("tipo", "valor");
+			Ast.init(n);
+
+		}
 	}
-	
+
 	private Chave getChaveTsVar(String id, int escopo) {
 		Chave chave = null;
 

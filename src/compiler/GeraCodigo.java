@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import ast.No;
 import util.Constantes;
 import exceptions.ExecutarCodigoException;
 import exceptions.GerarClassException;
@@ -238,6 +240,26 @@ public class GeraCodigo {
 		codigo += ".end method\n";
 	} // fim fechaFuncao
 	
+	public void gerarAtribuicao(ArrayList<No> nos, Integer tipoExpressao, Integer keyVarRetorno) {
+        String tipoDeExpressao = getTipoDaExpressao(tipoExpressao);
+        codigo += "\n;INICIO ATRIBUICAO\n";
+
+        for (int i = nos.size() - 1; i >= 0; i--) {
+            if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
+                if(getTipoDaOperacao(nos.get(i).toString()) != null){
+                    codigo += tipoDeExpressao + getTipoDaOperacao(nos.get(i).toString()) + "\n";
+                }else{
+                    //PRECISA IMPLEMENTAR A UTILIZACAO DE OPERADORES LOGICO AQUI!
+                }
+            } else if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
+                codigo += tipoDeExpressao + "load " + nos.get(i).getAtributo("posicao") + "\n";
+            } else {
+                codigo += "ldc " + nos.get(i).toString() + "\n";
+            }
+        }
+        codigo += tipoDeExpressao + "store " + keyVarRetorno + "\n"
+                + ";FIM ATRIBUICAO" + "\n";
+    }
 	
 	private String getTipoDeDado(int tipoDeDado) {
         switch (tipoDeDado) {
@@ -264,6 +286,19 @@ public class GeraCodigo {
         }
     } // fim getTipoDaExpressao
 	
+	private String getTipoDaOperacao(String tipoOperacao) {
+        switch (tipoOperacao) {
+            case "*":
+                return "mul";
+            case "/":
+                return "div";
+            case "+":
+                return "add";
+            case "-":
+                return "sub";
+        }
+        return null;
+    } // fim getTipoDaOperacao
 	
 	private String getTipoLeitura(int tipo) {
 		switch (tipo) {
