@@ -15,11 +15,11 @@ import antlr.PortugolParser.ArgumentosContext;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
+
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
 import compiler.InfoVariavel;
-import exceptions.GerarClassException;
 
 public class PortugolSemantica extends PortugolBaseListener {
 
@@ -907,6 +907,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	public Map<Chave, InfoFuncao> getTsFunc() {
 		return tsFunc;
+	}
+	
+	public GeraCodigo getGeraCogigo() {
+		return geraCodigo;
 	}
 
 }

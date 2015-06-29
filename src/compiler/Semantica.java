@@ -143,6 +143,10 @@ public class Semantica {
 		saida.put("erroSem", erroSem);
 		saida.put("output", output);
 
+		if (erroSint.length() == 0 && erroSem.length() == 0) {
+			ps.getGeraCogigo().executar();
+		}
+		
 		return saida;
 
 	}

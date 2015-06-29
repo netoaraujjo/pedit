@@ -80,17 +80,11 @@ public class GeraCodigo {
 		codigo += "return\n";
 		codigo += ".end method";
 		
-		//codigo += pause();
-		
 		if (gerar) {
 			salvarArquivoJasmin();
 			try {
 				gerarArquivoClass();
-				executar();
 			} catch (GerarClassException e) {
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
-					JOptionPane.ERROR_MESSAGE);
-			} catch (ExecutarCodigoException e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
 					JOptionPane.ERROR_MESSAGE);
 			}
@@ -348,7 +342,7 @@ public class GeraCodigo {
 	} // salvarArquivoJasmin
 	
 	
-	private void executar() throws ExecutarCodigoException {
+	public void executar() throws ExecutarCodigoException {
 		String comando = "java " + nomeProg;
 		
 		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
