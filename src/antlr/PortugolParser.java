@@ -1509,7 +1509,8 @@ public class PortugolParser extends Parser {
 
 	public static class ExprLogicaContext extends ParserRuleContext {
 		public int _p;
-		public Token a;
+		public Token op;
+		public Token valor;
 		public List<ExprLogicaContext> exprLogica() {
 			return getRuleContexts(ExprLogicaContext.class);
 		}
@@ -1575,10 +1576,10 @@ public class PortugolParser extends Parser {
 				{
 				setState(300); expressao(0);
 				setState(301);
-				((ExprLogicaContext)_localctx).a = _input.LT(1);
+				((ExprLogicaContext)_localctx).op = _input.LT(1);
 				_la = _input.LA(1);
 				if ( !(_la==OPERADORES_IGUALDADES || _la==OPERADORES_SUPERIORIDADE) ) {
-					((ExprLogicaContext)_localctx).a = (Token)_errHandler.recoverInline(this);
+					((ExprLogicaContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 				}
 				consume();
 				setState(302); expressao(0);
@@ -1587,7 +1588,7 @@ public class PortugolParser extends Parser {
 
 			case 4:
 				{
-				setState(304); match(BOOLEANO);
+				setState(304); ((ExprLogicaContext)_localctx).valor = match(BOOLEANO);
 				}
 				break;
 

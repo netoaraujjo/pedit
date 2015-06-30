@@ -94,8 +94,8 @@ expressao: '-' expressao
 exprLogica: '!' exprLogica
           | '(' exprLogica ')'
           | exprLogica OPERADORES_IGUALDADES exprLogica
-          | expressao a=(OPERADORES_IGUALDADES | OPERADORES_SUPERIORIDADE) expressao
-          | BOOLEANO
+          | expressao op = (OPERADORES_IGUALDADES | OPERADORES_SUPERIORIDADE) expressao
+          | valor = BOOLEANO
           | ID
           ;
 

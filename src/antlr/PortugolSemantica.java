@@ -13,11 +13,11 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import util.Constantes;
 import antlr.PortugolParser.ArgumentosContext;
 import antlr.PortugolParser.ComandosContext;
+import antlr.PortugolParser.ExprLogicaContext;
 import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
 import ast.Ast;
 import ast.No;
-
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -225,63 +225,67 @@ public class PortugolSemantica extends PortugolBaseListener {
 						+ " - Identificador \"" + ctx.ID().getText()
 						+ "\" não foi criado.\n";
 			} else {
-				if (ctx.expressao().chamadaDeFunc() != null) {
-					InfoFuncao infoFuncao = null;
-					Chave chave = null;
-					Set<Chave> chaves = tsFunc.keySet();
+				if (ctx.expressao() != null) {
+					if (ctx.expressao().chamadaDeFunc() != null) {
+						InfoFuncao infoFuncao = null;
+						Chave chave = null;
+						Set<Chave> chaves = tsFunc.keySet();
 
-					for (Chave key : chaves) {
-						if (key != null) {
-							if (key.getId().compareTo(
-									ctx.expressao().chamadaDeFunc().ID()
-											.getText()) == 0) {
-								infoFuncao = tsFunc.get(key);
-								chave = key;
-								break;
+						for (Chave key : chaves) {
+							if (key != null) {
+								if (key.getId().compareTo(
+										ctx.expressao().chamadaDeFunc().ID()
+												.getText()) == 0) {
+									infoFuncao = tsFunc.get(key);
+									chave = key;
+									break;
+								}
 							}
 						}
-					}
 
-					List<ArgumentosContext> args = ctx.expressao()
-							.chamadaDeFunc().argumentos();
-					String argumentosStr = "\n";
+						List<ArgumentosContext> args = ctx.expressao()
+								.chamadaDeFunc().argumentos();
+						String argumentosStr = "\n";
 
-					for (ArgumentosContext argumento : args) {
-						if (argumento.expressao().ID() != null) {
+						for (ArgumentosContext argumento : args) {
+							if (argumento.expressao().ID() != null) {
 
-							int tipo = getTipoID(argumento.expressao().ID()
-									.getText());
-							InfoVariavel var = getInfoVariavel(argumento
-									.expressao().ID().getText(), this.escopo);
+								int tipo = getTipoID(argumento.expressao().ID()
+										.getText());
+								InfoVariavel var = getInfoVariavel(argumento
+										.expressao().ID().getText(),
+										this.escopo);
 
-							argumentosStr += geraCodigo
-									.getTipoDaExpressao(tipo)
-									+ "load "
-									+ var.getEnderecoLocal() + "\n";
+								argumentosStr += geraCodigo
+										.getTipoDaExpressao(tipo)
+										+ "load "
+										+ var.getEnderecoLocal() + "\n";
 
-						} else if (argumento.expressao().NUM_INTEIRO() != null) {
-							argumentosStr += "ldc "
-									+ argumento.expressao().NUM_INTEIRO()
-											.getText() + "\n";
-						} else if (argumento.expressao().NUM_REAL() != null) {
-							argumentosStr += "ldc "
-									+ argumento.expressao().NUM_REAL()
-											.getText() + "\n";
-						} else if (argumento.expressao().CADEIA_DE_CARACTERES() != null) {
-							argumentosStr += "ldc "
-									+ argumento.expressao()
-											.CADEIA_DE_CARACTERES().getText()
-									+ "\n";
+							} else if (argumento.expressao().NUM_INTEIRO() != null) {
+								argumentosStr += "ldc "
+										+ argumento.expressao().NUM_INTEIRO()
+												.getText() + "\n";
+							} else if (argumento.expressao().NUM_REAL() != null) {
+								argumentosStr += "ldc "
+										+ argumento.expressao().NUM_REAL()
+												.getText() + "\n";
+							} else if (argumento.expressao()
+									.CADEIA_DE_CARACTERES() != null) {
+								argumentosStr += "ldc "
+										+ argumento.expressao()
+												.CADEIA_DE_CARACTERES()
+												.getText() + "\n";
+							}
+
 						}
 
+						InfoVariavel var = getInfoVariavel(ctx.ID().getText(),
+								this.escopo);
+
+						geraCodigo.chamadaMetodo(chave.getId(), argumentosStr,
+								infoFuncao.getSeqParametro(),
+								var.getEnderecoLocal(), infoFuncao.getTipo());
 					}
-
-					InfoVariavel var = getInfoVariavel(ctx.ID().getText(),
-							this.escopo);
-
-					geraCodigo.chamadaMetodo(chave.getId(), argumentosStr,
-							infoFuncao.getSeqParametro(),
-							var.getEnderecoLocal(), infoFuncao.getTipo());
 				}
 			}
 		}
@@ -398,7 +402,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 					|| exprCtx instanceof PortugolParser.DecisaoContext
 					|| exprCtx instanceof PortugolParser.EnquantoContext) {
 				if (!ehArgumento) {
-					setAst(ctx);
+					setAstExpressao(ctx);
 				}
 			}
 		}
@@ -451,6 +455,28 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void enterExprLogica(PortugolParser.ExprLogicaContext ctx) {
+		boolean ehArgumento = false;
+		ArrayList<ParserRuleContext> paisExpr = getPaisExprLogica(ctx);
+
+		for (ParserRuleContext exprCtx : paisExpr) {
+
+			if (exprCtx instanceof PortugolParser.ArgumentosContext) {
+				ehArgumento = true;
+				break;
+			}
+
+		}
+
+		for (ParserRuleContext exprCtx : paisExpr) {
+			if (exprCtx instanceof PortugolParser.AtribuicaoContext
+					|| exprCtx instanceof PortugolParser.DecisaoContext
+					|| exprCtx instanceof PortugolParser.EnquantoContext) {
+				if (!ehArgumento) {
+					setAstExprLogica(ctx);
+				}
+			}
+		}
+
 		if (ctx.ID() != null) {
 			if (!existeChaveVar(ctx.ID().getText(), escopo)
 					&& !existeChaveVar(ctx.ID().getText(), 0)) {
@@ -462,6 +488,25 @@ public class PortugolSemantica extends PortugolBaseListener {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Identificador \"" + ctx.ID().getText()
 							+ "\" não é do tipo lógico.\n";
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitExprLogica(PortugolParser.ExprLogicaContext ctx) {
+		ArrayList<ParserRuleContext> paisExpr = getPaisExprLogica(ctx);
+
+		for (ParserRuleContext pai : paisExpr) {
+			if (pai instanceof PortugolParser.AtribuicaoContext
+					|| pai instanceof PortugolParser.DecisaoContext
+					|| pai instanceof PortugolParser.EnquantoContext) {
+				if (ctx.op != null) {
+					Ast.up();
+				} else if (ctx.ID() != null) {
+					Ast.up();
+				} else if (ctx.valor != null) {
+					Ast.up();
 				}
 			}
 		}
@@ -707,6 +752,21 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	private ArrayList<ParserRuleContext> getPaisExpr(
 			PortugolParser.ExpressaoContext ctx) {
+
+		ParserRuleContext ruleCtx = ctx.getParent();
+
+		ArrayList<ParserRuleContext> paisExpr = new ArrayList<ParserRuleContext>();
+
+		while (ruleCtx != null) {
+			paisExpr.add(ruleCtx);
+			ruleCtx = ruleCtx.getParent();
+		}
+
+		return paisExpr;
+	}
+
+	private ArrayList<ParserRuleContext> getPaisExprLogica(
+			PortugolParser.ExprLogicaContext ctx) {
 
 		ParserRuleContext ruleCtx = ctx.getParent();
 
@@ -1085,11 +1145,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return infoVariavel;
 	}
 
-	private void setAst(ExpressaoContext ctx) {
+	private void setAstExpressao(ExpressaoContext ctx) {
 		boolean escopoEhZero = false;
 
 		if (ctx.op != null) {
-			System.out.println("Ctx valor => " + ctx.op.getText());
 			No n = new No(ctx.op.getText());
 			n.setAtributo("tipo", "op");
 			Ast.init(n);
@@ -1119,7 +1178,46 @@ public class PortugolSemantica extends PortugolBaseListener {
 			Ast.init(n);
 
 		} else if (ctx.valor != null) {
-			System.out.println("Ctx valor => " + ctx.valor.getText());
+			No n = new No(ctx.valor.getText());
+			n.setAtributo("tipo", "valor");
+			Ast.init(n);
+
+		}
+	}
+
+	private void setAstExprLogica(ExprLogicaContext ctx) {
+		boolean escopoEhZero = false;
+
+		if (ctx.op != null) {
+			No n = new No(ctx.op.getText());
+			n.setAtributo("tipo", "op");
+			Ast.init(n);
+
+		} else if (ctx.ID() != null) {
+			No n = new No(ctx.ID().getText());
+			n.setAtributo("tipo", "id");
+			Chave key = getChaveTsVar(ctx.ID().getText(), this.escopo);
+
+			if (key == null) {
+				key = getChaveTsVar(ctx.ID().getText(), 0);
+				escopoEhZero = true;
+			}
+
+			if (key != null) {
+				InfoVariavel var = this.tsVar.get(key);
+				if (escopoEhZero) {
+					n.setAtributo("posicao",
+							String.valueOf(var.getEnderecoGlobal()));
+				} else {
+					n.setAtributo("posicao",
+							String.valueOf(var.getEnderecoLocal()));
+				}
+				n.setAtributo("type", String.valueOf(var.getTipo()));
+
+			}
+			Ast.init(n);
+
+		} else if (ctx.valor != null) {
 			No n = new No(ctx.valor.getText());
 			n.setAtributo("tipo", "valor");
 			Ast.init(n);
