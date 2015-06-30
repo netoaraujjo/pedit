@@ -196,7 +196,7 @@ public class GeraCodigo {
 
 	public void abreFuncao(int tipo, String idFuncao, int qtdVar,
 			List<InfoVariavel> parametros) {
-		codigo += "\n.method public " + idFuncao + "(";
+		codigo += "\n.method public static " + idFuncao + "(";
 
 		// insere os tipos dos parametros
 		for (InfoVariavel param : parametros) {
@@ -207,25 +207,15 @@ public class GeraCodigo {
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
 
-		// declara os parametros
-		for (InfoVariavel param : parametros) {
-			abreDeclaracaoParametro(param.getTipo(), param.getEnderecoGlobal(),
-					param.getEnderecoLocal());
-		}
-
 	} // fim abreFuncao
 
-	public void abreDeclaracaoParametro(int tipo, int enderecoGlobal,
-			int enderecoLocal) {
-		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
-		codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
-	} // fim abreDeclaracaoParametro
+	public void fechaFuncao(int tipo, int endLocalRetorno) {
 
-	public void fechaFuncao(int tipo) {
-		codigo += "\n";
-		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
+		codigo += getTipoDaExpressao(tipo);
+		codigo += "load " + endLocalRetorno + "\n";
 		codigo += getTipoDaExpressao(tipo) + "return\n";
 		codigo += ".end method\n";
+
 	} // fim fechaFuncao
 
 	public void gerarAtribuicao(ArrayList<No> nos, Integer tipoExpressao,
@@ -253,24 +243,21 @@ public class GeraCodigo {
 				+ ";FIM ATRIBUICAO" + "\n";
 	}
 
-	public void chamadaMetodo(String nomeDoMetodo, List<Integer> keyVars,
-			List<Integer> tiposVars, int keyVarRetorno, int tipoDeRetorno) {
-		String retornoParam = getTipoDeDado(tipoDeRetorno);
-		String retornoLeitura = getTipoDaExpressao(tipoDeRetorno);
+	public void chamadaMetodo(String nomeDoMetodo, String argumentos,
+			List<Integer> tiposArgsVars, int endLocalRetorno, int tipoDeRetorno) {
 		String tipos = "";
-		String argumentos = "";
 
-		if (keyVars != null && tiposVars != null) {
-			for (int i = 0; i < keyVars.size(); i++) {
-				tipos += getTipoDeDado(tiposVars.get(i));
-				argumentos += getTipoDaExpressao(tiposVars.get(i))
-						+ "load " + keyVars.get(i) + "\n";
+		if (tiposArgsVars != null) {
+			for (int i = 0; i < tiposArgsVars.size(); i++) {
+				tipos += getTipoDeDado(tiposArgsVars.get(i));
 			}
 		}
 
 		codigo += argumentos + "\ninvokestatic " + this.nomeProg + "."
-				+ nomeDoMetodo + "(" + tipos + ")" + retornoParam + "\n"
-				+ retornoLeitura + "store " + keyVarRetorno + "\n";
+				+ nomeDoMetodo + "(" + tipos + ")"
+				+ getTipoDeDado(tipoDeRetorno) + "\n"
+				+ getTipoDaExpressao(tipoDeRetorno) + "store "
+				+ endLocalRetorno + "\n";
 	}
 
 	private String getTipoDeDado(int tipoDeDado) {
@@ -285,7 +272,7 @@ public class GeraCodigo {
 		}
 	} // fim getTipoDeDado
 
-	private String getTipoDaExpressao(int tipoExpressao) {
+	public String getTipoDaExpressao(int tipoExpressao) {
 		switch (tipoExpressao) {
 		case Constantes.INTEIRO:
 		case Constantes.LOGICO:

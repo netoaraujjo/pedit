@@ -165,7 +165,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 				seqEndLocal.add(enderecoVarLocal);
 				seqParam.add(param.tipo().t);
-				
+
 				enderecoVarGlobal++;
 				enderecoVarLocal++;
 			} else {
@@ -177,7 +177,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		if (!existeChaveFunc(ctx.ID().getText())) {
 			tsFunc.put(new Chave(ctx.ID().getText(), this.escopo),
-					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam, seqEndLocal));
+					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam,
+							seqEndLocal));
 		} else {
 			erro += "Linha " + ctx.getStart().getLine()
 					+ " - Já existe uma funcao com o identificador \""
@@ -206,7 +207,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 					.ID().getText());
 		}
 
-		geraCodigo.fechaFuncao(ctx.tipo().t);
+		if (ctx.retorna().expressao().ID() != null) {
+			InfoVariavel var = getInfoVariavel(ctx.retorna().expressao().ID()
+					.getText(), this.escopo);
+
+			geraCodigo.fechaFuncao(ctx.tipo().t, var.getEnderecoLocal());
+		}
+
 	}
 
 	@Override
@@ -217,6 +224,65 @@ public class PortugolSemantica extends PortugolBaseListener {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + ctx.ID().getText()
 						+ "\" não foi criado.\n";
+			} else {
+				if (ctx.expressao().chamadaDeFunc() != null) {
+					InfoFuncao infoFuncao = null;
+					Chave chave = null;
+					Set<Chave> chaves = tsFunc.keySet();
+
+					for (Chave key : chaves) {
+						if (key != null) {
+							if (key.getId().compareTo(
+									ctx.expressao().chamadaDeFunc().ID()
+											.getText()) == 0) {
+								infoFuncao = tsFunc.get(key);
+								chave = key;
+								break;
+							}
+						}
+					}
+
+					List<ArgumentosContext> args = ctx.expressao()
+							.chamadaDeFunc().argumentos();
+					String argumentosStr = "\n";
+
+					for (ArgumentosContext argumento : args) {
+						if (argumento.expressao().ID() != null) {
+
+							int tipo = getTipoID(argumento.expressao().ID()
+									.getText());
+							InfoVariavel var = getInfoVariavel(argumento
+									.expressao().ID().getText(), this.escopo);
+
+							argumentosStr += geraCodigo
+									.getTipoDaExpressao(tipo)
+									+ "load "
+									+ var.getEnderecoLocal() + "\n";
+
+						} else if (argumento.expressao().NUM_INTEIRO() != null) {
+							argumentosStr += "ldc "
+									+ argumento.expressao().NUM_INTEIRO()
+											.getText() + "\n";
+						} else if (argumento.expressao().NUM_REAL() != null) {
+							argumentosStr += "ldc "
+									+ argumento.expressao().NUM_REAL()
+											.getText() + "\n";
+						} else if (argumento.expressao().CADEIA_DE_CARACTERES() != null) {
+							argumentosStr += "ldc "
+									+ argumento.expressao()
+											.CADEIA_DE_CARACTERES().getText()
+									+ "\n";
+						}
+
+					}
+
+					InfoVariavel var = getInfoVariavel(ctx.ID().getText(),
+							this.escopo);
+
+					geraCodigo.chamadaMetodo(chave.getId(), argumentosStr,
+							infoFuncao.getSeqParametro(),
+							var.getEnderecoLocal(), infoFuncao.getTipo());
+				}
 			}
 		}
 	}
@@ -303,12 +369,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 		for (ParserRuleContext exprCtx : paisExpr) {
 
 			if (exprCtx instanceof PortugolParser.AtribuicaoContext
-					|| exprCtx instanceof PortugolParser.DecisaoContext
-					|| exprCtx instanceof PortugolParser.EnquantoContext) {
-				setAst(ctx);
-			}
-
-			if (exprCtx instanceof PortugolParser.AtribuicaoContext
 					&& !ehArgumento) {
 				setTipoVariaveisAtribuicao(ctx);
 			} else if (exprCtx instanceof PortugolParser.ArgumentosContext
@@ -329,6 +389,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 				setTipoPara(ctx);
 			} else if (exprCtx instanceof PortugolParser.ComandosContext) {
 				ehComando = true;
+			}
+
+		}
+
+		for (ParserRuleContext exprCtx : paisExpr) {
+			if (exprCtx instanceof PortugolParser.AtribuicaoContext
+					|| exprCtx instanceof PortugolParser.DecisaoContext
+					|| exprCtx instanceof PortugolParser.EnquantoContext) {
+				if (!ehArgumento) {
+					setAst(ctx);
+				}
 			}
 		}
 
@@ -414,9 +485,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 			/* Função não está no escopo correto */
 			if (chave.getEscopo() == this.escopo || this.escopo == -1) {
-				if (infoFuncao.getQntdParametro() == ctx.argumentos().size()) {
-					// Testar se os tipos são iguais
-				} else {
+				if (infoFuncao.getQntdParametro() != ctx.argumentos().size()) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - Chamada da função \"" + ctx.ID().getText()
 							+ "\" tem quantidade de argumentos incompatível.\n";
@@ -436,22 +505,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void exitChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
 
 		InfoFuncao infoFuncao = null;
-		Chave chave = null;
 		Set<Chave> chaves = tsFunc.keySet();
 
 		for (Chave key : chaves) {
 			if (key != null) {
 				if (key.getId().compareTo(ctx.ID().getText()) == 0) {
 					infoFuncao = tsFunc.get(key);
-					chave = key;
 					break;
 				}
 			}
 		}
 
 		if (infoFuncao != null) {
-			boolean errou = false;
-			
+
 			ArrayList<Integer> seqParam = infoFuncao.getSeqParametro();
 
 			int tam = tiposVariaveisArgumentos.size();
@@ -475,15 +541,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 								+ "\" com tipo incompatível no argumento "
 								+ (i + 1) + "\n";
 
-						errou = true;
 					}
 				}
 			}
-			
-			if (!errou) {
-				geraCodigo.chamadaMetodo(chave.getId(), infoFuncao.getSeqEnderecosLocais(), infoFuncao.getSeqParametro(), 22, infoFuncao.getTipo());
-			}
-			
+
 		}
 
 	}
@@ -551,15 +612,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 			if (!tipoErrado && var != null) {
 				Ast.gerarPosFixa(Ast.root);
 
-				geraCodigo.gerarAtribuicao(Ast.posFixa, tipoIdAtr,
-						var.getEnderecoLocal());
+				if (ctx.expressao().chamadaDeFunc() == null) {
+					geraCodigo.gerarAtribuicao(Ast.posFixa, tipoIdAtr,
+							var.getEnderecoLocal());
+				}
+
 			}
 
 			tiposVariaveisAtribuicao.clear();
 
 		}
 
-		Ast.print();
+		if (Ast.root != null)
+			Ast.print();
 		Ast.reinit();
 	}
 
@@ -1024,6 +1089,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		boolean escopoEhZero = false;
 
 		if (ctx.op != null) {
+			System.out.println("Ctx valor => " + ctx.op.getText());
 			No n = new No(ctx.op.getText());
 			n.setAtributo("tipo", "op");
 			Ast.init(n);
@@ -1053,6 +1119,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			Ast.init(n);
 
 		} else if (ctx.valor != null) {
+			System.out.println("Ctx valor => " + ctx.valor.getText());
 			No n = new No(ctx.valor.getText());
 			n.setAtributo("tipo", "valor");
 			Ast.init(n);
