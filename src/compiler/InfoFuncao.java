@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class InfoFuncao extends Info {
 	private int qntdParametro;
 	private ArrayList<Integer> seqParametro;
+	private ArrayList<Integer> seqEnderecosLocais;
 
-	public InfoFuncao(int tipo, int categoria, ArrayList<Integer> seqParametro) {
+	public InfoFuncao(int tipo, int categoria, ArrayList<Integer> seqParametro, ArrayList<Integer> seqEnderecosLocais) {
 		super(tipo, categoria);
 		this.seqParametro = seqParametro;
+		this.seqEnderecosLocais = seqEnderecosLocais;
 		this.qntdParametro = seqParametro.size();
 	}
 
@@ -26,6 +28,14 @@ public class InfoFuncao extends Info {
 
 	public void setSeqParametro(ArrayList<Integer> seqParametro) {
 		this.seqParametro = seqParametro;
+	}
+
+	public ArrayList<Integer> getSeqEnderecosLocais() {
+		return seqEnderecosLocais;
+	}
+
+	public void setSeqEnderecosLocais(ArrayList<Integer> seqEnderecosLocais) {
+		this.seqEnderecosLocais = seqEnderecosLocais;
 	}
 
 }

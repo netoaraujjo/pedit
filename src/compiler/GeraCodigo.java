@@ -23,8 +23,7 @@ public class GeraCodigo {
 	private String codigo;
 	private boolean gerar;
 	private String diretorio;
-	
-	
+
 	public GeraCodigo(File arq) {
 		this.nomeProg = arq.getName().substring(0, arq.getName().length() - 4);
 		diretorio = arq.getParent();
@@ -32,20 +31,17 @@ public class GeraCodigo {
 		this.gerar = true;
 		inicializa();
 	} // fim construtor
-	
-	
+
 	public void setGerar(boolean gerar) {
 		this.gerar = gerar;
 	} // fim setGerar
-	
-	
+
 	private void inicializa() {
-		codigo  = ".class public " + nomeProg + "\n";
+		codigo = ".class public " + nomeProg + "\n";
 		codigo += ".super java/lang/Object\n\n";
 		codigo += ".field public static scanner_field Ljava/util/Scanner;\n\n";
 	} // fim inicializa
-	
-	
+
 	public void geraConstrutor() {
 		codigo += "\n";
 		codigo += ".method public <init>()V\n";
@@ -54,69 +50,66 @@ public class GeraCodigo {
 		codigo += "return\n";
 		codigo += ".end method\n\n";
 	} // fim geraConstrutor
-	
+
 	public void abreMain(int qtdVar) {
 		// inserir metodos padroes
 		geraConstrutor();
 		codigo += leInteiro();
 		codigo += leFloat();
 		codigo += leString();
-		
+
 		codigo += pause();
-		
+
 		codigo += ".method public static main([Ljava/lang/String;)V\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
-		
+
 		codigo += "new java/util/Scanner\n";
 		codigo += "dup\n";
 		codigo += "getstatic java/lang/System/in Ljava/io/InputStream;\n";
 		codigo += "invokespecial java/util/Scanner/<init>(Ljava/io/InputStream;)V\n\n";
 	} // fim abreMain
-	
-	
+
 	public void fechaMain() {
 		codigo += "\n";
 		codigo += "invokestatic " + nomeProg + ".pause()V\n";
-		
+
 		codigo += "return\n";
 		codigo += ".end method";
-		
+
 		if (gerar) {
 			salvarArquivoJasmin();
 			try {
 				gerarArquivoClass();
 			} catch (GerarClassException e) {
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro", 
-					JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Erro",
+						JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	} // fim fechaMain
-	
-	
+
 	public void gerarLer(int tipo, int enderecoLocal) {
 		codigo += "\n";
-		codigo += "invokestatic " + nomeProg + "." + getTipoLeitura(tipo) + "\n";
+		codigo += "invokestatic " + nomeProg + "." + getTipoLeitura(tipo)
+				+ "\n";
 		codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
-	}
-	
-	
+	} // fim geraLer
+
 	public void gerarEscrever(int tipo, int enderecoLocal) {
 		codigo += "\n";
 		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
 		codigo += getTipoDaExpressao(tipo) + "load " + enderecoLocal + "\n";
-		codigo += "invokevirtual java/io/PrintStream/println(" + getTipoDeDado(tipo) + ")V\n\n";
-	}
-	
-	
+		codigo += "invokevirtual java/io/PrintStream/println("
+				+ getTipoDeDado(tipo) + ")V\n\n";
+	} // fim geraEscrever
+
 	public void geraEscreverMensagem(String mensagem) {
 		codigo += "\n";
 		codigo += "getstatic java/lang/System/out Ljava/io/PrintStream;\n";
 		codigo += "ldc " + mensagem + "\n";
 		codigo += "invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n\n";
-	}
-	
-	
+	} // fim geraEscreverMensagem
+
 	private String leInteiro() {
 		String codLeInteiro = "";
 		codLeInteiro += ".method public static leInteiro()I\n";
@@ -132,11 +125,10 @@ public class GeraCodigo {
 		codLeInteiro += "invokestatic java/lang/Integer/parseInt(Ljava/lang/String;)I\n";
 		codLeInteiro += "ireturn\n";
 		codLeInteiro += ".end method\n\n";
-		
+
 		return codLeInteiro;
 	} // fim leInteiro
-	
-	
+
 	private String leFloat() {
 		String codLeFloat = "";
 		codLeFloat += ".method public static leFloat()F\n";
@@ -152,11 +144,10 @@ public class GeraCodigo {
 		codLeFloat += "invokestatic java/lang/Float/parseFloat(Ljava/lang/String;)F\n";
 		codLeFloat += "freturn\n";
 		codLeFloat += ".end method\n\n";
-		
+
 		return codLeFloat;
 	} // fim leFloat
-	
-	
+
 	private String leString() {
 		String codLeString = "";
 		codLeString += ".method public static leString()Ljava/lang/String;\n";
@@ -171,11 +162,10 @@ public class GeraCodigo {
 		codLeString += "invokevirtual java/io/BufferedReader/readLine()Ljava/lang/String;\n";
 		codLeString += "areturn\n";
 		codLeString += ".end method\n\n";
-		
+
 		return codLeString;
 	} // fim leString
-	
-	
+
 	private String pause() {
 		String codPause = "";
 		codPause += ".method public static pause()V\n";
@@ -188,169 +178,189 @@ public class GeraCodigo {
 		codPause += "invokevirtual java/io/InputStream/read()I\n";
 		codPause += "return\n";
 		codPause += ".end method\n\n";
-		
+
 		return codPause;
 	} // fim pause
-	
-	
-	public void abreDeclrVar(int tipo, int enderecoGlobal, int enderecoLocal, int escopo, String id) {
+
+	public void abreDeclrVar(int tipo, int enderecoGlobal, int enderecoLocal,
+			int escopo, String id) {
 		if (escopo == 0) {
-			codigo += ".field public " + id + " " + getTipoDeDado(tipo) + " = " 
-				+ getInicializacaoPorTipo(tipo) + "\n";
+			codigo += ".field public " + id + " " + getTipoDeDado(tipo) + " = "
+					+ getInicializacaoPorTipo(tipo) + "\n";
 		} else {
 			codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
-			codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
+			codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal
+					+ "\n";
 		}
 	} // fim abreDeclrVar
-	
-	
-	public void abreFuncao(int tipo, String idFuncao, int qtdVar, List<InfoVariavel> parametros) {
+
+	public void abreFuncao(int tipo, String idFuncao, int qtdVar,
+			List<InfoVariavel> parametros) {
 		codigo += "\n.method public " + idFuncao + "(";
-		
+
 		// insere os tipos dos parametros
 		for (InfoVariavel param : parametros) {
 			codigo += getTipoDeDado(param.getTipo());
 		}
-		
-		codigo += ")" + getTipoDeDado(tipo)+ "\n";
+
+		codigo += ")" + getTipoDeDado(tipo) + "\n";
 		codigo += ".limit stack " + (10 * qtdVar + 10) + "\n";
 		codigo += ".limit locals " + (qtdVar + 10) + "\n\n";
-		
+
 		// declara os parametros
 		for (InfoVariavel param : parametros) {
-			abreDeclaracaoParametro(
-					param.getTipo(), 
-					param.getEnderecoGlobal(), 
+			abreDeclaracaoParametro(param.getTipo(), param.getEnderecoGlobal(),
 					param.getEnderecoLocal());
 		}
-		
+
 	} // fim abreFuncao
-	
-	
-	public void abreDeclaracaoParametro(int tipo, int enderecoGlobal, int enderecoLocal) {
+
+	public void abreDeclaracaoParametro(int tipo, int enderecoGlobal,
+			int enderecoLocal) {
 		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
 		codigo += getTipoDaExpressao(tipo) + "store " + enderecoLocal + "\n";
 	} // fim abreDeclaracaoParametro
-	
-	
+
 	public void fechaFuncao(int tipo) {
 		codigo += "\n";
 		codigo += "ldc " + getInicializacaoPorTipo(tipo) + "\n";
 		codigo += getTipoDaExpressao(tipo) + "return\n";
 		codigo += ".end method\n";
 	} // fim fechaFuncao
-	
-	public void gerarAtribuicao(ArrayList<No> nos, Integer tipoExpressao, Integer keyVarRetorno) {
-        String tipoDeExpressao = getTipoDaExpressao(tipoExpressao);
-        codigo += "\n;INICIO ATRIBUICAO\n";
 
-        for (int i = nos.size() - 1; i >= 0; i--) {
-            if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
-                if(getTipoDaOperacao(nos.get(i).toString()) != null){
-                    codigo += tipoDeExpressao + getTipoDaOperacao(nos.get(i).toString()) + "\n";
-                }else{
-                    //PRECISA IMPLEMENTAR A UTILIZACAO DE OPERADORES LOGICO AQUI!
-                }
-            } else if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
-                codigo += tipoDeExpressao + "load " + nos.get(i).getAtributo("posicao") + "\n";
-            } else {
-                codigo += "ldc " + nos.get(i).toString() + "\n";
-            }
-        }
-        codigo += tipoDeExpressao + "store " + keyVarRetorno + "\n"
-                + ";FIM ATRIBUICAO" + "\n";
-    }
-	
+	public void gerarAtribuicao(ArrayList<No> nos, Integer tipoExpressao,
+			Integer keyVarRetorno) {
+		String tipoDeExpressao = getTipoDaExpressao(tipoExpressao);
+		codigo += "\n;INICIO ATRIBUICAO\n";
+
+		for (int i = nos.size() - 1; i >= 0; i--) {
+			if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
+				if (getTipoDaOperacao(nos.get(i).toString()) != null) {
+					codigo += tipoDeExpressao
+							+ getTipoDaOperacao(nos.get(i).toString()) + "\n";
+				} else {
+					// PRECISA IMPLEMENTAR A UTILIZACAO DE OPERADORES LOGICO
+					// AQUI!
+				}
+			} else if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
+				codigo += tipoDeExpressao + "load "
+						+ nos.get(i).getAtributo("posicao") + "\n";
+			} else {
+				codigo += "ldc " + nos.get(i).toString() + "\n";
+			}
+		}
+		codigo += tipoDeExpressao + "store " + keyVarRetorno + "\n"
+				+ ";FIM ATRIBUICAO" + "\n";
+	}
+
+	public void chamadaMetodo(String nomeDoMetodo, List<Integer> keyVars,
+			List<Integer> tiposVars, int keyVarRetorno, int tipoDeRetorno) {
+		String retornoParam = getTipoDeDado(tipoDeRetorno);
+		String retornoLeitura = getTipoDaExpressao(tipoDeRetorno);
+		String tipos = "";
+		String argumentos = "";
+
+		if (keyVars != null && tiposVars != null) {
+			for (int i = 0; i < keyVars.size(); i++) {
+				tipos += getTipoDeDado(tiposVars.get(i));
+				argumentos += getTipoDaExpressao(tiposVars.get(i))
+						+ "load " + keyVars.get(i) + "\n";
+			}
+		}
+
+		codigo += argumentos + "\ninvokestatic " + this.nomeProg + "."
+				+ nomeDoMetodo + "(" + tipos + ")" + retornoParam + "\n"
+				+ retornoLeitura + "store " + keyVarRetorno + "\n";
+	}
+
 	private String getTipoDeDado(int tipoDeDado) {
-        switch (tipoDeDado) {
-            case Constantes.INTEIRO:
-            case Constantes.LOGICO:
-                return "I";
-            case Constantes.REAL:
-                return "F";
-            default:
-                return "Ljava/lang/String;";
-        }
-    } // fim getTipoDeDado
-	
-	
+		switch (tipoDeDado) {
+		case Constantes.INTEIRO:
+		case Constantes.LOGICO:
+			return "I";
+		case Constantes.REAL:
+			return "F";
+		default:
+			return "Ljava/lang/String;";
+		}
+	} // fim getTipoDeDado
+
 	private String getTipoDaExpressao(int tipoExpressao) {
-        switch (tipoExpressao) {
-        	case Constantes.INTEIRO:
-        	case Constantes.LOGICO:
-                return "i";
-            case Constantes.REAL:
-                return "f";
-            default:
-                return "a";
-        }
-    } // fim getTipoDaExpressao
-	
+		switch (tipoExpressao) {
+		case Constantes.INTEIRO:
+		case Constantes.LOGICO:
+			return "i";
+		case Constantes.REAL:
+			return "f";
+		default:
+			return "a";
+		}
+	} // fim getTipoDaExpressao
+
 	private String getTipoDaOperacao(String tipoOperacao) {
-        switch (tipoOperacao) {
-            case "*":
-                return "mul";
-            case "/":
-                return "div";
-            case "+":
-                return "add";
-            case "-":
-                return "sub";
-        }
-        return null;
-    } // fim getTipoDaOperacao
-	
+		switch (tipoOperacao) {
+		case "*":
+			return "mul";
+		case "/":
+			return "div";
+		case "+":
+			return "add";
+		case "-":
+			return "sub";
+		}
+		return null;
+	} // fim getTipoDaOperacao
+
 	private String getTipoLeitura(int tipo) {
 		switch (tipo) {
-			case Constantes.INTEIRO:
-	            return "leInteiro()I";
-	        case Constantes.REAL:
-	            return "leFloat()F";
-	        default:
-	            return "leString()Ljava/lang/String;";
+		case Constantes.INTEIRO:
+			return "leInteiro()I";
+		case Constantes.REAL:
+			return "leFloat()F";
+		default:
+			return "leString()Ljava/lang/String;";
 		}
 	}
-	
-	
+
 	private String getInicializacaoPorTipo(int tipo) {
 		switch (tipo) {
-	    	case Constantes.INTEIRO:
-	    	case Constantes.LOGICO:
-	            return "0";
-	        case Constantes.REAL:
-	            return "0.0";
-	        default:
-	            return "\"\"";
-	    }
+		case Constantes.INTEIRO:
+		case Constantes.LOGICO:
+			return "0";
+		case Constantes.REAL:
+			return "0.0";
+		default:
+			return "\"\"";
+		}
 	} // fim getInicializacaoPorTipo
-	
-	
+
 	private void gerarArquivoClass() throws GerarClassException {
-		
-		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("").getPath() + "lib"+ SEP +"jasmin.jar";
-		
-		ProcessBuilder pb = new ProcessBuilder(
-				"java", 
-				"-jar", 
-				pathJasmin, 
+
+		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("")
+				.getPath()
+				+ "lib" + SEP + "jasmin.jar";
+
+		ProcessBuilder pb = new ProcessBuilder("java", "-jar", pathJasmin,
 				pathArq);
-		
+
 		pb.directory(new File(diretorio));
-		
+
 		Process process;
 		try {
 			process = pb.start();
 			process.waitFor();
-			
-			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			
+
+			BufferedReader readerSucesso = new BufferedReader(
+					new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro = new BufferedReader(
+					new InputStreamReader(process.getErrorStream()));
+
 			String txt;
-			
+
 			while ((txt = readerErro.readLine()) != null) {
 				System.out.println(txt + "\n");
 			}
-			
+
 			while ((txt = readerSucesso.readLine()) != null) {
 				System.out.println(txt + "\n");
 			}
@@ -358,8 +368,7 @@ public class GeraCodigo {
 			throw new GerarClassException();
 		}
 	} // fim gerarArquivoClass
-	
-	
+
 	private void salvarArquivoJasmin() {
 		File arquivo = new File(pathArq);
 		try {
@@ -367,36 +376,37 @@ public class GeraCodigo {
 			saida.format("%s", codigo);
 			saida.close();
 		} catch (FileNotFoundException e) {
-			JOptionPane.showMessageDialog(
-				null,
-				"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
-				"Erro",
-				JOptionPane.ERROR_MESSAGE);
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"Ocorreu um erro na producao do codigo e o mesmo nao foi gerado",
+							"Erro", JOptionPane.ERROR_MESSAGE);
 		}
 	} // salvarArquivoJasmin
-	
-	
+
 	public void executar() throws ExecutarCodigoException {
 		String comando = "java " + nomeProg;
-		
+
 		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
-		
+
 		pb.directory(new File(diretorio));
-		
+
 		Process process;
 		try {
 			process = pb.start();
 			process.waitFor();
-			
-			BufferedReader readerSucesso =  new BufferedReader(new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro =  new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			
+
+			BufferedReader readerSucesso = new BufferedReader(
+					new InputStreamReader(process.getInputStream()));
+			BufferedReader readerErro = new BufferedReader(
+					new InputStreamReader(process.getErrorStream()));
+
 			String txt;
-			
+
 			while ((txt = readerErro.readLine()) != null) {
 				System.out.println(txt + "\n");
 			}
-			
+
 			while ((txt = readerSucesso.readLine()) != null) {
 				System.out.println(txt + "\n");
 			}
@@ -404,6 +414,5 @@ public class GeraCodigo {
 			throw new ExecutarCodigoException();
 		}
 	} // fim executar
-	
-	
+
 } // fim classe GeraCodigo

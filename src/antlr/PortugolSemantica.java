@@ -17,6 +17,7 @@ import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
 import ast.Ast;
 import ast.No;
+
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -114,7 +115,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		tsFunc.put(new Chave("principal", escopo), new InfoFuncao(
 				Constantes.INTEIRO, Constantes.FUNCAO_PRINCIPAL,
-				new ArrayList<Integer>()));
+				new ArrayList<Integer>(), new ArrayList<Integer>()));
 
 		geraCodigo.abreMain(tsVar.size());
 	}
@@ -146,6 +147,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		escopo += 1;
 
 		ArrayList<Integer> seqParam = new ArrayList<Integer>();
+		ArrayList<Integer> seqEndLocal = new ArrayList<Integer>();
 
 		List<InfoVariavel> ivTemp = new ArrayList<>();
 
@@ -161,9 +163,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 						Constantes.PARAMETRO, enderecoVarGlobal,
 						enderecoVarLocal, retornaValor(param.tipo().t)));
 
+				seqEndLocal.add(enderecoVarLocal);
+				seqParam.add(param.tipo().t);
+				
 				enderecoVarGlobal++;
 				enderecoVarLocal++;
-				seqParam.add(param.tipo().t);
 			} else {
 				erro += "Linha " + ctx.getStart().getLine()
 						+ " - Identificador \"" + param.ID().getText()
@@ -173,7 +177,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		if (!existeChaveFunc(ctx.ID().getText())) {
 			tsFunc.put(new Chave(ctx.ID().getText(), this.escopo),
-					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam));
+					new InfoFuncao(ctx.tipo().t, Constantes.FUNCAO, seqParam, seqEndLocal));
 		} else {
 			erro += "Linha " + ctx.getStart().getLine()
 					+ " - Já existe uma funcao com o identificador \""
@@ -432,18 +436,22 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void exitChamadaDeFunc(PortugolParser.ChamadaDeFuncContext ctx) {
 
 		InfoFuncao infoFuncao = null;
+		Chave chave = null;
 		Set<Chave> chaves = tsFunc.keySet();
 
 		for (Chave key : chaves) {
 			if (key != null) {
 				if (key.getId().compareTo(ctx.ID().getText()) == 0) {
 					infoFuncao = tsFunc.get(key);
+					chave = key;
 					break;
 				}
 			}
 		}
 
 		if (infoFuncao != null) {
+			boolean errou = false;
+			
 			ArrayList<Integer> seqParam = infoFuncao.getSeqParametro();
 
 			int tam = tiposVariaveisArgumentos.size();
@@ -467,9 +475,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 								+ "\" com tipo incompatível no argumento "
 								+ (i + 1) + "\n";
 
+						errou = true;
 					}
 				}
 			}
+			
+			if (!errou) {
+				geraCodigo.chamadaMetodo(chave.getId(), infoFuncao.getSeqEnderecosLocais(), infoFuncao.getSeqParametro(), 22, infoFuncao.getTipo());
+			}
+			
 		}
 
 	}
