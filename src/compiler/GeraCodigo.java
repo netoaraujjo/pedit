@@ -240,7 +240,7 @@ public class GeraCodigo {
 			}
 		}
 		codigo += tipoDeExpressao + "store " + keyVarRetorno + "\n"
-				+ ";FIM ATRIBUICAO" + "\n";
+				+ ";FIM ATRIBUICAO" + "\n\n";
 	}
 
 	public void chamadaMetodo(String nomeDoMetodo, String argumentos,

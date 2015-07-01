@@ -217,81 +217,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	@Override
-	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
-		if (ctx.ID() != null) {
-			if (!existeChaveVar(ctx.ID().getText(), escopo)
-					&& !existeChaveVar(ctx.ID().getText(), 0)) {
-				erro += "Linha " + ctx.getStart().getLine()
-						+ " - Identificador \"" + ctx.ID().getText()
-						+ "\" não foi criado.\n";
-			} else {
-				if (ctx.expressao() != null) {
-					if (ctx.expressao().chamadaDeFunc() != null) {
-						InfoFuncao infoFuncao = null;
-						Chave chave = null;
-						Set<Chave> chaves = tsFunc.keySet();
-
-						for (Chave key : chaves) {
-							if (key != null) {
-								if (key.getId().compareTo(
-										ctx.expressao().chamadaDeFunc().ID()
-												.getText()) == 0) {
-									infoFuncao = tsFunc.get(key);
-									chave = key;
-									break;
-								}
-							}
-						}
-
-						List<ArgumentosContext> args = ctx.expressao()
-								.chamadaDeFunc().argumentos();
-						String argumentosStr = "\n";
-
-						for (ArgumentosContext argumento : args) {
-							if (argumento.expressao().ID() != null) {
-
-								int tipo = getTipoID(argumento.expressao().ID()
-										.getText());
-								InfoVariavel var = getInfoVariavel(argumento
-										.expressao().ID().getText(),
-										this.escopo);
-
-								argumentosStr += geraCodigo
-										.getTipoDaExpressao(tipo)
-										+ "load "
-										+ var.getEnderecoLocal() + "\n";
-
-							} else if (argumento.expressao().NUM_INTEIRO() != null) {
-								argumentosStr += "ldc "
-										+ argumento.expressao().NUM_INTEIRO()
-												.getText() + "\n";
-							} else if (argumento.expressao().NUM_REAL() != null) {
-								argumentosStr += "ldc "
-										+ argumento.expressao().NUM_REAL()
-												.getText() + "\n";
-							} else if (argumento.expressao()
-									.CADEIA_DE_CARACTERES() != null) {
-								argumentosStr += "ldc "
-										+ argumento.expressao()
-												.CADEIA_DE_CARACTERES()
-												.getText() + "\n";
-							}
-
-						}
-
-						InfoVariavel var = getInfoVariavel(ctx.ID().getText(),
-								this.escopo);
-
-						geraCodigo.chamadaMetodo(chave.getId(), argumentosStr,
-								infoFuncao.getSeqParametro(),
-								var.getEnderecoLocal(), infoFuncao.getTipo());
-					}
-				}
-			}
-		}
-	}
-
-	@Override
 	public void enterLer(PortugolParser.LerContext ctx) {
 		for (TerminalNode no : ctx.ID()) {
 			if (existeChaveVar(no.getText(), this.escopo)) {
@@ -636,6 +561,26 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	@Override
+	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
+		if (ctx.ID() != null) {
+			
+			if (!existeChaveVar(ctx.ID().getText(), escopo)
+					&& !existeChaveVar(ctx.ID().getText(), 0)) {
+				erro += "Linha " + ctx.getStart().getLine()
+						+ " - Identificador \"" + ctx.ID().getText()
+						+ "\" não foi criado.\n";
+			} else {
+				if (ctx.expressao() != null) {
+					if (ctx.expressao().chamadaDeFunc() != null) {
+						geraCodigoChamadaFuncao(ctx);
+					}
+				}
+			}
+			
+		}
+	}
+
+	@Override
 	// Só gera para variaveis locais
 	public void exitAtribuicao(PortugolParser.AtribuicaoContext ctx) {
 
@@ -778,6 +723,57 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return paisExpr;
+	}
+
+	private void geraCodigoChamadaFuncao(PortugolParser.AtribuicaoContext ctx) {
+		InfoFuncao infoFuncao = null;
+		Chave chave = null;
+		Set<Chave> chaves = tsFunc.keySet();
+
+		for (Chave key : chaves) {
+			if (key != null) {
+				if (key.getId().compareTo(
+						ctx.expressao().chamadaDeFunc().ID().getText()) == 0) {
+					infoFuncao = tsFunc.get(key);
+					chave = key;
+					break;
+				}
+			}
+		}
+
+		List<ArgumentosContext> args = ctx.expressao().chamadaDeFunc()
+				.argumentos();
+		String argumentosStr = "\n";
+
+		for (ArgumentosContext argumento : args) {
+			if (argumento.expressao().ID() != null) {
+
+				int tipo = getTipoID(argumento.expressao().ID().getText());
+				InfoVariavel var = getInfoVariavel(argumento.expressao().ID()
+						.getText(), this.escopo);
+
+				argumentosStr += geraCodigo.getTipoDaExpressao(tipo) + "load "
+						+ var.getEnderecoLocal() + "\n";
+
+			} else if (argumento.expressao().NUM_INTEIRO() != null) {
+				argumentosStr += "ldc "
+						+ argumento.expressao().NUM_INTEIRO().getText() + "\n";
+			} else if (argumento.expressao().NUM_REAL() != null) {
+				argumentosStr += "ldc "
+						+ argumento.expressao().NUM_REAL().getText() + "\n";
+			} else if (argumento.expressao().CADEIA_DE_CARACTERES() != null) {
+				argumentosStr += "ldc "
+						+ argumento.expressao().CADEIA_DE_CARACTERES()
+								.getText() + "\n";
+			}
+
+		}
+
+		InfoVariavel var = getInfoVariavel(ctx.ID().getText(), this.escopo);
+
+		geraCodigo.chamadaMetodo(chave.getId(), argumentosStr,
+				infoFuncao.getSeqParametro(), var.getEnderecoLocal(),
+				infoFuncao.getTipo());
 	}
 
 	private int getTipoID(String id) {
@@ -1218,6 +1214,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			Ast.init(n);
 
 		} else if (ctx.valor != null) {
+			
 			No n = new No(ctx.valor.getText());
 			n.setAtributo("tipo", "valor");
 			Ast.init(n);
