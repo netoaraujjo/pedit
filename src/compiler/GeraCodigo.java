@@ -6,13 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Formatter;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import ast.No;
 import util.Constantes;
+import ast.No;
 import exceptions.ExecutarCodigoException;
 import exceptions.GerarClassException;
 
@@ -23,6 +24,11 @@ public class GeraCodigo {
 	private String codigo;
 	private boolean gerar;
 	private String diretorio;
+
+	// private long labelEnquanto;
+	// private long labelPara;
+	private long labelSe;
+	private Calendar calendar;
 
 	public GeraCodigo(File arq) {
 		this.nomeProg = arq.getName().substring(0, arq.getName().length() - 4);
@@ -260,6 +266,59 @@ public class GeraCodigo {
 				+ endLocalRetorno + "\n";
 	}
 
+	public void abrirSe(ArrayList<No> nos) {
+		geraLabel();	// Gera labels novas a partir do tempo
+
+		String labelTrue = "LabelEntrada" + calendar.getTimeInMillis();
+
+		labelSe = calendar.getTimeInMillis();
+		String labelSair = "LabelSaida" + labelSe;
+
+		codigo += "\n" + ";INICIO DO SE" + "\n";
+		String tipo = "";
+		int tipoIf = 0;
+
+		for (int i = nos.size() - 1; i >= 0; i--) {
+			if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
+
+				tipo = getTipoDaExpressao(Integer.parseInt(nos.get(i)
+						.getAtributo("type")));
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+				codigo += tipo + "load " + nos.get(i).getAtributo("posicao")
+						+ "\n";
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("valor") == 0) {
+
+				codigo += "ldc " + nos.get(i).toString() + "\n";
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
+
+				if (getTipoDaOperacao(nos.get(i).toString()) != null) {
+					codigo += tipo + getTipoDaOperacao(nos.get(i).toString())
+							+ "\n";
+
+				} else {
+
+					codigo += getTipoDeOperacaoLogica(nos.get(i).toString(),
+							tipoIf)
+							+ labelTrue
+							+ "\n"
+							+ "goto "
+							+ labelSair
+							+ "\n" + labelTrue + ":\n";
+
+				}
+			}
+		}
+
+	}
+
+	public void fecharSe() {
+		codigo += "LabelSaida" + labelSe + ":\n;FIM DO SE\n";
+		labelSe = 0;
+	}
+
 	private String getTipoDeDado(int tipoDeDado) {
 		switch (tipoDeDado) {
 		case Constantes.INTEIRO:
@@ -297,6 +356,55 @@ public class GeraCodigo {
 		}
 		return null;
 	} // fim getTipoDaOperacao
+
+	private String getTipoDeOperacaoLogica(String operacaoLogica, Integer tipo) {
+		
+		if (tipo == Constantes.INTEIRO || tipo == Constantes.LOGICO) {
+
+			switch (operacaoLogica) {
+			case "<":
+				return "if_icmplt ";
+			case ">":
+				return "if_icmpgt ";
+			case "==":
+				return "if_icmpeq ";
+			case "!=":
+				return "if_icmpne ";
+			}
+
+		} else if (tipo == Constantes.REAL) {
+			String retorno = "fcmpl\n";
+
+			switch (operacaoLogica) {
+			case "<":
+				retorno += "ldc -1\n";
+				retorno += "if_icmpeq ";
+				return retorno;
+			case ">":
+				retorno += "ldc 1\n";
+				retorno += "if_icmpeq ";
+				return retorno;
+			case "==":
+				retorno += "ldc 0\n";
+				retorno += "if_icmpeq ";
+				return retorno;
+			case "!=":
+				retorno += "ldc 0\n";
+				retorno += "if_icmpne ";
+				return retorno;
+			}
+
+		} else if (tipo == Constantes.PALAVRA) {
+			switch (operacaoLogica) {
+			case "==":
+				return "if_acmpeq ";
+			case "!=":
+				return "if_acmpne ";
+			}
+		}
+
+		return null;
+	} // fim getTipoDaOperacaoLogica
 
 	private String getTipoLeitura(int tipo) {
 		switch (tipo) {
@@ -401,5 +509,15 @@ public class GeraCodigo {
 			throw new ExecutarCodigoException();
 		}
 	} // fim executar
+
+	private void geraLabel() {
+		try {
+			Thread.sleep(1); // Para a thread por 1 milissegundo para a criacao
+								// de labels diferentes
+		} catch (InterruptedException ex) {
+			System.err.printf("Erro ao parar a Thread!");
+		}
+		calendar = Calendar.getInstance(); // Pega uma nova instancia do tempo
+	} // fim geraLabel
 
 } // fim classe GeraCodigo

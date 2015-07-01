@@ -1,4 +1,4 @@
-// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7º PERÍODO\CONSTRUÇÃO DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
+// Generated from C:\Users\Luis Guilherme\Desktop\pedit\src\antlr\Portugol.g4 by ANTLR 4.1
 
 package antlr;
 
@@ -20,6 +20,17 @@ public interface PortugolListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitComandos(@NotNull PortugolParser.ComandosContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link PortugolParser#fecharParenteses}.
+	 * @param ctx the parse tree
+	 */
+	void enterFecharParenteses(@NotNull PortugolParser.FecharParentesesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#fecharParenteses}.
+	 * @param ctx the parse tree
+	 */
+	void exitFecharParenteses(@NotNull PortugolParser.FecharParentesesContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link PortugolParser#funcPrincipal}.

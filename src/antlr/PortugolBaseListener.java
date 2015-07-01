@@ -1,4 +1,4 @@
-// Generated from C:\Users\Luis Guilherme\Google Drive\UFPI\DISCIPLINAS\7º PERÍODO\CONSTRUÇÃO DE COMPILADORES - Raimundo Moura\Trabalho Final\Portugol.g4 by ANTLR 4.1
+// Generated from C:\Users\Luis Guilherme\Desktop\pedit\src\antlr\Portugol.g4 by ANTLR 4.1
 
 package antlr;
 
@@ -26,6 +26,19 @@ public class PortugolBaseListener implements PortugolListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitComandos(@NotNull PortugolParser.ComandosContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterFecharParenteses(@NotNull PortugolParser.FecharParentesesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitFecharParenteses(@NotNull PortugolParser.FecharParentesesContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

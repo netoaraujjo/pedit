@@ -59,11 +59,13 @@ argumentos: expressao
           | chamadaDeFunc
           ;
 
-decisao: 'se' '(' exprLogica ')' '{'
+decisao: 'se' '(' exprLogica fecharParenteses '{'
              comandos*
          '}'
          (senao)?
        ;
+
+fecharParenteses: FECHA_PARENTESES;
 
 senao: 'senao' '{'
              comandos*
@@ -95,7 +97,7 @@ exprLogica: '!' exprLogica
           | '(' exprLogica ')'
           | exprLogica OPERADORES_IGUALDADES exprLogica
           | expressao op = (OPERADORES_IGUALDADES | OPERADORES_SUPERIORIDADE) expressao
-          | valor = BOOLEANO
+          | BOOLEANO
           | ID
           ;
 
@@ -103,7 +105,7 @@ retorna: 'retorno' '(' expressao ')' ';';
 
 ABRE_CHAVES: '{';
 ABRE_COLCHETE: '[';
-ABRE_PARENTESIS: '(';
+ABRE_PARENTESES: '(';
 ATE: 'ate';
 BOOLEANO: 'verdade' | 'falso';
 CADEIA_DE_CARACTERES: '"' .*? '"';
@@ -115,7 +117,7 @@ ENQUANTO: 'enquanto';
 ESCREVER: 'escrever';
 FECHA_CHAVES: '}';
 FECHA_COLCHETE: ']';
-FECHA_PARENTESIS: ')';
+FECHA_PARENTESES: ')';
 IGUAL: '=';
 SE: 'se';
 SENAO: 'senao';

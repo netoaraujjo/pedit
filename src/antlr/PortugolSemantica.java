@@ -362,7 +362,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 	}
 
 	@Override
+	public void exitFecharParenteses(PortugolParser.FecharParentesesContext ctx) {
+		Ast.gerarPosFixa(Ast.root);
+		System.out.println(Ast.posFixa);
+		geraCodigo.abrirSe(Ast.posFixa);
+	}
+
+	@Override
 	public void exitDecisao(PortugolParser.DecisaoContext ctx) {
+
 		if (!tiposSe.isEmpty()) {
 
 			int tipo = tiposSe.get(0);
@@ -376,6 +384,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 			tiposSe.clear();
 		}
+
+		geraCodigo.fecharSe();
+
+		if (Ast.root != null)
+			Ast.print();
+		Ast.reinit();
+
 	}
 
 	@Override
@@ -428,9 +443,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 					|| pai instanceof PortugolParser.EnquantoContext) {
 				if (ctx.op != null) {
 					Ast.up();
+				} else if (ctx.OPERADORES_IGUALDADES() != null) {
+					Ast.up();
 				} else if (ctx.ID() != null) {
 					Ast.up();
-				} else if (ctx.valor != null) {
+				} else if (ctx.BOOLEANO() != null) {
 					Ast.up();
 				}
 			}
@@ -543,6 +560,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 			tiposEnquanto.clear();
 		}
+
+		if (Ast.root != null)
+			Ast.print();
+		Ast.reinit();
 	}
 
 	@Override
@@ -563,7 +584,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void enterAtribuicao(PortugolParser.AtribuicaoContext ctx) {
 		if (ctx.ID() != null) {
-			
+
 			if (!existeChaveVar(ctx.ID().getText(), escopo)
 					&& !existeChaveVar(ctx.ID().getText(), 0)) {
 				erro += "Linha " + ctx.getStart().getLine()
@@ -576,7 +597,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 					}
 				}
 			}
-			
+
 		}
 	}
 
@@ -1176,6 +1197,15 @@ public class PortugolSemantica extends PortugolBaseListener {
 		} else if (ctx.valor != null) {
 			No n = new No(ctx.valor.getText());
 			n.setAtributo("tipo", "valor");
+
+			if (ctx.NUM_INTEIRO() != null) {
+				n.setAtributo("type", String.valueOf(Constantes.INTEIRO));
+			} else if (ctx.NUM_REAL() != null) {
+				n.setAtributo("type", String.valueOf(Constantes.REAL));
+			} else if (ctx.CADEIA_DE_CARACTERES() != null) {
+				n.setAtributo("type", String.valueOf(Constantes.PALAVRA));
+			}
+
 			Ast.init(n);
 
 		}
@@ -1188,7 +1218,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 			No n = new No(ctx.op.getText());
 			n.setAtributo("tipo", "op");
 			Ast.init(n);
-
+		} else if (ctx.OPERADORES_IGUALDADES() != null && ctx.op == null) {
+			No n = new No(ctx.OPERADORES_IGUALDADES().getText());
+			n.setAtributo("tipo", "op");
+			Ast.init(n);
 		} else if (ctx.ID() != null) {
 			No n = new No(ctx.ID().getText());
 			n.setAtributo("tipo", "id");
@@ -1213,10 +1246,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 			Ast.init(n);
 
-		} else if (ctx.valor != null) {
-			
-			No n = new No(ctx.valor.getText());
+		} else if (ctx.BOOLEANO() != null) {
+
+			No n = new No(ctx.BOOLEANO().getText());
 			n.setAtributo("tipo", "valor");
+			n.setAtributo("type", String.valueOf(Constantes.LOGICO));
 			Ast.init(n);
 
 		}
