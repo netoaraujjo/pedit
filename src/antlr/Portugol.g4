@@ -77,7 +77,7 @@ para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? '{'
       '}'
     ;
 
-enquanto: 'enquanto' '(' exprLogica ')' '{'
+enquanto: 'enquanto' '(' exprLogica fecharParenteses '{'
             comandos*
           '}'
         ;

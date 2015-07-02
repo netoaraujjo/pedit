@@ -362,10 +362,26 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void exitFecharParenteses(PortugolParser.FecharParentesesContext ctx) {
-		Ast.gerarPosFixa(Ast.root);
-		System.out.println(Ast.posFixa);
-		geraCodigo.abrirSe(Ast.posFixa);
-		Ast.reinit();
+		
+		ArrayList<ParserRuleContext> paisFechaParenteses = getPaisFechaParenteses(ctx);
+
+		for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
+
+			if (fechaParentesesCtx instanceof PortugolParser.DecisaoContext) {
+				Ast.gerarPosFixa(Ast.root);
+				System.out.println(Ast.posFixa);
+				geraCodigo.abrirSe(Ast.posFixa);
+				Ast.reinit();
+				break;
+			} else if (fechaParentesesCtx instanceof PortugolParser.EnquantoContext) {
+				Ast.gerarPosFixa(Ast.root);
+				System.out.println(Ast.posFixa);
+				geraCodigo.abrirEnquanto(Ast.posFixa);
+				Ast.reinit();
+				break;
+			}
+		}
+		
 	}
 
 	@Override
@@ -561,6 +577,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 			tiposEnquanto.clear();
 		}
 
+		geraCodigo.fecharEnquanto();
+		
 		if (Ast.root != null)
 			Ast.print();
 		Ast.reinit();
@@ -763,6 +781,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		return paisRetorno;
+	}
+	
+	private ArrayList<ParserRuleContext> getPaisFechaParenteses(PortugolParser.FecharParentesesContext ctx) {
+		ParserRuleContext ruleCtx = ctx.getParent();
+
+		ArrayList<ParserRuleContext> paisFechaParenteses = new ArrayList<ParserRuleContext>();
+
+		while (ruleCtx != null) {
+			paisFechaParenteses.add(ruleCtx);
+			ruleCtx = ruleCtx.getParent();
+		}
+
+		return paisFechaParenteses;
 	}
 	
 	private void geraCodigoChamadaFuncao(PortugolParser.AtribuicaoContext ctx) {

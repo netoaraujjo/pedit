@@ -1338,6 +1338,9 @@ public class PortugolParser extends Parser {
 		public List<ComandosContext> comandos() {
 			return getRuleContexts(ComandosContext.class);
 		}
+		public FecharParentesesContext fecharParenteses() {
+			return getRuleContext(FecharParentesesContext.class,0);
+		}
 		public EnquantoContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1362,7 +1365,7 @@ public class PortugolParser extends Parser {
 			setState(259); match(ENQUANTO);
 			setState(260); match(ABRE_PARENTESES);
 			setState(261); exprLogica(0);
-			setState(262); match(FECHA_PARENTESES);
+			setState(262); fecharParenteses();
 			setState(263); match(ABRE_CHAVES);
 			setState(267);
 			_errHandler.sync(this);
@@ -1829,9 +1832,9 @@ public class PortugolParser extends Parser {
 		"\2\2\u00fd\u00ff\5\22\n\2\u00fe\u00fd\3\2\2\2\u00ff\u0102\3\2\2\2\u0100"+
 		"\u00fe\3\2\2\2\u0100\u0101\3\2\2\2\u0101\u0103\3\2\2\2\u0102\u0100\3\2"+
 		"\2\2\u0103\u0104\7\17\2\2\u0104%\3\2\2\2\u0105\u0106\7\r\2\2\u0106\u0107"+
-		"\7\5\2\2\u0107\u0108\5*\26\2\u0108\u0109\7\21\2\2\u0109\u010d\7\3\2\2"+
-		"\u010a\u010c\5\22\n\2\u010b\u010a\3\2\2\2\u010c\u010f\3\2\2\2\u010d\u010b"+
-		"\3\2\2\2\u010d\u010e\3\2\2\2\u010e\u0110\3\2\2\2\u010f\u010d\3\2\2\2\u0110"+
+		"\7\5\2\2\u0107\u0108\5*\26\2\u0108\u0109\5 \21\2\u0109\u010d\7\3\2\2\u010a"+
+		"\u010c\5\22\n\2\u010b\u010a\3\2\2\2\u010c\u010f\3\2\2\2\u010d\u010b\3"+
+		"\2\2\2\u010d\u010e\3\2\2\2\u010e\u0110\3\2\2\2\u010f\u010d\3\2\2\2\u0110"+
 		"\u0111\7\17\2\2\u0111\'\3\2\2\2\u0112\u0113\b\25\1\2\u0113\u0114\7)\2"+
 		"\2\u0114\u011f\5(\25\2\u0115\u0116\7\5\2\2\u0116\u0117\5(\25\2\u0117\u0118"+
 		"\7\21\2\2\u0118\u011f\3\2\2\2\u0119\u011f\7\32\2\2\u011a\u011f\7\33\2"+
