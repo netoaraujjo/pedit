@@ -215,14 +215,17 @@ public class GeraCodigo {
 
 	} // fim abreFuncao
 
-	public void fechaFuncao(int tipo, int endLocalRetorno) {
+	public void fechaFuncao() {
 
-		codigo += getTipoDaExpressao(tipo);
-		codigo += "load " + endLocalRetorno + "\n";
-		codigo += getTipoDaExpressao(tipo) + "return\n";
 		codigo += ".end method\n";
 
 	} // fim fechaFuncao
+	
+	public void geraRetorno(String retorno) {
+
+		codigo += retorno;
+
+	} // fim geraRetorno
 
 	public void gerarAtribuicao(ArrayList<No> nos, Integer tipoExpressao,
 			Integer keyVarRetorno) {
@@ -330,6 +333,8 @@ public class GeraCodigo {
 			return "Ljava/lang/String;";
 		}
 	} // fim getTipoDeDado
+	
+	
 
 	public String getTipoDaExpressao(int tipoExpressao) {
 		switch (tipoExpressao) {

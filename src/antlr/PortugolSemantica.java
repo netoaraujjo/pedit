@@ -18,6 +18,7 @@ import antlr.PortugolParser.ExpressaoContext;
 import antlr.PortugolParser.ParametroContext;
 import ast.Ast;
 import ast.No;
+
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -207,11 +208,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 					.ID().getText());
 		}
 
-		if (ctx.retorna().expressao().ID() != null) {
-			InfoVariavel var = getInfoVariavel(ctx.retorna().expressao().ID()
-					.getText(), this.escopo);
-
-			geraCodigo.fechaFuncao(ctx.tipo().t, var.getEnderecoLocal());
+		ExpressaoContext exp = ctx.retorna().expressao();
+		if (exp.ID() != null || exp.valor != null) {
+			geraCodigo.fechaFuncao();
 		}
 
 	}
@@ -366,6 +365,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		Ast.gerarPosFixa(Ast.root);
 		System.out.println(Ast.posFixa);
 		geraCodigo.abrirSe(Ast.posFixa);
+		Ast.reinit();
 	}
 
 	@Override
@@ -579,6 +579,12 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		tiposRetornoFuncao.add(tipo);
 		tiposVariaveisRetornos.clear();
+
+		if (tipo != 0) {
+
+			geraCodigoRetorno(ctx);
+
+		}
 	}
 
 	@Override
@@ -746,6 +752,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return paisExpr;
 	}
 
+	private ArrayList<ParserRuleContext> getPaisRetorno(PortugolParser.RetornaContext ctx) {
+		ParserRuleContext ruleCtx = ctx.getParent();
+
+		ArrayList<ParserRuleContext> paisRetorno = new ArrayList<ParserRuleContext>();
+
+		while (ruleCtx != null) {
+			paisRetorno.add(ruleCtx);
+			ruleCtx = ruleCtx.getParent();
+		}
+
+		return paisRetorno;
+	}
+	
 	private void geraCodigoChamadaFuncao(PortugolParser.AtribuicaoContext ctx) {
 		InfoFuncao infoFuncao = null;
 		Chave chave = null;
@@ -797,6 +816,51 @@ public class PortugolSemantica extends PortugolBaseListener {
 				infoFuncao.getTipo());
 	}
 
+	private void geraCodigoRetorno(PortugolParser.RetornaContext ctx) {
+		boolean ehFilhoPrincipal = false;
+		ArrayList<ParserRuleContext> paisRetorno = getPaisRetorno(ctx);
+		
+		for (ParserRuleContext retornoCtx : paisRetorno) {
+
+			if (retornoCtx instanceof PortugolParser.FuncPrincipalContext) {
+				ehFilhoPrincipal = true;
+				break;
+			}
+
+		}
+		
+		if (!ehFilhoPrincipal) {
+			String retornoStr = "\n";
+	
+			ExpressaoContext exp = ctx.expressao();
+	
+			if (exp.ID() != null) {
+	
+				int tipo = getTipoID(exp.ID().getText());
+				InfoVariavel var = getInfoVariavel(exp.ID().getText(), this.escopo);
+	
+				retornoStr += geraCodigo.getTipoDaExpressao(tipo) + "load "
+						+ var.getEnderecoLocal() + "\n";
+				retornoStr += geraCodigo.getTipoDaExpressao(tipo) + "return\n";
+	
+			} else if (exp.NUM_INTEIRO() != null) {
+				retornoStr += "ldc " + exp.NUM_INTEIRO().getText() + "\n";
+				retornoStr += "ireturn\n";
+			} else if (exp.NUM_REAL() != null) {
+				retornoStr += "ldc " + exp.NUM_REAL().getText() + "\n";
+				retornoStr += "freturn\n";
+			} else if (exp.CADEIA_DE_CARACTERES() != null) {
+				retornoStr += "ldc " + exp.CADEIA_DE_CARACTERES().getText() + "\n";
+				retornoStr += "areturn\n";
+	
+			}
+	
+			geraCodigo.geraRetorno(retornoStr);
+			
+		}
+
+	}
+	
 	private int getTipoID(String id) {
 		int tipo = 0;
 
