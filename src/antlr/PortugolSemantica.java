@@ -46,8 +46,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	private GeraCodigo geraCodigo;
 
-	// private Ast ast;
-
 	// Construtor padrão vazio
 	public PortugolSemantica() {
 	}
@@ -288,17 +286,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		tiposPara.clear();
-		
+
 		int passo = 1;
 		if (ctx.expressao(2) != null) {
-			passo = Integer.parseInt(ctx.expressao(2).NUM_INTEIRO().getText()); 
+			passo = Integer.parseInt(ctx.expressao(2).NUM_INTEIRO().getText());
 		}
-		
+
 		InfoVariavel var = getInfoVariavel(ctx.ID().getText(), this.escopo);
 		geraCodigo.fecharPara(var.getEnderecoLocal(), passo);
-		
+
 		Ast.reinit();
-		
+
 	}
 
 	@Override
@@ -312,7 +310,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		geraCodigo.abrirPara(var.getEnderecoLocal(),
 				Integer.parseInt(paraCtx.expressao(0).NUM_INTEIRO().getText()),
 				Integer.parseInt(paraCtx.expressao(1).NUM_INTEIRO().getText()));
-		
+
 		Ast.reinit();
 	}
 
@@ -349,11 +347,19 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		}
 
-		for (ParserRuleContext exprCtx : paisExpr) {
-			if (exprCtx instanceof PortugolParser.AtribuicaoContext
-					|| exprCtx instanceof PortugolParser.DecisaoContext
-					|| exprCtx instanceof PortugolParser.EnquantoContext) {
-				if (!ehArgumento) {
+		if (!ehArgumento) {
+
+			boolean ehAtribuicao = false;
+
+			for (ParserRuleContext exprCtx : paisExpr) {
+				if (exprCtx instanceof PortugolParser.AtribuicaoContext) {
+					setAstExpressao(ctx);
+					ehAtribuicao = true;
+				} else if (exprCtx instanceof PortugolParser.DecisaoContext
+						&& !ehAtribuicao) {
+					setAstExpressao(ctx);
+				} else if (exprCtx instanceof PortugolParser.EnquantoContext
+						&& !ehAtribuicao) {
 					setAstExpressao(ctx);
 				}
 			}
@@ -373,10 +379,21 @@ public class PortugolSemantica extends PortugolBaseListener {
 	public void exitExpressao(PortugolParser.ExpressaoContext ctx) {
 		ArrayList<ParserRuleContext> paisExpr = getPaisExpr(ctx);
 
+		boolean ehAtribuicao = false;
+
 		for (ParserRuleContext pai : paisExpr) {
-			if (pai instanceof PortugolParser.AtribuicaoContext
-					|| pai instanceof PortugolParser.DecisaoContext
-					|| pai instanceof PortugolParser.EnquantoContext) {
+			if (pai instanceof PortugolParser.AtribuicaoContext) {
+				if (ctx.op != null) {
+					Ast.up();
+				} else if (ctx.ID() != null) {
+					Ast.up();
+				} else if (ctx.valor != null) {
+					Ast.up();
+				}
+
+				ehAtribuicao = true;
+			} else if ((pai instanceof PortugolParser.DecisaoContext || pai instanceof PortugolParser.EnquantoContext)
+					&& !ehAtribuicao) {
 				if (ctx.op != null) {
 					Ast.up();
 				} else if (ctx.ID() != null) {
@@ -386,15 +403,11 @@ public class PortugolSemantica extends PortugolBaseListener {
 				}
 			}
 		}
+
 	}
 
 	@Override
 	public void exitFecharParenteses(PortugolParser.FecharParentesesContext ctx) {
-
-		// ArrayList<ParserRuleContext> paisFechaParenteses =
-		// getPaisFechaParenteses(ctx);
-		//
-		// for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
 
 		if (ctx.parent instanceof PortugolParser.DecisaoContext) {
 			Ast.gerarPosFixa(Ast.root);
@@ -407,7 +420,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 			geraCodigo.abrirEnquanto(Ast.posFixa);
 			Ast.reinit();
 		}
-		// }
 
 	}
 
@@ -450,11 +462,13 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		}
 
-		for (ParserRuleContext exprCtx : paisExpr) {
-			if (exprCtx instanceof PortugolParser.AtribuicaoContext
-					|| exprCtx instanceof PortugolParser.DecisaoContext
-					|| exprCtx instanceof PortugolParser.EnquantoContext) {
-				if (!ehArgumento) {
+		if (!ehArgumento) {
+			boolean ehAtribuicao = false;
+			for (ParserRuleContext exprCtx : paisExpr) {
+				if (exprCtx instanceof PortugolParser.AtribuicaoContext) {
+					ehAtribuicao = true;
+				} else if ((exprCtx instanceof PortugolParser.DecisaoContext || exprCtx instanceof PortugolParser.EnquantoContext)
+						&& !ehAtribuicao) {
 					setAstExprLogica(ctx);
 				}
 			}
@@ -478,12 +492,14 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void exitExprLogica(PortugolParser.ExprLogicaContext ctx) {
+		boolean ehAtribuicao = false;
 		ArrayList<ParserRuleContext> paisExpr = getPaisExprLogica(ctx);
 
 		for (ParserRuleContext pai : paisExpr) {
-			if (pai instanceof PortugolParser.AtribuicaoContext
-					|| pai instanceof PortugolParser.DecisaoContext
-					|| pai instanceof PortugolParser.EnquantoContext) {
+			if (pai instanceof PortugolParser.AtribuicaoContext) {
+
+			} else if ((pai instanceof PortugolParser.DecisaoContext || pai instanceof PortugolParser.EnquantoContext)
+					&& !ehAtribuicao) {
 				if (ctx.op != null) {
 					Ast.up();
 				} else if (ctx.OPERADORES_IGUALDADES() != null) {

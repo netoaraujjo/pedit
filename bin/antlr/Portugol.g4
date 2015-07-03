@@ -72,17 +72,19 @@ senao: 'senao' '{'
          '}'
      ;
 
-para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? '{'
+para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? abrirChaves
             comandos*
       '}'
     ;
 
-enquanto: 'enquanto' '(' exprLogica ')' '{'
+abrirChaves: '{';
+
+enquanto: 'enquanto' '(' exprLogica fecharParenteses '{'
             comandos*
           '}'
         ;
 
-expressao: '-' expressao
+expressao: opSub = '-' expressao
          | expressao op = ('*' | '/') expressao
          | expressao op = ('+' | '-') expressao
          | '(' expressao ')'
