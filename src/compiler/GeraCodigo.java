@@ -374,28 +374,18 @@ public class GeraCodigo {
 		labelEnquanto = 0;
 	}
 
-	/**
-	 * Metodo que abre a operacao para em jasmin
-	 *
-	 * @param keyVarIteracao
-	 *            Posicao da variavel na tabela de simbolos
-	 * @param deVar
-	 *            Valor De
-	 * @param ateVar
-	 *            Valor Ate
-	 * @return String com as diretivas para a execucao do para
-	 */
 	public void abrirPara(int keyVarIteracao, int deVar, int ateVar) {
 		geraLabel(); // Gera labels novas a partir do tempo
 
 		labelPara = calendar.getTimeInMillis();
+		
 		codigo += "\n;INICIO DO PARA\n";
 		codigo += "ldc " + deVar + "\n";
-		codigo += "istore" + keyVarIteracao + "\n";
+		codigo += "istore " + keyVarIteracao + "\n";
 		codigo += "LabelLoop" + labelPara + ":\n";
 		codigo += "iload " + keyVarIteracao + "\n";
 		codigo += "ldc " + ateVar + "\n";
-		codigo += "cmpeq " + "goto " + "LabelSair" + labelPara + "\n\n";
+		codigo += "if_icmpgt " + "LabelSair" + labelPara + "\n\n";
 		
 	}
 

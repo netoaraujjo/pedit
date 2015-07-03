@@ -15,10 +15,10 @@ import antlr.PortugolParser.ArgumentosContext;
 import antlr.PortugolParser.ComandosContext;
 import antlr.PortugolParser.ExprLogicaContext;
 import antlr.PortugolParser.ExpressaoContext;
+import antlr.PortugolParser.ParaContext;
 import antlr.PortugolParser.ParametroContext;
 import ast.Ast;
 import ast.No;
-
 import compiler.Chave;
 import compiler.GeraCodigo;
 import compiler.InfoFuncao;
@@ -288,6 +288,32 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		tiposPara.clear();
+		
+		int passo = 1;
+		if (ctx.expressao(2) != null) {
+			passo = Integer.parseInt(ctx.expressao(2).NUM_INTEIRO().getText()); 
+		}
+		
+		InfoVariavel var = getInfoVariavel(ctx.ID().getText(), this.escopo);
+		geraCodigo.fecharPara(var.getEnderecoLocal(), passo);
+		
+		Ast.reinit();
+		
+	}
+
+	@Override
+	public void exitAbrirChaves(PortugolParser.AbrirChavesContext ctx) {
+		Ast.gerarPosFixa(Ast.root);
+		System.out.println(Ast.posFixa);
+
+		ParaContext paraCtx = (ParaContext) ctx.getParent();
+		InfoVariavel var = getInfoVariavel(paraCtx.ID().getText(), this.escopo);
+
+		geraCodigo.abrirPara(var.getEnderecoLocal(),
+				Integer.parseInt(paraCtx.expressao(0).NUM_INTEIRO().getText()),
+				Integer.parseInt(paraCtx.expressao(1).NUM_INTEIRO().getText()));
+		
+		Ast.reinit();
 	}
 
 	@Override
@@ -364,26 +390,25 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 	@Override
 	public void exitFecharParenteses(PortugolParser.FecharParentesesContext ctx) {
-		
-		
 
-//		ArrayList<ParserRuleContext> paisFechaParenteses = getPaisFechaParenteses(ctx);
-//
-//		for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
+		// ArrayList<ParserRuleContext> paisFechaParenteses =
+		// getPaisFechaParenteses(ctx);
+		//
+		// for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
 
-			if (ctx.parent instanceof PortugolParser.DecisaoContext) {
-				Ast.gerarPosFixa(Ast.root);
-				System.out.println(Ast.posFixa);
-				geraCodigo.abrirSe(Ast.posFixa);
-				Ast.reinit();
-			} else if (ctx.parent instanceof PortugolParser.EnquantoContext) {
-				Ast.gerarPosFixa(Ast.root);
-				System.out.println(Ast.posFixa);
-				geraCodigo.abrirEnquanto(Ast.posFixa);
-				Ast.reinit();
-			}
-//		}
-		
+		if (ctx.parent instanceof PortugolParser.DecisaoContext) {
+			Ast.gerarPosFixa(Ast.root);
+			System.out.println(Ast.posFixa);
+			geraCodigo.abrirSe(Ast.posFixa);
+			Ast.reinit();
+		} else if (ctx.parent instanceof PortugolParser.EnquantoContext) {
+			Ast.gerarPosFixa(Ast.root);
+			System.out.println(Ast.posFixa);
+			geraCodigo.abrirEnquanto(Ast.posFixa);
+			Ast.reinit();
+		}
+		// }
+
 	}
 
 	@Override
@@ -786,20 +811,6 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return paisRetorno;
 	}
 
-	private ArrayList<ParserRuleContext> getPaisFechaParenteses(
-			PortugolParser.FecharParentesesContext ctx) {
-		ParserRuleContext ruleCtx = ctx.getParent();
-
-		ArrayList<ParserRuleContext> paisFechaParenteses = new ArrayList<ParserRuleContext>();
-
-		while (ruleCtx != null) {
-			paisFechaParenteses.add(ruleCtx);
-			ruleCtx = ruleCtx.getParent();
-		}
-
-		return paisFechaParenteses;
-	}
-
 	private void geraCodigoChamadaFuncao(PortugolParser.AtribuicaoContext ctx) {
 		InfoFuncao infoFuncao = null;
 		Chave chave = null;
@@ -1153,7 +1164,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 					+ ctx.start.getLine()
 					+ " - Retorno da função não é atribuído a nenhum identificador.\n";
 		} else {
-			InfoVariavel infoVariavel = getInfoVariavel(ctx.atribuicao().ID().getText(), this.escopo);
+			InfoVariavel infoVariavel = getInfoVariavel(ctx.atribuicao().ID()
+					.getText(), this.escopo);
 			if (infoVariavel != null) {
 				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
 					erro += "Linha " + ctx.getStart().getLine()
@@ -1162,8 +1174,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 							+ "\" não pode ser modificada.\n";
 				}
 			} else {
-				infoVariavel = getInfoVariavel(ctx.atribuicao().ID().getText(), this.escopo);
-				if (infoVariavel != null && infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+				infoVariavel = getInfoVariavel(ctx.atribuicao().ID().getText(),
+						this.escopo);
+				if (infoVariavel != null
+						&& infoVariavel.getCategoria() == Constantes.CONSTANTE) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - A constante \""
 							+ ctx.atribuicao().ID().getText()

@@ -44,6 +44,17 @@ public interface PortugolListener extends ParseTreeListener {
 	void exitFuncPrincipal(@NotNull PortugolParser.FuncPrincipalContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link PortugolParser#abrirChaves}.
+	 * @param ctx the parse tree
+	 */
+	void enterAbrirChaves(@NotNull PortugolParser.AbrirChavesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#abrirChaves}.
+	 * @param ctx the parse tree
+	 */
+	void exitAbrirChaves(@NotNull PortugolParser.AbrirChavesContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link PortugolParser#parametro}.
 	 * @param ctx the parse tree
 	 */

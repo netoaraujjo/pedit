@@ -58,6 +58,19 @@ public class PortugolBaseListener implements PortugolListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterAbrirChaves(@NotNull PortugolParser.AbrirChavesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitAbrirChaves(@NotNull PortugolParser.AbrirChavesContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterParametro(@NotNull PortugolParser.ParametroContext ctx) { }
 	/**
 	 * {@inheritDoc}

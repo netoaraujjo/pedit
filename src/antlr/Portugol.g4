@@ -72,10 +72,12 @@ senao: 'senao' '{'
          '}'
      ;
 
-para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? '{'
+para: 'para' ID 'de' expressao 'ate' expressao ('passo' expressao)? abrirChaves
             comandos*
       '}'
     ;
+
+abrirChaves: '{';
 
 enquanto: 'enquanto' '(' exprLogica fecharParenteses '{'
             comandos*
