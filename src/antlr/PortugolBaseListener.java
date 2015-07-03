@@ -1,4 +1,4 @@
-// Generated from C:\Users\Luis Guilherme\Desktop\pedit\src\antlr\Portugol.g4 by ANTLR 4.1
+// Generated from /home/luis/workspace/pEdit/src/antlr/Portugol.g4 by ANTLR 4.1
 
 package antlr;
 

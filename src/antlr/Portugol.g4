@@ -82,7 +82,7 @@ enquanto: 'enquanto' '(' exprLogica fecharParenteses '{'
           '}'
         ;
 
-expressao: '-' expressao
+expressao: opSub = '-' expressao
          | expressao op = ('*' | '/') expressao
          | expressao op = ('+' | '-') expressao
          | '(' expressao ')'

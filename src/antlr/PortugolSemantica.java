@@ -260,8 +260,10 @@ public class PortugolSemantica extends PortugolBaseListener {
 				} else if (argumento.expressao().ID() != null) {
 					InfoVariavel iv = getInfoVariavel(argumento.expressao()
 							.ID().getText(), this.escopo);
-					geraCodigo.gerarEscrever(iv.getTipo(),
-							iv.getEnderecoLocal());
+					if (iv != null) {
+						geraCodigo.gerarEscrever(iv.getTipo(),
+								iv.getEnderecoLocal());
+					}
 				}
 			}
 		}
@@ -363,24 +365,24 @@ public class PortugolSemantica extends PortugolBaseListener {
 	@Override
 	public void exitFecharParenteses(PortugolParser.FecharParentesesContext ctx) {
 		
-		ArrayList<ParserRuleContext> paisFechaParenteses = getPaisFechaParenteses(ctx);
+		
 
-		for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
+//		ArrayList<ParserRuleContext> paisFechaParenteses = getPaisFechaParenteses(ctx);
+//
+//		for (ParserRuleContext fechaParentesesCtx : paisFechaParenteses) {
 
-			if (fechaParentesesCtx instanceof PortugolParser.DecisaoContext) {
+			if (ctx.parent instanceof PortugolParser.DecisaoContext) {
 				Ast.gerarPosFixa(Ast.root);
 				System.out.println(Ast.posFixa);
 				geraCodigo.abrirSe(Ast.posFixa);
 				Ast.reinit();
-				break;
-			} else if (fechaParentesesCtx instanceof PortugolParser.EnquantoContext) {
+			} else if (ctx.parent instanceof PortugolParser.EnquantoContext) {
 				Ast.gerarPosFixa(Ast.root);
 				System.out.println(Ast.posFixa);
 				geraCodigo.abrirEnquanto(Ast.posFixa);
 				Ast.reinit();
-				break;
 			}
-		}
+//		}
 		
 	}
 
@@ -578,7 +580,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		}
 
 		geraCodigo.fecharEnquanto();
-		
+
 		if (Ast.root != null)
 			Ast.print();
 		Ast.reinit();
@@ -644,7 +646,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 
 			InfoVariavel var = getInfoVariavel(ctx.ID().getText(), this.escopo);
-			if (!tipoErrado && var != null) {
+			if (!tipoErrado && var != null && Ast.root != null) {
 				Ast.gerarPosFixa(Ast.root);
 
 				if (ctx.expressao().chamadaDeFunc() == null) {
@@ -770,7 +772,8 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return paisExpr;
 	}
 
-	private ArrayList<ParserRuleContext> getPaisRetorno(PortugolParser.RetornaContext ctx) {
+	private ArrayList<ParserRuleContext> getPaisRetorno(
+			PortugolParser.RetornaContext ctx) {
 		ParserRuleContext ruleCtx = ctx.getParent();
 
 		ArrayList<ParserRuleContext> paisRetorno = new ArrayList<ParserRuleContext>();
@@ -782,8 +785,9 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		return paisRetorno;
 	}
-	
-	private ArrayList<ParserRuleContext> getPaisFechaParenteses(PortugolParser.FecharParentesesContext ctx) {
+
+	private ArrayList<ParserRuleContext> getPaisFechaParenteses(
+			PortugolParser.FecharParentesesContext ctx) {
 		ParserRuleContext ruleCtx = ctx.getParent();
 
 		ArrayList<ParserRuleContext> paisFechaParenteses = new ArrayList<ParserRuleContext>();
@@ -795,7 +799,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 
 		return paisFechaParenteses;
 	}
-	
+
 	private void geraCodigoChamadaFuncao(PortugolParser.AtribuicaoContext ctx) {
 		InfoFuncao infoFuncao = null;
 		Chave chave = null;
@@ -850,7 +854,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 	private void geraCodigoRetorno(PortugolParser.RetornaContext ctx) {
 		boolean ehFilhoPrincipal = false;
 		ArrayList<ParserRuleContext> paisRetorno = getPaisRetorno(ctx);
-		
+
 		for (ParserRuleContext retornoCtx : paisRetorno) {
 
 			if (retornoCtx instanceof PortugolParser.FuncPrincipalContext) {
@@ -859,21 +863,22 @@ public class PortugolSemantica extends PortugolBaseListener {
 			}
 
 		}
-		
+
 		if (!ehFilhoPrincipal) {
 			String retornoStr = "\n";
-	
+
 			ExpressaoContext exp = ctx.expressao();
-	
+
 			if (exp.ID() != null) {
-	
+
 				int tipo = getTipoID(exp.ID().getText());
-				InfoVariavel var = getInfoVariavel(exp.ID().getText(), this.escopo);
-	
+				InfoVariavel var = getInfoVariavel(exp.ID().getText(),
+						this.escopo);
+
 				retornoStr += geraCodigo.getTipoDaExpressao(tipo) + "load "
 						+ var.getEnderecoLocal() + "\n";
 				retornoStr += geraCodigo.getTipoDaExpressao(tipo) + "return\n";
-	
+
 			} else if (exp.NUM_INTEIRO() != null) {
 				retornoStr += "ldc " + exp.NUM_INTEIRO().getText() + "\n";
 				retornoStr += "ireturn\n";
@@ -881,17 +886,18 @@ public class PortugolSemantica extends PortugolBaseListener {
 				retornoStr += "ldc " + exp.NUM_REAL().getText() + "\n";
 				retornoStr += "freturn\n";
 			} else if (exp.CADEIA_DE_CARACTERES() != null) {
-				retornoStr += "ldc " + exp.CADEIA_DE_CARACTERES().getText() + "\n";
+				retornoStr += "ldc " + exp.CADEIA_DE_CARACTERES().getText()
+						+ "\n";
 				retornoStr += "areturn\n";
-	
+
 			}
-	
+
 			geraCodigo.geraRetorno(retornoStr);
-			
+
 		}
 
 	}
-	
+
 	private int getTipoID(String id) {
 		int tipo = 0;
 
@@ -1147,39 +1153,17 @@ public class PortugolSemantica extends PortugolBaseListener {
 					+ ctx.start.getLine()
 					+ " - Retorno da função não é atribuído a nenhum identificador.\n";
 		} else {
-			InfoVariavel infoVariavel = null;
-			if (existeChaveVar(ctx.atribuicao().ID().getText(), this.escopo)) {
-				Set<Chave> chaves = tsVar.keySet();
-				for (Chave key : chaves) {
-					if (key != null) {
-						if (key.getId().compareTo(
-								ctx.atribuicao().ID().getText()) == 0
-								&& key.getEscopo() == this.escopo) {
-							infoVariavel = tsVar.get(key);
-							break;
-						}
-					}
-				}
+			InfoVariavel infoVariavel = getInfoVariavel(ctx.atribuicao().ID().getText(), this.escopo);
+			if (infoVariavel != null) {
 				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - A constante \""
 							+ ctx.atribuicao().ID().getText()
 							+ "\" não pode ser modificada.\n";
 				}
-			} else if (existeChaveVar(ctx.atribuicao().ID().getText(), 0)) { // Variavel
-																				// existe
-				Set<Chave> chaves = tsVar.keySet();
-				for (Chave key : chaves) {
-					if (key != null) {
-						if (key.getId().compareTo(
-								ctx.atribuicao().ID().getText()) == 0
-								&& key.getEscopo() == 0) {
-							infoVariavel = tsVar.get(key);
-							break;
-						}
-					}
-				}
-				if (infoVariavel.getCategoria() == Constantes.CONSTANTE) {
+			} else {
+				infoVariavel = getInfoVariavel(ctx.atribuicao().ID().getText(), this.escopo);
+				if (infoVariavel != null && infoVariavel.getCategoria() == Constantes.CONSTANTE) {
 					erro += "Linha " + ctx.getStart().getLine()
 							+ " - A constante \""
 							+ ctx.atribuicao().ID().getText()
@@ -1257,7 +1241,7 @@ public class PortugolSemantica extends PortugolBaseListener {
 		return infoVariavel;
 	}
 
-	private void setAstExpressao(ExpressaoContext ctx) {
+	private void setAstExpressao(PortugolParser.ExpressaoContext ctx) {
 		boolean escopoEhZero = false;
 
 		if (ctx.op != null) {

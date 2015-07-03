@@ -26,8 +26,8 @@ public class Ast {
 			posFixa.add(n);
 			
 			if (!n.getFilhos().isEmpty()) {
-				gerarPosFixa(n.getFilhos().get(0));
 				gerarPosFixa(n.getFilhos().get(1));
+				gerarPosFixa(n.getFilhos().get(0));
 			}
 		}
 	}

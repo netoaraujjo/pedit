@@ -25,8 +25,8 @@ public class GeraCodigo {
 	private boolean gerar;
 	private String diretorio;
 
-	 private long labelEnquanto;
-	// private long labelPara;
+	private long labelEnquanto;
+	private long labelPara;
 	private long labelSe;
 	private Calendar calendar;
 
@@ -220,7 +220,7 @@ public class GeraCodigo {
 		codigo += ".end method\n";
 
 	} // fim fechaFuncao
-	
+
 	public void geraRetorno(String retorno) {
 
 		codigo += retorno;
@@ -270,7 +270,7 @@ public class GeraCodigo {
 	}
 
 	public void abrirSe(ArrayList<No> nos) {
-		geraLabel();	// Gera labels novas a partir do tempo
+		geraLabel(); // Gera labels novas a partir do tempo
 
 		String labelTrue = "LabelEntrada" + calendar.getTimeInMillis();
 
@@ -322,6 +322,93 @@ public class GeraCodigo {
 		labelSe = 0;
 	}
 
+	public void abrirEnquanto(ArrayList<No> nos) {
+		geraLabel(); // Gera labels novas a partir do tempo
+
+		labelEnquanto = calendar.getTimeInMillis();
+		String labelInicio = "LabelEntrada" + calendar.getTimeInMillis();
+		String labelLoop = "LabelLoop" + calendar.getTimeInMillis();
+		String labelSair = "LabelSaida" + labelEnquanto;
+		String tipo = "";
+		int tipoIf = -1;
+
+		codigo += "\n;INICIO DO ENQUANTO\n" + labelInicio + ":\n";
+
+		for (int i = nos.size() - 1; i >= 0; i--) {
+			if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
+
+				tipo = getTipoDaExpressao(Integer.parseInt(nos.get(i)
+						.getAtributo("type")));
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+				codigo += tipo + "load " + nos.get(i).getAtributo("posicao")
+						+ "\n";
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("valor") == 0) {
+
+				codigo += "ldc " + nos.get(i).toString() + "\n";
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
+				if (getTipoDaOperacao(nos.get(i).toString()) != null) {
+
+					codigo += tipo + getTipoDaOperacao(nos.get(i).toString())
+							+ "\n";
+
+				} else {
+					codigo += getTipoDeOperacaoLogica(nos.get(i).toString(),
+							tipoIf)
+							+ labelLoop
+							+ "\n"
+							+ "goto "
+							+ labelSair
+							+ "\n" + labelLoop + ":\n";
+				}
+			}
+		}
+
+	}
+
+	public void fecharEnquanto() {
+		codigo += "goto LabelEntrada" + labelEnquanto + "\n" + "LabelSaida"
+				+ labelEnquanto + ":\n" + ";FIM DO ENQUANTO\n";
+		labelEnquanto = 0;
+	}
+
+	/**
+	 * Metodo que abre a operacao para em jasmin
+	 *
+	 * @param keyVarIteracao
+	 *            Posicao da variavel na tabela de simbolos
+	 * @param deVar
+	 *            Valor De
+	 * @param ateVar
+	 *            Valor Ate
+	 * @return String com as diretivas para a execucao do para
+	 */
+	public void abrirPara(int keyVarIteracao, int deVar, int ateVar) {
+		geraLabel(); // Gera labels novas a partir do tempo
+
+		labelPara = calendar.getTimeInMillis();
+		codigo += "\n;INICIO DO PARA\n";
+		codigo += "ldc " + deVar + "\n";
+		codigo += "istore" + keyVarIteracao + "\n";
+		codigo += "LabelLoop" + labelPara + ":\n";
+		codigo += "iload " + keyVarIteracao + "\n";
+		codigo += "ldc " + ateVar + "\n";
+		codigo += "cmpeq " + "goto " + "LabelSair" + labelPara + "\n\n";
+		
+	}
+
+	public void fecharPara(int keyVarIteracao, Integer passo) {
+		codigo += "\nldc " + passo + "\n";
+		codigo += "iload " + keyVarIteracao + "\n";
+		codigo += "iadd\n";
+		codigo += "istore " + keyVarIteracao + "\n";
+		codigo += "goto LabelLoop" + labelPara + "\n";
+		codigo += "LabelSair" + labelPara + ":\n;FIM DO PARA\n";
+		labelPara = 0;
+	}
+
 	private String getTipoDeDado(int tipoDeDado) {
 		switch (tipoDeDado) {
 		case Constantes.INTEIRO:
@@ -333,52 +420,6 @@ public class GeraCodigo {
 			return "Ljava/lang/String;";
 		}
 	} // fim getTipoDeDado
-	
-	public void abrirEnquanto(ArrayList<No> nos) {
-        geraLabel();	//Gera labels novas a partir do tempo
-        
-        labelEnquanto = calendar.getTimeInMillis();
-        String labelInicio = "LabelEntrada" + calendar.getTimeInMillis();
-        String labelLoop = "LabelLoop" + calendar.getTimeInMillis();
-        String labelSair = "LabelSaida" + labelEnquanto;
-        String tipo = "";
-        int tipoIf = -1;
-        
-		codigo += "\n;INICIO DO ENQUANTO\n" + labelInicio + ":\n";
-
-        for (int i = nos.size() - 1; i >= 0; i--) {
-            if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
-            	
-                tipo = getTipoDaExpressao(Integer.parseInt(nos.get(i).getAtributo("type")));
-                tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
-                codigo += tipo + "load " + nos.get(i).getAtributo("posicao") + "\n";
-                
-            } else if (nos.get(i).getAtributo("tipo").compareTo("valor") == 0) {
-            	
-                codigo += "ldc " + nos.get(i).toString() + "\n";
-				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
-                
-            } else if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
-                if (getTipoDaOperacao(nos.get(i).toString()) != null) {
-                	
-                    codigo += tipo + getTipoDaOperacao(nos.get(i).toString()) + "\n";
-    				
-                } else {
-                    codigo += getTipoDeOperacaoLogica(nos.get(i).toString(), tipoIf) + labelLoop + "\n"
-                            + "goto " + labelSair + "\n"
-                            + labelLoop + ":\n";
-                }
-            }
-        }
-
-    }
-
-    public void fecharEnquanto() {
-        codigo += "goto LabelEntrada" + labelEnquanto + "\n"
-                + "LabelEntrada" + labelEnquanto + ":\n"
-                + ";FIM DO ENQUANTO\n";
-        labelEnquanto = 0;
-    }
 
 	public String getTipoDaExpressao(int tipoExpressao) {
 		switch (tipoExpressao) {
@@ -407,7 +448,7 @@ public class GeraCodigo {
 	} // fim getTipoDaOperacao
 
 	private String getTipoDeOperacaoLogica(String operacaoLogica, Integer tipo) {
-		
+
 		if (tipo == Constantes.INTEIRO || tipo == Constantes.LOGICO) {
 
 			switch (operacaoLogica) {

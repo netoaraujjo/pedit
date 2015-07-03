@@ -1,4 +1,4 @@
-// Generated from C:\Users\Luis Guilherme\Desktop\pedit\src\antlr\Portugol.g4 by ANTLR 4.1
+// Generated from /home/luis/workspace/pEdit/src/antlr/Portugol.g4 by ANTLR 4.1
 
 package antlr;
 
@@ -1396,6 +1396,7 @@ public class PortugolParser extends Parser {
 
 	public static class ExpressaoContext extends ParserRuleContext {
 		public int _p;
+		public Token opSub;
 		public Token valor;
 		public Token op;
 		public ExpressaoContext expressao(int i) {
@@ -1443,7 +1444,7 @@ public class PortugolParser extends Parser {
 			switch ( getInterpreter().adaptivePredict(_input,26,_ctx) ) {
 			case 1:
 				{
-				setState(273); match(SUBTRACAO);
+				setState(273); ((ExpressaoContext)_localctx).opSub = match(SUBTRACAO);
 				setState(274); expressao(9);
 				}
 				break;
