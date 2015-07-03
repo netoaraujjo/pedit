@@ -25,9 +25,9 @@ public class GeraCodigo {
 	private boolean gerar;
 	private String diretorio;
 
-	private long labelEnquanto;
-	private long labelPara;
-	private long labelSe;
+	private ArrayList<Long> labelEnquanto = new ArrayList<Long>();
+	private ArrayList<Long> labelPara = new ArrayList<Long>();
+	private ArrayList<Long> labelSe = new ArrayList<Long>();
 	private Calendar calendar;
 
 	public GeraCodigo(File arq) {
@@ -271,11 +271,12 @@ public class GeraCodigo {
 
 	public void abrirSe(ArrayList<No> nos) {
 		geraLabel(); // Gera labels novas a partir do tempo
-
-		String labelTrue = "LabelEntrada" + calendar.getTimeInMillis();
-
-		labelSe = calendar.getTimeInMillis();
-		String labelSair = "LabelSaida" + labelSe;
+		
+		long tempo = calendar.getTimeInMillis();
+		labelSe.add(tempo);
+		
+		String labelTrue = "LabelEntrada" + labelSe.get(labelSe.size() - 1);
+		String labelSair = "LabelSaida" + labelSe.get(labelSe.size() - 1);
 
 		codigo += "\n" + ";INICIO DO SE" + "\n";
 		String tipo = "";
@@ -318,27 +319,28 @@ public class GeraCodigo {
 	}
 
 	public void fecharSe() {
-		codigo += "LabelSaida" + labelSe + ":\n;FIM DO SE\n";
-		labelSe = 0;
+		codigo += "LabelSaida" + labelSe.get(labelSe.size() - 1) + ":\n;FIM DO SE\n";
+		labelSe.remove((labelSe.size() - 1));
 	}
 
 	public void meioDoSeComSenao() {
-		codigo += "goto LabelSaidaSenao" + labelSe + "\n;FIM DO SE\n";
-		codigo += "LabelSaida" + labelSe + ":\n;INICIO DO SENAO\n";
+		codigo += "goto LabelSaidaSenao" + labelSe.get(labelSe.size() - 1) + "\n;FIM DO SE\n";
+		codigo += "LabelSaida" + labelSe.get(labelSe.size() - 1) + ":\n;INICIO DO SENAO\n";
 	}
 
 	public void fecharSeComSenao() {
-		codigo += "LabelSaidaSenao" + labelSe + ":\n;FIM DO SENAO\n";
-		labelSe = 0;
+		codigo += "LabelSaidaSenao" + labelSe.get(labelSe.size() - 1) + ":\n;FIM DO SENAO\n";
+		labelSe.remove((labelSe.size() - 1));
 	}
 
 	public void abrirEnquanto(ArrayList<No> nos) {
 		geraLabel(); // Gera labels novas a partir do tempo
 
-		labelEnquanto = calendar.getTimeInMillis();
-		String labelInicio = "LabelEntrada" + calendar.getTimeInMillis();
-		String labelLoop = "LabelLoop" + calendar.getTimeInMillis();
-		String labelSair = "LabelSaida" + labelEnquanto;
+		labelEnquanto.add(calendar.getTimeInMillis());
+		
+		String labelInicio = "LabelEntrada" + labelEnquanto.get(labelEnquanto.size() - 1);
+		String labelLoop = "LabelLoop" + labelEnquanto.get(labelEnquanto.size() - 1);
+		String labelSair = "LabelSaida" + labelEnquanto.get(labelEnquanto.size() - 1);
 		String tipo = "";
 		int tipoIf = -1;
 
@@ -379,23 +381,23 @@ public class GeraCodigo {
 	}
 
 	public void fecharEnquanto() {
-		codigo += "goto LabelEntrada" + labelEnquanto + "\n" + "LabelSaida"
-				+ labelEnquanto + ":\n" + ";FIM DO ENQUANTO\n";
-		labelEnquanto = 0;
+		codigo += "goto LabelEntrada" + labelEnquanto.get(labelEnquanto.size() - 1) + "\n" + "LabelSaida"
+				+ labelEnquanto.get(labelEnquanto.size() - 1) + ":\n" + ";FIM DO ENQUANTO\n";
+		labelEnquanto.remove(labelEnquanto.size() - 1);
 	}
 
 	public void abrirPara(int keyVarIteracao, int deVar, int ateVar) {
 		geraLabel(); // Gera labels novas a partir do tempo
 
-		labelPara = calendar.getTimeInMillis();
+		labelPara.add(calendar.getTimeInMillis());
 
 		codigo += "\n;INICIO DO PARA\n";
 		codigo += "ldc " + deVar + "\n";
 		codigo += "istore " + keyVarIteracao + "\n";
-		codigo += "LabelLoop" + labelPara + ":\n";
+		codigo += "LabelLoop" + labelPara.get(labelPara.size() - 1) + ":\n";
 		codigo += "iload " + keyVarIteracao + "\n";
 		codigo += "ldc " + ateVar + "\n";
-		codigo += "if_icmpgt " + "LabelSair" + labelPara + "\n\n";
+		codigo += "if_icmpgt " + "LabelSair" + labelPara.get(labelPara.size() - 1) + "\n\n";
 
 	}
 
@@ -404,9 +406,9 @@ public class GeraCodigo {
 		codigo += "iload " + keyVarIteracao + "\n";
 		codigo += "iadd\n";
 		codigo += "istore " + keyVarIteracao + "\n";
-		codigo += "goto LabelLoop" + labelPara + "\n";
-		codigo += "LabelSair" + labelPara + ":\n;FIM DO PARA\n";
-		labelPara = 0;
+		codigo += "goto LabelLoop" + labelPara.get(labelPara.size() - 1) + "\n";
+		codigo += "LabelSair" + labelPara.get(labelPara.size() - 1) + ":\n;FIM DO PARA\n";
+		labelPara.remove(labelPara.size() - 1);
 	}
 
 	private String getTipoDeDado(int tipoDeDado) {
