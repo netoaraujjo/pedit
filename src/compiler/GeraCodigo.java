@@ -29,12 +29,15 @@ public class GeraCodigo {
 	private ArrayList<Long> labelPara = new ArrayList<Long>();
 	private ArrayList<Long> labelSe = new ArrayList<Long>();
 	private Calendar calendar;
+	
+	private String os;
 
 	public GeraCodigo(File arq) {
 		this.nomeProg = arq.getName().substring(0, arq.getName().length() - 4);
 		diretorio = arq.getParent();
 		this.pathArq = diretorio + SEP + nomeProg + ".j";
 		this.gerar = true;
+		os = System.getProperty("os.name").toLowerCase();
 		inicializa();
 	} // fim construtor
 
@@ -521,39 +524,50 @@ public class GeraCodigo {
 		}
 	} // fim getInicializacaoPorTipo
 
-	private void gerarArquivoClass() throws GerarClassException {
-
+	private void gerarArquivoClass() throws GerarClassException {		
+		
 		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("")
-				.getPath()
-				+ "lib" + SEP + "jasmin.jar";
-
-		ProcessBuilder pb = new ProcessBuilder("java", "-jar", pathJasmin,
-				pathArq);
-
-		pb.directory(new File(diretorio));
-
-		Process process;
-		try {
-			process = pb.start();
-			process.waitFor();
-
-			BufferedReader readerSucesso = new BufferedReader(
-					new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro = new BufferedReader(
-					new InputStreamReader(process.getErrorStream()));
-
-			String txt;
-
-			while ((txt = readerErro.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-
-			while ((txt = readerSucesso.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new GerarClassException();
+				.getPath() + "lib" + SEP + "jasmin.jar";
+		
+		ProcessBuilder pb = null;;
+		
+		if (os.contains("windows")) {
+			pathJasmin = pathJasmin.substring(1, pathJasmin.length());
+			pathJasmin = pathJasmin.replace('/', '\\');
+			pb = new ProcessBuilder("cmd", "/c", "java", "-jar", pathJasmin, pathArq);
+		} else if (os.contains("linux")) {
+			pb = new ProcessBuilder("java", "-jar", pathJasmin, pathArq);
+		} else {
+			pb = null;
 		}
+
+		if (pb != null) {
+			pb.directory(new File(diretorio));
+	
+			Process process;
+			try {
+				process = pb.start();
+				process.waitFor();
+	
+				BufferedReader readerSucesso = new BufferedReader(
+						new InputStreamReader(process.getInputStream()));
+				BufferedReader readerErro = new BufferedReader(
+						new InputStreamReader(process.getErrorStream()));
+	
+				String txt;
+	
+				while ((txt = readerErro.readLine()) != null) {
+					System.out.println(txt + "\n");
+				}
+	
+				while ((txt = readerSucesso.readLine()) != null) {
+					System.out.println(txt + "\n");
+				}
+			} catch (IOException | InterruptedException e) {
+				throw new GerarClassException();
+			}
+		}
+		
 	} // fim gerarArquivoClass
 
 	private void salvarArquivoJasmin() {
@@ -573,32 +587,42 @@ public class GeraCodigo {
 
 	public void executar() throws ExecutarCodigoException {
 		String comando = "java " + nomeProg;
+		
+		ProcessBuilder pb = null;
+		
+		if (os.contains("windows")) {
+			pb = new ProcessBuilder("cmd", "/c", "start", " pEdit ", "java", nomeProg);
+		} else if (os.contains("linux")) {
+			pb = new ProcessBuilder("gnome-terminal", "-e", comando);
+		} else {
+			pb = null;
+		}
+			
+		if (pb != null) {
+			pb.directory(new File(diretorio));
 
-		ProcessBuilder pb = new ProcessBuilder("gnome-terminal", "-e", comando);
+			Process process;
+			try {
+				process = pb.start();
+				process.waitFor();
 
-		pb.directory(new File(diretorio));
+				BufferedReader readerSucesso = new BufferedReader(
+						new InputStreamReader(process.getInputStream()));
+				BufferedReader readerErro = new BufferedReader(
+						new InputStreamReader(process.getErrorStream()));
 
-		Process process;
-		try {
-			process = pb.start();
-			process.waitFor();
+				String txt;
 
-			BufferedReader readerSucesso = new BufferedReader(
-					new InputStreamReader(process.getInputStream()));
-			BufferedReader readerErro = new BufferedReader(
-					new InputStreamReader(process.getErrorStream()));
+				while ((txt = readerErro.readLine()) != null) {
+					System.out.println(txt + "\n");
+				}
 
-			String txt;
-
-			while ((txt = readerErro.readLine()) != null) {
-				System.out.println(txt + "\n");
+				while ((txt = readerSucesso.readLine()) != null) {
+					System.out.println(txt + "\n");
+				}
+			} catch (IOException | InterruptedException e) {
+				throw new ExecutarCodigoException();
 			}
-
-			while ((txt = readerSucesso.readLine()) != null) {
-				System.out.println(txt + "\n");
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new ExecutarCodigoException();
 		}
 	} // fim executar
 
