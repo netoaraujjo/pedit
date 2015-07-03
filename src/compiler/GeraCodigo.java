@@ -322,6 +322,61 @@ public class GeraCodigo {
 		labelSe = 0;
 	}
 
+	public void abrirSeComSenao(ArrayList<No> nos) {
+		geraLabel(); // Gera labels novas a partir do tempo
+
+		labelSe = calendar.getTimeInMillis();
+
+		String labelEntradaSe = "LabelEntradaSE" + labelSe;
+		String labelEntradaSenao = "LabelEntradaSENAO" + labelSe;
+
+		codigo += "\n" + ";INICIO DO SE COM SENAO" + "\n";
+		String tipo = "";
+		int tipoIf = 0;
+
+		for (int i = nos.size() - 1; i >= 0; i--) {
+			if (nos.get(i).getAtributo("tipo").compareTo("id") == 0) {
+
+				tipo = getTipoDaExpressao(Integer.parseInt(nos.get(i)
+						.getAtributo("type")));
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+				codigo += tipo + "load " + nos.get(i).getAtributo("posicao")
+						+ "\n";
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("valor") == 0) {
+
+				codigo += "ldc " + nos.get(i).toString() + "\n";
+				tipoIf = Integer.parseInt(nos.get(i).getAtributo("type"));
+
+			} else if (nos.get(i).getAtributo("tipo").compareTo("op") == 0) {
+
+				if (getTipoDaOperacao(nos.get(i).toString()) != null) {
+					codigo += tipo + getTipoDaOperacao(nos.get(i).toString())
+							+ "\n";
+
+				} else {
+
+					codigo += getTipoDeOperacaoLogica(nos.get(i).toString(),
+							tipoIf) + labelEntradaSe + "\n";
+					codigo += "goto " + labelEntradaSenao + "\n";
+					codigo += labelEntradaSe + ":\n";
+
+				}
+			}
+		}
+
+	}
+
+	public void meioDoSeComSenao() {
+		codigo += "goto LabelSaidaSenao" + labelSe + "\n;FIM DO SE\n";
+		codigo += "LabelSaida" + labelSe + ":\n;INICIO DO SENAO\n";
+	}
+
+	public void fecharSeComSenao() {
+		codigo += "LabelSaidaSenao" + labelSe + ":\n;FIM DO SENAO\n";
+		labelSe = 0;
+	}
+
 	public void abrirEnquanto(ArrayList<No> nos) {
 		geraLabel(); // Gera labels novas a partir do tempo
 
@@ -378,7 +433,7 @@ public class GeraCodigo {
 		geraLabel(); // Gera labels novas a partir do tempo
 
 		labelPara = calendar.getTimeInMillis();
-		
+
 		codigo += "\n;INICIO DO PARA\n";
 		codigo += "ldc " + deVar + "\n";
 		codigo += "istore " + keyVarIteracao + "\n";
@@ -386,7 +441,7 @@ public class GeraCodigo {
 		codigo += "iload " + keyVarIteracao + "\n";
 		codigo += "ldc " + ateVar + "\n";
 		codigo += "if_icmpgt " + "LabelSair" + labelPara + "\n\n";
-		
+
 	}
 
 	public void fecharPara(int keyVarIteracao, Integer passo) {
