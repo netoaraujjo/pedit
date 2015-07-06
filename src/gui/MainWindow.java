@@ -17,15 +17,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
-import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,10 +30,8 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -46,8 +39,6 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
@@ -74,9 +65,10 @@ public class MainWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	private String sep = File.separator;
-	private String iconDir = ".." + sep + "icons" + sep;
+	//private String sep = File.separator;
+	//private String iconDir = ".." + sep + "icons" + sep;
 	//private String iconDir = sep + "icons" + sep;
+	private String iconDir = "icons/";
 	
 	/**********************************************
 	 * Barra de menu
@@ -106,11 +98,11 @@ public class MainWindow extends JFrame {
 	private JCheckBoxMenuItem verConsole;
 	private JCheckBoxMenuItem verNumeroLinhas;
 	// Menu Configuracoes
-	private JMenu menuConfiguracoes;
+	/*private JMenu menuConfiguracoes;
 	private JMenu menuTemas;
 	private JRadioButtonMenuItem[] temas;
 	private ButtonGroup temasButtonGroup;
-	private UIManager.LookAndFeelInfo[] looksIntalados;
+	private UIManager.LookAndFeelInfo[] looksIntalados;*/
 	// Menu Ajuda
 	private JMenu menuAjuda;
 	private JMenuItem sumario;
@@ -185,7 +177,7 @@ public class MainWindow extends JFrame {
 	 ************************************************************************************************/
 	private List<PainelCodigo> abas;
 	private FileController fileControler;
-	private Map<String, String> config;
+	//private Map<String, String> config;
 	
 	
 	/**
@@ -195,7 +187,7 @@ public class MainWindow extends JFrame {
 		super("pEdit");
 		fileControler = new FileController();
 		abas = new ArrayList<PainelCodigo>();
-		config = new HashMap<String, String>();
+		//config = new HashMap<String, String>();
 
 		configuraMenuBar();
 		setJMenuBar(menuBar);
@@ -206,7 +198,7 @@ public class MainWindow extends JFrame {
 		add(painelToolbar, BorderLayout.NORTH);
 		add(container, BorderLayout.CENTER);
 		
-		configuraAparencia();
+		//configuraAparencia();
 		
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent event) {
@@ -217,11 +209,11 @@ public class MainWindow extends JFrame {
 	
 	private void executaFechamento() {
  		// verificar se as alteracoes foram salvas
-		salvaConfiguracoes();
+		//salvaConfiguracoes();
 		System.exit(0);
 	}
 	
-	private void salvaConfiguracoes() {
+	/*private void salvaConfiguracoes() {
 		try {
 			Formatter formatter = new Formatter(new File("config.ini"));
 			String tema = "";
@@ -239,9 +231,9 @@ public class MainWindow extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
-	private void configuraAparencia(){
+	/*private void configuraAparencia(){
 		try {
 			Scanner scanner = new Scanner(new File("config.ini"));
 			while (scanner.hasNext()) {
@@ -300,7 +292,7 @@ public class MainWindow extends JFrame {
 		} catch (FileNotFoundException e) {
 			//e.printStackTrace();
 		}
-	}
+	}*/
 	
 	/***********************************************************************************************
 	 * Configuracoes da barra de menu
@@ -312,19 +304,19 @@ public class MainWindow extends JFrame {
 		menuArquivo = new JMenu("Arquivo");
 		menuEditar = new JMenu("Editar");
 		menuVer = new JMenu("Ver");
-		menuConfiguracoes = new JMenu("Configuracoes");
+		//menuConfiguracoes = new JMenu("Configuracoes");
 		menuAjuda = new JMenu("Ajuda");
 		
 		configuraMenuArquivo();
 		configuraMenuEditar();
 		configuraMenuVer();
-		configuraMenuConfiguracoes();
+		//configuraMenuConfiguracoes();
 		configuraMenuAjuda();
 		
 		menuBar.add(menuArquivo);
 		menuBar.add(menuEditar);
 		menuBar.add(menuVer);
-		menuBar.add(menuConfiguracoes);
+		//menuBar.add(menuConfiguracoes);
 		menuBar.add(menuAjuda);
 	}
 	
@@ -507,7 +499,7 @@ public class MainWindow extends JFrame {
 		menuVer.add(verNumeroLinhas);
 	}
 	
-	private void configuraMenuConfiguracoes() {
+	/*private void configuraMenuConfiguracoes() {
 		menuTemas = new JMenu("Temas");
 		
 		looksIntalados = UIManager.getInstalledLookAndFeels();
@@ -523,7 +515,7 @@ public class MainWindow extends JFrame {
 		}
 		
 		menuConfiguracoes.add(menuTemas);
-	}
+	}*/
 	
 	private void configuraMenuAjuda() {
 		sumario = new JMenuItem("Sumario");
@@ -566,28 +558,28 @@ public class MainWindow extends JFrame {
 		toolbarArquivo = new JToolBar();
 		toolbarArquivo.setName("Arquivo");
 
-		Icon iconeNovo = new ImageIcon(getClass().getResource(iconDir + "new.png"));
+		Icon iconeNovo = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "new.png"));
 		botaoNovo = new JButton(iconeNovo);
 		botaoNovo.setToolTipText("Criar novo arquivo (Ctrl+N)");
 		botaoNovo.addActionListener(new NovoArquivoHandler());
 		botaoNovo.setBorderPainted(false);
 		botaoNovo.setFocusPainted(false);
 		
-		Icon iconeAbrir = new ImageIcon(getClass().getResource(iconDir + "open.png"));
+		Icon iconeAbrir = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "open.png"));
 		botaoAbrir = new JButton(iconeAbrir);
 		botaoAbrir.setToolTipText("Abrir arquivo (Ctrl+O)");
 		botaoAbrir.addActionListener(new AbrirArquivoHandler());
 		botaoAbrir.setBorderPainted(false);
 		botaoAbrir.setFocusPainted(false);
 		
-		Icon iconeSalvar = new ImageIcon(getClass().getResource(iconDir + "save.png"));
+		Icon iconeSalvar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "save.png"));
 		botaoSalvar = new JButton(iconeSalvar);
 		botaoSalvar.setToolTipText("Salvar (Ctrl+S)");
 		botaoSalvar.addActionListener(new SalvarArquivoHandler());
 		botaoSalvar.setBorderPainted(false);
 		botaoSalvar.setFocusPainted(false);
 		
-		Icon iconeSalvarTodos = new ImageIcon(getClass().getResource(iconDir + "save_all.png"));
+		Icon iconeSalvarTodos = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "save_all.png"));
 		botaoSalvarTodos = new JButton(iconeSalvarTodos);
 		botaoSalvarTodos.setToolTipText("Salvar Todos (Ctrl+Shift+S)");
 		botaoSalvarTodos.setBorderPainted(false);
@@ -610,32 +602,32 @@ public class MainWindow extends JFrame {
 		toolbarEditar = new JToolBar();
 		toolbarEditar.setName("Editar");
 		
-		Icon iconeDesfazer = new ImageIcon(getClass().getResource(iconDir + "undo.png"));
+		Icon iconeDesfazer = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "undo.png"));
 		botaoDesfazer = new JButton(iconeDesfazer);
 		botaoDesfazer.setToolTipText("Desfazer (Ctrl+Z)");
 		botaoDesfazer.setBorderPainted(false);
 		botaoDesfazer.setFocusPainted(false);
 		
-		Icon iconeRefazer = new ImageIcon(getClass().getResource(iconDir + "redo.png"));
+		Icon iconeRefazer = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "redo.png"));
 		botaoRefazer = new JButton(iconeRefazer);
 		botaoRefazer.setToolTipText("Refazer (Ctrl+Shift+Z)");
 		botaoRefazer.setBorderPainted(false);
 		botaoRefazer.setFocusPainted(false);
 		
-		Icon iconeRecortar = new ImageIcon(getClass().getResource(iconDir + "cut.png"));
+		Icon iconeRecortar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "cut.png"));
 		botaoRecortar = new JButton(iconeRecortar);
 		botaoRecortar.setToolTipText("Recortar (Ctrl+X)");
 		botaoRecortar.addActionListener(new RecortarHandler());
 		botaoRecortar.setBorderPainted(false);
 		botaoRecortar.setFocusPainted(false);
 		
-		Icon iconeCopiar = new ImageIcon(getClass().getResource(iconDir + "copy.png"));
+		Icon iconeCopiar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "copy.png"));
 		botaoCopiar = new JButton(iconeCopiar);
 		botaoCopiar.setToolTipText("Copiar conteudo selecionado (Ctrl+C)");
 		botaoCopiar.setBorderPainted(false);
 		botaoCopiar.setFocusPainted(false);
 		
-		Icon iconeColar = new ImageIcon(getClass().getResource(iconDir + "paste.png"));
+		Icon iconeColar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "paste.png"));
 		botaoColar = new JButton(iconeColar);
 		botaoColar.setToolTipText("Colar da area de transferencia (Ctrl+V)");
 		botaoColar.setBorderPainted(false);
@@ -652,7 +644,7 @@ public class MainWindow extends JFrame {
 		toolbarExecutar = new JToolBar();
 		toolbarExecutar.setName("Executar");
 		
-		Icon iconeExecutar = new ImageIcon(getClass().getResource(iconDir + "play.png"));
+		Icon iconeExecutar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "play.png"));
 		botaoExecutar = new JButton(iconeExecutar);
 		botaoExecutar.setToolTipText("Executar");
 		botaoExecutar.setBorderPainted(false);
@@ -714,7 +706,7 @@ public class MainWindow extends JFrame {
 			}
 		});
 		
-		Icon iconeParar = new ImageIcon(getClass().getResource(iconDir + "stop.png"));
+		Icon iconeParar = new ImageIcon(getClass().getClassLoader().getResource(iconDir + "stop.png"));
 		botaoParar = new JButton(iconeParar);
 		botaoParar.setToolTipText("Parar");
 		botaoParar.setBorderPainted(false);
@@ -994,7 +986,7 @@ public class MainWindow extends JFrame {
 	 * Manipula alteracao do tema
 	 **********************************************************************************************/
 	
-	private class TemaHandler implements ActionListener {
+	/*private class TemaHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			for (int i = 0; i < temas.length; i++) {
@@ -1015,7 +1007,7 @@ public class MainWindow extends JFrame {
 				}
 			}
 		}
-	}
+	}*/
 	
 	
 	/***********************************************************************************************

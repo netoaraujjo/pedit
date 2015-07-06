@@ -527,13 +527,13 @@ public class GeraCodigo {
 	private void gerarArquivoClass() throws GerarClassException {		
 		
 		String pathJasmin = GeraCodigo.class.getClassLoader().getResource("")
-				.getPath() + "lib" + SEP + "jasmin.jar";
+				.getPath() + "pedit_lib/jasmin.jar";
 		
 		ProcessBuilder pb = null;;
 		
 		if (os.contains("windows")) {
 			pathJasmin = pathJasmin.substring(1, pathJasmin.length());
-			pathJasmin = pathJasmin.replace('/', '\\');
+			//pathJasmin = pathJasmin.replace('/', '\\');
 			pb = new ProcessBuilder("cmd", "/c", "java", "-jar", pathJasmin, pathArq);
 		} else if (os.contains("linux")) {
 			pb = new ProcessBuilder("java", "-jar", pathJasmin, pathArq);
